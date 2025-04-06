@@ -21,4 +21,4 @@ Although this could also be used for other reasons too, the original reason this
 To do this, you can take the following steps:
 - Use [Twitch Downloader](https://github.com/lay295/TwitchDownloader) to download the JSON of the Twitch Chat: `TwitchDownloaderCLI -m ChatDownload -u videoID -o videoID.json`
 - Use TwitchChatOffset to trim the chat according to your needs: `TwitchChatOffset videoID.json videoIDNew.json 3600 10800`
-- Run [this](https://gist.github.com/Cqoicebordel/d9110b4b1191b9e9f6a8165438e00ea0#notes) Python script to convert the JSON file into a YTT file and upload that file as a YouTube subtitle
+- Run [this](https://gist.github.com/Cqoicebordel/d9110b4b1191b9e9f6a8165438e00ea0) Python script to convert the JSON file into a YTT file and upload that file as a YouTube subtitle
