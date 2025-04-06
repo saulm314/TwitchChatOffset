@@ -5,9 +5,11 @@ namespace TwitchChatOffset
 {
     internal class Program
     {
+        const string Version = "1.0.0";
+
         static void Main(string[] args)
         {
-            Console.WriteLine("Running Twitch Chat Offset...");
+            Console.WriteLine($"Running TwitchChatOffset {Version}");
             if (args.Length == 0)
             {
                 Console.WriteLine("Please provide arguments: [input json path] [output json path] [offset (seconds)]");
