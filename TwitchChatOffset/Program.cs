@@ -1,4 +1,7 @@
-﻿namespace TwitchChatOffset
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace TwitchChatOffset
 {
     internal class Program
     {
@@ -19,13 +22,35 @@
 
             string inputPath = args[0];
             string outputPath = args[1];
-            bool offsetIsInt = int.TryParse(args[2], out int offset);
+            bool offsetIsLong = long.TryParse(args[2], out long offset);
 
-            if (!offsetIsInt)
+            if (!offsetIsLong)
             {
                 Console.WriteLine("Integer expected for offset");
                 return;
             }
+
+            JToken parent = (JToken)JsonConvert.DeserializeObject(File.ReadAllText(inputPath))!;
+            JArray comments = (JArray)parent["comments"]!;
+            int i = 0;
+            while (i < comments.Count)
+            {
+                JToken comment = comments[i];
+                JValue commentOffset = (JValue)comment["content_offset_seconds"]!;
+                long commentOffsetValue = (long)commentOffset.Value!;
+                if (commentOffsetValue! < offset)
+                {
+                    comments.RemoveAt(i);
+                    continue;
+                }
+                commentOffset.Value = commentOffsetValue - offset;
+                i++;
+            }
+
+            string output = JsonConvert.SerializeObject(parent);
+            File.WriteAllText(outputPath, output);
+
+            Console.WriteLine("Done.");
         }
     }
 }
