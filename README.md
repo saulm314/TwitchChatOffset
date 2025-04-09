@@ -4,7 +4,7 @@ The purpose of this software is to take a JSON Twitch chat file, delete all mess
 
 For example, if you had a JSON Twitch chat file from a VOD that was 3.5 hours long, but you only wanted the chat from the 1-3 hour marks, then this tool will help you take out all the messages from the first hour and all the messages from the last half hour, and then set the 1 hour mark as the "zero" mark for the remaining messages. For example, if there was a message at the 1:00:31 mark, then TwitchChatOffset will convert the time of that message to 0:00:31.
 
-This tool works on Windows only.
+This tool works on Windows only. It may work on other operating systems too, but will likely require installing external software. Look up how to run a .NET executable on your operating system.
 
 # Usage
 
