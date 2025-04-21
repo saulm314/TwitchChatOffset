@@ -7,9 +7,9 @@ namespace TwitchChatOffset;
 
 internal class Program
 {
-    const string Version = "2.0.0";
+    private const string Version = "2.0.0";
 
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
         Console.WriteLine($"Running TwitchChatOffset {Version}");
         if (args.Length == 0)
