@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.CommandLine;
 using System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace TwitchChatOffset;
 
