@@ -6,7 +6,7 @@ namespace TwitchChatOffset;
 
 public static class CommandHandler
 {
-    public static void HandleOffset(string inputPath, string outputPath, long start, long end = -1)
+    public static void HandleOffset(string inputPath, string outputPath, long start = 0, long end = -1)
     {
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;

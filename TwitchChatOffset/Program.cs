@@ -25,7 +25,7 @@ internal class Program
 
         Argument<string> inputArgument = new("input-path", "Input path");
         Argument<string> outputArgument = new("output-path", "Output path");
-        Argument<long> startArgument = new("start", "Start time in seconds");
+        Argument<long> startArgument = new("start", () => 0, "Start time in seconds (optional)");
         Argument<long> endArgument = new("end", () => -1, "End time in seconds (optional)");
         offsetCommand.Add(inputArgument);
         offsetCommand.Add(outputArgument);
