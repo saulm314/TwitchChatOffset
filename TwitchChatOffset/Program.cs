@@ -13,38 +13,46 @@ internal class Program
         Console.WriteLine(version);
 
         RootCommand rootCommand = new("Tools for handling Twitch chat JSON files");
-        AddOffsetCommand(rootCommand);
-        AddFormatCommand(rootCommand);
+        Command transformCommand = AddTransformCommand(rootCommand, out Argument<string> inputArgument, out Argument<string> outputArgument);
+        _ = AddOffsetCommand(transformCommand, inputArgument, outputArgument, out _, out _);
+        _ = AddFormatCommand(transformCommand, inputArgument, outputArgument);
         rootCommand.Invoke(args);
     }
 
-    private static void AddOffsetCommand(RootCommand rootCommand)
+    private static Command AddTransformCommand(RootCommand rootCommand, out Argument<string> inputArgument, out Argument<string> outputArgument)
     {
-        Command offsetCommand = new("offset", "Offset chat based on a start time and an optional end time");
-        rootCommand.Add(offsetCommand);
+        Command transformCommand = new("transform", "Transform a JSON Twitch chat file and put the new contents in a new file");
+        rootCommand.Add(transformCommand);
 
-        Argument<string> inputArgument = new("input-path", "Input path");
-        Argument<string> outputArgument = new("output-path", "Output path");
-        Argument<long> startArgument = new("start", () => 0, "Start time in seconds (optional)");
-        Argument<long> endArgument = new("end", () => -1, "End time in seconds (optional)");
-        offsetCommand.Add(inputArgument);
-        offsetCommand.Add(outputArgument);
+        inputArgument = new("input-path", "Input path");
+        outputArgument = new("output-path", "Output path");
+        transformCommand.Add(inputArgument);
+        transformCommand.Add(outputArgument);
+
+        return transformCommand;
+    }
+
+    private static Command AddOffsetCommand(Command transformCommand, Argument<string> inputArgument, Argument<string> outputArgument,
+        out Argument<long> startArgument, out Argument<long> endArgument)
+    {
+        Command offsetCommand = new("offset", "Offset chat given optional start and end times");
+        transformCommand.Add(offsetCommand);
+
+        startArgument = new("start", () => 0, "Start time in seconds (optional)");
+        endArgument = new("end", () => -1, "End time in seconds (optional)");
         offsetCommand.Add(startArgument);
         offsetCommand.Add(endArgument);
 
         offsetCommand.SetHandler(CommandHandler.HandleOffset, inputArgument, outputArgument, startArgument, endArgument);
+        return offsetCommand;
     }
 
-    private static void AddFormatCommand(RootCommand rootCommand)
+    private static Command AddFormatCommand(Command transformCommand, Argument<string> inputArgument, Argument<string> outputArgument)
     {
-        Command formatCommand = new("format", "Format the JSON file into a human readable text file");
-        rootCommand.Add(formatCommand);
-
-        Argument<string> inputArgument = new("input-path", "Input path");
-        Argument<string> outputArgument = new("output-path", "Output path");
-        formatCommand.Add(inputArgument);
-        formatCommand.Add(outputArgument);
+        Command formatCommand = new("format", "Format the JSON text file and put the new contents into a new file");
+        transformCommand.Add(formatCommand);
 
         formatCommand.SetHandler(CommandHandler.HandleFormat, inputArgument, outputArgument);
+        return formatCommand;
     }
 }
