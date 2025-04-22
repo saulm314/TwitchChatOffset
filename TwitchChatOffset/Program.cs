@@ -35,7 +35,7 @@ internal class Program
         offsetCommand.Add(startArgument);
         offsetCommand.Add(endArgument);
 
-        offsetCommand.SetHandler(OffsetHandler.Handle, inputArgument, outputArgument, startArgument, endArgument);
+        offsetCommand.SetHandler(CommandHandler.HandleOffset, inputArgument, outputArgument, startArgument, endArgument);
     }
 
     private static void AddFormatCommand(RootCommand rootCommand)
@@ -48,7 +48,7 @@ internal class Program
         formatCommand.Add(inputArgument);
         formatCommand.Add(outputArgument);
 
-        formatCommand.SetHandler(FormatHandler.Handle, inputArgument, outputArgument);
+        formatCommand.SetHandler(CommandHandler.HandleFormat, inputArgument, outputArgument);
     }
 
     private static void _Main(string[] args)
