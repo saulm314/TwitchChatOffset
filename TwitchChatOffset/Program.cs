@@ -8,11 +8,8 @@ namespace TwitchChatOffset;
 
 internal class Program
 {
-    private const string Version = "2.0.0";
-
     private static void Main(string[] args)
     {
-        Console.WriteLine($"Running TwitchChatOffset {Version}");
         RootCommand rootCommand = new("Tools for handling Twitch chat JSON files");
         AddOffsetCommand(rootCommand);
         AddFormatCommand(rootCommand);
@@ -51,7 +48,7 @@ internal class Program
 
     private static void _Main(string[] args)
     {
-        Console.WriteLine($"Running TwitchChatOffset {Version}");
+        //Console.WriteLine($"Running TwitchChatOffset {Version}");
         if (args.Length == 0)
         {
             Console.WriteLine("Please provide arguments: <input json path> <output json path> <start (seconds)> [end (seconds)]");
