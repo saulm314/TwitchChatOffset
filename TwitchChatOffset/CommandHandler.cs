@@ -37,7 +37,7 @@ public static class CommandHandler
         File.WriteAllText(outputPath, output);
     }
 
-    public static void HandleFormat(string inputPath, string outputPath, Formatting formatting)
+    public static void HandleNoTransformation(string inputPath, string outputPath, Formatting formatting)
     {
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;

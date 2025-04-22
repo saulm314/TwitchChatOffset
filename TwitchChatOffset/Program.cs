@@ -12,7 +12,7 @@ internal class Program
         Command transformCommand = AddTransformCommand(rootCommand,
             out Argument<string> inputArgument, out Argument<string> outputArgument, out Option<Formatting> formattingOption);
         _ = AddOffsetCommand(transformCommand, inputArgument, outputArgument, formattingOption, out _, out _);
-        _ = AddFormatCommand(transformCommand, inputArgument, outputArgument, formattingOption);
+        _ = AddNoTransformationCommand(transformCommand, inputArgument, outputArgument, formattingOption);
         rootCommand.Invoke(args);
     }
 
@@ -49,13 +49,13 @@ internal class Program
         return offsetCommand;
     }
 
-    private static Command AddFormatCommand(Command transformCommand,
+    private static Command AddNoTransformationCommand(Command transformCommand,
         Argument<string> inputArgument, Argument<string> outputArgument, Option<Formatting> formattingOption)
     {
-        Command formatCommand = new("format", "Format the JSON text file and put the new contents into a new file");
-        transformCommand.Add(formatCommand);
+        Command noTransformationCommand = new("no-transformation", "Do not apply any transformations to the information in the file (e.g. useful if you just want to change the formatting)");
+        transformCommand.Add(noTransformationCommand);
 
-        formatCommand.SetHandler(CommandHandler.HandleFormat, inputArgument, outputArgument, formattingOption);
-        return formatCommand;
+        noTransformationCommand.SetHandler(CommandHandler.HandleNoTransformation, inputArgument, outputArgument, formattingOption);
+        return noTransformationCommand;
     }
 }
