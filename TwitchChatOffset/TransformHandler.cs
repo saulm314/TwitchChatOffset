@@ -7,12 +7,18 @@ using JsonFormatting = Newtonsoft.Json.Formatting;
 
 namespace TwitchChatOffset;
 
-public static class CommandHandler
+public static class TransformHandler
 {
-    public static void HandleOffset(string inputPath, string outputPath, long start, long end, Formatting formatting)
+    public static void HandleTransform(string inputPath, string outputPath, long start, long end, Formatting formatting)
     {
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
+        if (start == 0 && end == -1)
+        {
+            string output = ApplyFormatting(parent, formatting);
+            File.WriteAllText(outputPath, output);
+            return;
+        }
         JArray comments = (JArray)parent["comments"]!;
         int i = 0;
         while (i < comments.Count)
@@ -33,16 +39,8 @@ public static class CommandHandler
             commentOffset.Value = commentOffsetValue - start;
             i++;
         }
-        string output = ApplyFormatting(parent, formatting);
-        File.WriteAllText(outputPath, output);
-    }
-
-    public static void HandleNoTransformation(string inputPath, string outputPath, Formatting formatting)
-    {
-        string input = File.ReadAllText(inputPath);
-        JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
-        string output = ApplyFormatting(parent, formatting);
-        File.WriteAllText(outputPath, output);
+        string output2 = ApplyFormatting(parent, formatting);
+        File.WriteAllText(outputPath, output2);
     }
 
     private static string ApplyFormatting(JToken parent, Formatting formatting)
