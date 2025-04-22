@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.CommandLine;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -10,6 +11,10 @@ internal class Program
 {
     private static void Main(string[] args)
     {
+        Console.Write("Running TwitchChatOffset ");
+        string version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "[unknown version]";
+        Console.WriteLine(version);
+
         RootCommand rootCommand = new("Tools for handling Twitch chat JSON files");
         AddOffsetCommand(rootCommand);
         AddFormatCommand(rootCommand);
