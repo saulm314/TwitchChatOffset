@@ -13,12 +13,15 @@ public static class TransformHandler
     {
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
+        ApplyOffset(parent, start, end);
+        string output = ApplyFormatting(parent, formatting);
+        File.WriteAllText(outputPath, output);
+    }
+
+    private static void ApplyOffset(JToken parent, long start, long end)
+    {
         if (start == 0 && end == -1)
-        {
-            string output = ApplyFormatting(parent, formatting);
-            File.WriteAllText(outputPath, output);
             return;
-        }
         JArray comments = (JArray)parent["comments"]!;
         int i = 0;
         while (i < comments.Count)
@@ -39,8 +42,6 @@ public static class TransformHandler
             commentOffset.Value = commentOffsetValue - start;
             i++;
         }
-        string output2 = ApplyFormatting(parent, formatting);
-        File.WriteAllText(outputPath, output2);
     }
 
     private static string ApplyFormatting(JToken parent, Formatting formatting)
