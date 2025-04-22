@@ -16,15 +16,15 @@ Otherwise, you will have to specify the full path of where you extracted the `Tw
 
 Then, open PowerShell and navigate to the directory with your Twitch chat json file (e.g. `cd D:\TwitchDownloader`). Then simply run `TwitchChatOffset` with the `transform` command, specifying the input file, the output file, the optional start offset in seconds, and optionally the ending time in seconds. For example, if the input file is `twitchChat.json`, the desired start offset is exactly the 1 hour mark, and the desired end point is exactly the 3 hour mark, then you would run:
 
-`TwitchChatOffset twitchChat.json twitchChatNew.json --start 3600 --end 10800 --formatting JsonIndented`
+`TwitchChatOffset transform twitchChat.json twitchChatNew.json --start 3600 --end 10800 --formatting JsonIndented`
 
 (The `--formatting` option is optional but makes it more human-readable.) Or, if you didn't add the software to your PATH variable, then you have to specify the exact path of the `TwitchChatOffset.exe` file, e.g.:
 
-`D:\TwitchChatOffset\TwitchChatOffset.exe twitchChat.json twitchChatNew.json --start 3600 --end 10800 --formatting JsonIndented`
+`D:\TwitchChatOffset\TwitchChatOffset.exe transform twitchChat.json twitchChatNew.json --start 3600 --end 10800 --formatting JsonIndented`
 
 To convert the Twitch chat file to human-readable plain-text form, simply run:
 
-`TwitchChatOffset twitchChat.json twitchChatNew.txt --formatting Plaintext`
+`TwitchChatOffset transform twitchChat.json twitchChatNew.txt --formatting Plaintext`
 
 again optionally specifying `--start` and `--end` options.
 
