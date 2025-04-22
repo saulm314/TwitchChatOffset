@@ -33,6 +33,12 @@ again optionally specifying `--start` and `--end` options.
 Although this could also be used for other reasons too, the original reason this script was written was to parse messages from a long Twitch VOD into a usable format so that they can be converted to YouTube captions for a video that is only a small part of the Twitch VOD as a whole.
 
 To do this, you can take the following steps:
-- Use [Twitch Downloader](https://github.com/lay295/TwitchDownloader) to download the JSON of the Twitch Chat: `TwitchDownloaderCLI -m ChatDownload -u videoID -o videoID.json`
-- Use TwitchChatOffset to trim the chat according to your needs: `TwitchChatOffset videoID.json videoIDNew.json 3600 10800`
+- Use [Twitch Downloader](https://github.com/lay295/TwitchDownloader) to download the JSON of the Twitch Chat:
+
+`TwitchDownloaderCLI ChatDownload -u videoID -o videoID.json`
+
+- Use TwitchChatOffset to trim the chat according to your needs:
+
+`TwitchChatOffset transform videoID.json videoIDNew.json --start 3600 --end 10800 --formatting JsonIndented`
+
 - Run [this](https://gist.github.com/Cqoicebordel/d9110b4b1191b9e9f6a8165438e00ea0) Python script to convert the JSON file into a YTT file and upload that file as a YouTube subtitle
