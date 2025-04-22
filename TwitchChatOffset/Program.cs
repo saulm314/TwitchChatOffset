@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.CommandLine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -10,6 +11,45 @@ internal class Program
     private const string Version = "2.0.0";
 
     private static void Main(string[] args)
+    {
+        Console.WriteLine($"Running TwitchChatOffset {Version}");
+        RootCommand rootCommand = new();
+        AddOffsetCommand(rootCommand);
+        AddFormatCommand(rootCommand);
+        rootCommand.Invoke(args);
+    }
+
+    private static void AddOffsetCommand(RootCommand rootCommand)
+    {
+        Command offsetCommand = new("offset", "Offset chat based on a start time and an optional end time");
+        rootCommand.Add(offsetCommand);
+
+        Argument<string> inputArgument = new("input-file", "Input file");
+        Argument<string> outputArgument = new("output-file", "Output file");
+        Argument<long> startArgument = new("start", "Start time in seconds");
+        Argument<long> endArgument = new("end", () => -1, "End time in seconds (optional)");
+        offsetCommand.Add(inputArgument);
+        offsetCommand.Add(outputArgument);
+        offsetCommand.Add(startArgument);
+        offsetCommand.Add(endArgument);
+
+        offsetCommand.SetHandler(OffsetHandler.Handle, inputArgument, outputArgument, startArgument, endArgument);
+    }
+
+    private static void AddFormatCommand(RootCommand rootCommand)
+    {
+        Command formatCommand = new("format", "Format the JSON file into a human readable text file");
+        rootCommand.Add(formatCommand);
+
+        Argument<string> inputArgument = new("input-file", "Input file");
+        Argument<string> outputArgument = new("output-file", "Output file");
+        formatCommand.Add(inputArgument);
+        formatCommand.Add(outputArgument);
+
+        formatCommand.SetHandler(FormatHandler.Handle, inputArgument, outputArgument);
+    }
+
+    private static void _Main(string[] args)
     {
         Console.WriteLine($"Running TwitchChatOffset {Version}");
         if (args.Length == 0)
