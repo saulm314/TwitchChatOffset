@@ -13,7 +13,7 @@ internal class Program
     private static void Main(string[] args)
     {
         Console.WriteLine($"Running TwitchChatOffset {Version}");
-        RootCommand rootCommand = new();
+        RootCommand rootCommand = new("Tools for handling Twitch chat JSON files");
         AddOffsetCommand(rootCommand);
         AddFormatCommand(rootCommand);
         rootCommand.Invoke(args);
@@ -24,8 +24,8 @@ internal class Program
         Command offsetCommand = new("offset", "Offset chat based on a start time and an optional end time");
         rootCommand.Add(offsetCommand);
 
-        Argument<string> inputArgument = new("input-file", "Input file");
-        Argument<string> outputArgument = new("output-file", "Output file");
+        Argument<string> inputArgument = new("input-path", "Input path");
+        Argument<string> outputArgument = new("output-path", "Output path");
         Argument<long> startArgument = new("start", "Start time in seconds");
         Argument<long> endArgument = new("end", () => -1, "End time in seconds (optional)");
         offsetCommand.Add(inputArgument);
@@ -41,8 +41,8 @@ internal class Program
         Command formatCommand = new("format", "Format the JSON file into a human readable text file");
         rootCommand.Add(formatCommand);
 
-        Argument<string> inputArgument = new("input-file", "Input file");
-        Argument<string> outputArgument = new("output-file", "Output file");
+        Argument<string> inputArgument = new("input-path", "Input path");
+        Argument<string> outputArgument = new("output-path", "Output path");
         formatCommand.Add(inputArgument);
         formatCommand.Add(outputArgument);
 
