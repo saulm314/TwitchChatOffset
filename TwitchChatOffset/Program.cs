@@ -1,74 +1,32 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System.CommandLine;
 
-namespace TwitchChatOffset
+namespace TwitchChatOffset;
+
+internal class Program
 {
-    internal class Program
+    private static void Main(string[] args)
     {
-        const string Version = "1.1.0";
+        RootCommand rootCommand = new("Tools for handling Twitch chat JSON files");
+        AddTransformCommand(rootCommand);
+        rootCommand.Invoke(args);
+    }
 
-        static void Main(string[] args)
-        {
-            Console.WriteLine($"Running TwitchChatOffset {Version}");
-            if (args.Length == 0)
-            {
-                Console.WriteLine("Please provide arguments: <input json path> <output json path> <start (seconds)> [end (seconds)]");
-                return;
-            }
+    private static void AddTransformCommand(RootCommand rootCommand)
+    {
+        Command transformCommand = new("transform", "Transform a JSON Twitch chat file and put the new contents in a new file");
+        rootCommand.Add(transformCommand);
 
-            if (args.Length != 3 && args.Length != 4)
-            {
-                Console.WriteLine("Unexpected number of arguments");
-                return;
-            }
+        Argument<string> inputArgument = new("input-path", "Input path");
+        Argument<string> outputArgument = new("output-path", "Output path");
+        Option<long> startOption = new("--start", () => 0, "Starting point in seconds before which to dismiss chat messages (optional)");
+        Option<long> endOption = new("--end", () => -1, "Ending point in seconds after which to dismiss chat messages (optional)");
+        Option<Formatting> formattingOption = new("--formatting", () => default, "Formatting for the output file (optional)");
+        transformCommand.Add(inputArgument);
+        transformCommand.Add(outputArgument);
+        transformCommand.Add(startOption);
+        transformCommand.Add(endOption);
+        transformCommand.Add(formattingOption);
 
-            string inputPath = args[0];
-            string outputPath = args[1];
-            bool startIsLong = long.TryParse(args[2], out long start);
-            long end = -1;
-
-            if (!startIsLong)
-            {
-                Console.WriteLine("Integer expected for start");
-                return;
-            }
-
-            if (args.Length == 4)
-            {
-                bool endIsLong = long.TryParse(args[3], out end);
-                if (!endIsLong)
-                {
-                    Console.WriteLine("Integer expected for end");
-                    return;
-                }
-            }
-
-            JToken parent = (JToken)JsonConvert.DeserializeObject(File.ReadAllText(inputPath))!;
-            JArray comments = (JArray)parent["comments"]!;
-            int i = 0;
-            while (i < comments.Count)
-            {
-                JToken comment = comments[i];
-                JValue commentOffset = (JValue)comment["content_offset_seconds"]!;
-                long commentOffsetValue = (long)commentOffset.Value!;
-                if (commentOffsetValue < start)
-                {
-                    comments.RemoveAt(i);
-                    continue;
-                }
-                if (end != -1 && commentOffsetValue > end)
-                {
-                    comments.RemoveAt(i);
-                    continue;
-                }
-                commentOffset.Value = commentOffsetValue - start;
-                i++;
-            }
-
-            string output = JsonConvert.SerializeObject(parent);
-            File.WriteAllText(outputPath, output);
-
-            Console.WriteLine("Done.");
-        }
+        transformCommand.SetHandler(TransformHandler.HandleTransform, inputArgument, outputArgument, startOption, endOption, formattingOption);
     }
 }
