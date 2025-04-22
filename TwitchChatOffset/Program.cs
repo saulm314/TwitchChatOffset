@@ -8,10 +8,6 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        Console.Write("Running TwitchChatOffset ");
-        string version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "[unknown version]";
-        Console.WriteLine(version);
-
         RootCommand rootCommand = new("Tools for handling Twitch chat JSON files");
         Command transformCommand = AddTransformCommand(rootCommand,
             out Argument<string> inputArgument, out Argument<string> outputArgument, out Option<Formatting> formattingOption);
