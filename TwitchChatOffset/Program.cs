@@ -1,6 +1,4 @@
-﻿using System;
-using System.CommandLine;
-using System.Reflection;
+﻿using System.CommandLine;
 
 namespace TwitchChatOffset;
 
