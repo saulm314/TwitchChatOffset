@@ -1,12 +1,15 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using JsonFormatting = Newtonsoft.Json.Formatting;
 
 namespace TwitchChatOffset;
 
 public static class CommandHandler
 {
-    public static void HandleOffset(string inputPath, string outputPath, long start = 0, long end = -1)
+    public static void HandleOffset(string inputPath, string outputPath, long start, long end, Formatting formatting)
     {
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
@@ -30,12 +33,61 @@ public static class CommandHandler
             commentOffset.Value = commentOffsetValue - start;
             i++;
         }
-        string output = JsonConvert.SerializeObject(parent);
+        string output = ApplyFormatting(parent, formatting);
         File.WriteAllText(outputPath, output);
     }
 
-    public static void HandleFormat(string inputPath, string outputPath)
+    public static void HandleFormat(string inputPath, string outputPath, Formatting formatting)
     {
+        string input = File.ReadAllText(inputPath);
+        JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
+        string output = ApplyFormatting(parent, formatting);
+        File.WriteAllText(outputPath, output);
+    }
 
+    private static string ApplyFormatting(JToken parent, Formatting formatting)
+    {
+        return formatting switch
+        {
+            Formatting.Json => ApplyFormattingJson(parent),
+            Formatting.JsonIndented => ApplyFormattingJsonIndented(parent),
+            Formatting.Plaintext => ApplyFormattingPlaintext(parent),
+            _ => throw new Exception("Internal error: unrecognised formatting type")
+        };
+    }
+
+    private static string ApplyFormattingJson(JToken parent)
+    {
+        return JsonConvert.SerializeObject(parent);
+    }
+
+    private static string ApplyFormattingJsonIndented(JToken parent)
+    {
+        return JsonConvert.SerializeObject(parent, JsonFormatting.Indented);
+    }
+
+    private static string ApplyFormattingPlaintext(JToken parent)
+    {
+        StringBuilder stringBuilder = new();
+        JArray comments = (JArray)parent["comments"]!;
+        foreach (JToken comment in comments)
+        {
+            JValue commentOffset = (JValue)comment["content_offset_seconds"]!;
+            long commentOffsetValue = (long)commentOffset.Value!;
+            TimeSpan timeSpan = TimeSpan.FromSeconds(commentOffsetValue);
+            stringBuilder.Append(timeSpan);
+            stringBuilder.Append(' ');
+
+            JValue displayName = (JValue)comment["commenter"]!["display_name"]!;
+            string displayNameValue = (string)displayName.Value!;
+            stringBuilder.Append(displayNameValue);
+            stringBuilder.Append(": ");
+
+            JValue messageBody = (JValue)comment["message"]!["body"]!;
+            string messageBodyValue = (string)messageBody.Value!;
+            stringBuilder.Append(messageBodyValue);
+            stringBuilder.Append('\n');
+        }
+        return stringBuilder.ToString();
     }
 }
