@@ -3,13 +3,16 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace TwitchChatOffset;
 
 public static class HttpUtils
 {
     public static readonly HttpClient client = new();
+
+    // For the OAuth2 redirect URI, we can use HTTP instead of HTTPS since we only connect to localhost,
+    // hence the request never leaves the user's machine and does not need encryption
+    // For more info see: https://www.oauth.com/oauth2-servers/oauth-native-apps/redirect-urls-for-native-apps/ (Loopback URLs)
 
     public static void AuthenticateWithTwitch()
     {
@@ -24,7 +27,7 @@ public static class HttpUtils
     }
 
     private const string AuthUrl =
-        "https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=wt92v33cpoj7s7ccx0u3s1klz1oadl&redirect_uri=https://localhost:32100";
+        "https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=wt92v33cpoj7s7ccx0u3s1klz1oadl&redirect_uri=http://localhost:32100";
 
     private static void OpenBrowser()
     {
