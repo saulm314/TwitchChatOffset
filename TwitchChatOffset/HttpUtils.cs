@@ -20,7 +20,7 @@ public static class HttpUtils
     {
         Console.WriteLine("Authenticating with Twitch...");
         using HttpListener listener = new();
-        listener.Prefixes.Add(listenerUri);
+        listener.Prefixes.Add(redirectUri);
         listener.Start();
         OpenBrowser();
         HttpListenerContext context = listener.GetContext();
@@ -28,8 +28,7 @@ public static class HttpUtils
         Console.WriteLine(request.RawUrl);
     }
 
-    private static readonly string redirectUri = $"http://localhost:{Port}";
-    private static readonly string listenerUri = $"{redirectUri}/";
+    private static readonly string redirectUri = $"http://localhost:{Port}/";
     private static readonly string authUrl =
         $"https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=wt92v33cpoj7s7ccx0u3s1klz1oadl&redirect_uri={redirectUri}";
 
