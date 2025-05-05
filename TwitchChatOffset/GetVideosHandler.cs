@@ -10,6 +10,6 @@ public static class GetVideosHandler
 {
     public static void HandleGetVideos(string username, string outputPath, GetVideosFormatting formatting)
     {
-        HttpUtils.AuthenticateWithTwitchAsync();
+        HttpUtils.AuthenticateWithTwitch();
     }
 }

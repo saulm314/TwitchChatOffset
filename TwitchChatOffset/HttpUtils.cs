@@ -11,7 +11,7 @@ public static class HttpUtils
 {
     public static readonly HttpClient client = new();
 
-    public static void AuthenticateWithTwitchAsync()
+    public static void AuthenticateWithTwitch()
     {
         Console.WriteLine("Authenticating with Twitch...");
         using HttpListener listener = new();
