@@ -8,6 +8,7 @@ internal class Program
     {
         RootCommand rootCommand = new("Tools for handling Twitch chat JSON files");
         AddTransformCommand(rootCommand);
+        AddGetVideosCommand(rootCommand);
         rootCommand.Invoke(args);
     }
 
@@ -28,5 +29,18 @@ internal class Program
         transformCommand.Add(formattingOption);
 
         transformCommand.SetHandler(TransformHandler.HandleTransform, inputArgument, outputArgument, startOption, endOption, formattingOption);
+    }
+
+    private static void AddGetVideosCommand(RootCommand rootCommand)
+    {
+        Command getVideosCommand = new("get-videos", "[placeholder]");
+        rootCommand.Add(getVideosCommand);
+
+        Argument<string> userArgument = new("user", "[placeholder]");
+        Argument<string> outputArgument = new("output-path", "[placeholder]");
+        getVideosCommand.Add(userArgument);
+        getVideosCommand.Add(outputArgument);
+
+        getVideosCommand.SetHandler(GetVideosHandler.HandleGetVideos, userArgument, outputArgument);
     }
 }
