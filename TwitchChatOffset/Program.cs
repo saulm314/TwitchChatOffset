@@ -36,13 +36,13 @@ internal class Program
         Command getVideosCommand = new("get-videos", "[placeholder]");
         rootCommand.Add(getVideosCommand);
 
-        Argument<string> userArgument = new("user", "[placeholder]");
+        Argument<string> usernameArgument = new("username", "[placeholder]");
         Argument<string> outputArgument = new("output-path", "[placeholder]");
         Option<GetVideosFormatting> formattingOption = new("--formatting", () => default, "[placeholder]");
-        getVideosCommand.Add(userArgument);
+        getVideosCommand.Add(usernameArgument);
         getVideosCommand.Add(outputArgument);
         getVideosCommand.Add(formattingOption);
 
-        getVideosCommand.SetHandler(GetVideosHandler.HandleGetVideos, userArgument, outputArgument, formattingOption);
+        getVideosCommand.SetHandler(GetVideosHandler.HandleGetVideos, usernameArgument, outputArgument, formattingOption);
     }
 }
