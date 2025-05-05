@@ -3,13 +3,12 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using JsonFormatting = Newtonsoft.Json.Formatting;
 
 namespace TwitchChatOffset;
 
 public static class TransformHandler
 {
-    public static void HandleTransform(string inputPath, string outputPath, long start, long end, Formatting formatting)
+    public static void HandleTransform(string inputPath, string outputPath, long start, long end, TransformFormatting formatting)
     {
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
@@ -44,13 +43,13 @@ public static class TransformHandler
         }
     }
 
-    private static string ApplyFormatting(JToken parent, Formatting formatting)
+    private static string ApplyFormatting(JToken parent, TransformFormatting formatting)
     {
         return formatting switch
         {
-            Formatting.Json => ApplyFormattingJson(parent),
-            Formatting.JsonIndented => ApplyFormattingJsonIndented(parent),
-            Formatting.Plaintext => ApplyFormattingPlaintext(parent),
+            TransformFormatting.Json => ApplyFormattingJson(parent),
+            TransformFormatting.JsonIndented => ApplyFormattingJsonIndented(parent),
+            TransformFormatting.Plaintext => ApplyFormattingPlaintext(parent),
             _ => throw new Exception("Internal error: unrecognised formatting type")
         };
     }
@@ -62,7 +61,7 @@ public static class TransformHandler
 
     private static string ApplyFormattingJsonIndented(JToken parent)
     {
-        return JsonConvert.SerializeObject(parent, JsonFormatting.Indented);
+        return JsonConvert.SerializeObject(parent, Formatting.Indented);
     }
 
     private static string ApplyFormattingPlaintext(JToken parent)

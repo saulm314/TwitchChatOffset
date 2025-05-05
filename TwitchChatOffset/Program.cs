@@ -20,7 +20,7 @@ internal class Program
         Argument<string> outputArgument = new("output-path", "Output path");
         Option<long> startOption = new("--start", () => 0, "Starting point in seconds before which to dismiss chat messages (optional)");
         Option<long> endOption = new("--end", () => -1, "Ending point in seconds after which to dismiss chat messages (optional)");
-        Option<Formatting> formattingOption = new("--formatting", () => default, "Formatting for the output file (optional)");
+        Option<TransformFormatting> formattingOption = new("--formatting", () => default, "Formatting for the output file (optional)");
         transformCommand.Add(inputArgument);
         transformCommand.Add(outputArgument);
         transformCommand.Add(startOption);

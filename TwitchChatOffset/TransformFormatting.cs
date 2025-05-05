@@ -1,6 +1,6 @@
 ﻿namespace TwitchChatOffset;
 
-public enum Formatting
+public enum TransformFormatting
 {
     Json,
     JsonIndented,
