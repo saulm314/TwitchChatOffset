@@ -28,6 +28,22 @@ To convert the Twitch chat file to human-readable plain-text form, simply run:
 
 again optionally specifying `--start` and `--end` options.
 
+# Bulk Transformations
+
+TwitchChatOffset also supports performing many transformations in one go. In this case, the transformation data cannot be passed over the command line, and is instead read from a CSV file. Find template CSV files [here](templates).
+
+If you have many JSON chat files and would like to trim each, then use the `transform-many-to-many` command, specify your CSV file with the transformation data, optionally specify an output directory, and optionally specify formatting (e.g. `JsonIndented`). E.g.:
+
+`TwitchChatOffset transform-many-to-many data.csv -o trimmed-chats --formatting JsonIndented`
+
+Note: with this command, each input file found in the CSV table will be opened, and if you repeat the same input file many times, that file will be reopened and reparsed many times. This is very inefficient, so if you need to extract multiple outputs from a single JSON file, use the `transform-one-to-many` command as shown below.
+
+If you have one JSON chat file and would like to split it up into many, then use the `transform-one-to-many` command, specify the input JSON file, the CSV file, optionally an output directory, and optionally a formatting option. E.g.:
+
+`TwitchChatOffset transform-one-to-many chat.json data.csv -o trimmed-chats --formatting JsonIndented`
+
+**WARNING: If any files with the same name already exist, they will automatically be overwritten without warning! To avoid losing files, double check that the output file names are correct, or make copies before starting a transformation!**
+
 # YouTube Captions
 
 Although this could also be used for other reasons too, the original reason this script was written was to parse messages from a long Twitch VOD into a usable format so that they can be converted to YouTube captions for a video that is only a small part of the Twitch VOD as a whole.
