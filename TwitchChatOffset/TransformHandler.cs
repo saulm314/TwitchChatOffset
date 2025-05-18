@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using CSVFile;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using JsonFormatting = Newtonsoft.Json.Formatting;
@@ -13,6 +15,11 @@ public static class TransformHandler
     {
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
+        HandleTransform(parent, outputPath, start, end, formatting);
+    }
+
+    public static void HandleTransform(JToken parent, string outputPath, long start, long end, Formatting formatting)
+    {
         ApplyOffset(parent, start, end);
         string output = ApplyFormatting(parent, formatting);
         File.WriteAllText(outputPath, output);
@@ -20,13 +27,33 @@ public static class TransformHandler
 
     public static void HandleTransformManyToMany(string csvPath, string outputDir, Formatting formatting)
     {
-        Console.WriteLine("NOT SUPPORTED");
+        Directory.CreateDirectory(outputDir);
+        IEnumerable<TransformManyToManyCsv> data = CSV.Deserialize<TransformManyToManyCsv>(File.ReadAllText(csvPath), csvSettings);
+        foreach (TransformManyToManyCsv line in data)
+        {
+            string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
+            HandleTransform(line.inputFile, outputPath, line.start, line.end, formatting);
+        }
     }
 
     public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Formatting formatting)
     {
-        Console.WriteLine("NOT SUPPORTED");
+        Directory.CreateDirectory(outputDir);
+        IEnumerable<TransformOneToManyCsv> data = CSV.Deserialize<TransformOneToManyCsv>(File.ReadAllText(csvPath), csvSettings);
+        string input = File.ReadAllText(inputPath);
+        JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
+        foreach (TransformOneToManyCsv line in data)
+        {
+            string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
+            JToken clonedParent = parent.DeepClone();
+            HandleTransform(clonedParent, outputPath, line.start, line.end, formatting);
+        }
     }
+
+    private static readonly CSVSettings csvSettings = new()
+    {
+        FieldDelimiter = ','
+    };
 
     private static void ApplyOffset(JToken parent, long start, long end)
     {
