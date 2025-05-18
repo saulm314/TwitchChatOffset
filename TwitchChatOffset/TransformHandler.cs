@@ -18,6 +18,16 @@ public static class TransformHandler
         File.WriteAllText(outputPath, output);
     }
 
+    public static void HandleTransformManyToMany(string csvPath, string outputDir, Formatting formatting)
+    {
+        Console.WriteLine("NOT SUPPORTED");
+    }
+
+    public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Formatting formatting)
+    {
+        Console.WriteLine("NOT SUPPORTED");
+    }
+
     private static void ApplyOffset(JToken parent, long start, long end)
     {
         if (start == 0 && end == -1)
