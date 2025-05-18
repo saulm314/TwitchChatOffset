@@ -1,0 +1,3 @@
+input-file;output-file;start;end;formatting
+highlight1.json;highlight1_trimmed.json;7;1943;Json
+highlight2.json;highlight2_trimmed.json;19;3021;JsonIndented
