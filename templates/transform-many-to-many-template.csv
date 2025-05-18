@@ -1,0 +1,3 @@
+inputFile,outputFile,start,end
+highlight1.json,highlight1_trimmed.json,7,1943
+highlight2.json,highlight2_trimmed.json,19,3021
