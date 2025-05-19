@@ -26,32 +26,73 @@ public static class TransformHandler
 
     public static void HandleTransformManyToMany(string csvPath, string outputDir, Format format, bool quiet)
     {
-        Directory.CreateDirectory(outputDir);
+        _ = Directory.CreateDirectory(outputDir);
         IEnumerable<TransformManyToManyCsv> data = CSV.Deserialize<TransformManyToManyCsv>(File.ReadAllText(csvPath), csvSettings);
         Console.WriteLine("Writing files...");
         foreach (TransformManyToManyCsv line in data)
         {
-            string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
-            HandleTransform(line.inputFile, outputPath, line.start, line.end, format);
             if (!quiet)
-                Console.WriteLine(line.outputFile);
+                Console.WriteLine($"\t{line.outputFile}");
+            string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
+            try
+            {
+                HandleTransform(line.inputFile, outputPath, line.start, line.end, format);
+            }
+            catch (JsonReaderException e)
+            {
+                ConsoleUtils.WriteError($"Could not parse JSON file {line.inputFile}");
+                ConsoleUtils.WriteError(e.Message);
+            }
         }
     }
 
     public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Format format, bool quiet)
     {
-        Directory.CreateDirectory(outputDir);
+        _ = Directory.CreateDirectory(outputDir);
         IEnumerable<TransformOneToManyCsv> data = CSV.Deserialize<TransformOneToManyCsv>(File.ReadAllText(csvPath), csvSettings);
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
         Console.WriteLine("Writing files...");
         foreach (TransformOneToManyCsv line in data)
         {
+            if (!quiet)
+                Console.WriteLine($"\t{line.outputFile}");
             string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
             JToken clonedParent = parent.DeepClone();
             HandleTransform(clonedParent, outputPath, line.start, line.end, format);
+        }
+    }
+
+    public static void HandleTransformAll(string suffix, string inputDir, string searchPattern, string outputDir, Format format, bool quiet, long start, long end)
+    {
+        _ = Directory.CreateDirectory(outputDir);
+        string[] fileNames = Directory.GetFiles(inputDir, searchPattern);
+        if (!quiet)
+            ConsoleUtils.WriteEnumerable(fileNames, "Input files found:");
+        Console.WriteLine("Writing files...");
+        foreach (string fileName in fileNames)
+        {
+            string fileNameBody = Path.GetFileNameWithoutExtension(fileName);
+
+            StringBuilder outputPathBuilder = new();
+            outputPathBuilder.Append(outputDir);
+            if (!outputDir.EndsWith('\\'))
+                outputPathBuilder.Append('\\');
+            outputPathBuilder.Append(fileNameBody);
+            outputPathBuilder.Append(suffix);
+            string outputPath = outputPathBuilder.ToString();
             if (!quiet)
-                Console.WriteLine(line.outputFile);
+                Console.WriteLine($"\t{outputPath}");
+
+            try
+            {
+                HandleTransform(fileName, outputPath, start, end, format);
+            }
+            catch (JsonReaderException e)
+            {
+                ConsoleUtils.WriteError($"Could not parse JSON file {fileName}");
+                ConsoleUtils.WriteError(e.Message);
+            }
         }
     }
 
