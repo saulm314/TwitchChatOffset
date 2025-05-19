@@ -25,28 +25,34 @@ public static class TransformHandler
         File.WriteAllText(outputPath, output);
     }
 
-    public static void HandleTransformManyToMany(string csvPath, string outputDir, Formatting formatting)
+    public static void HandleTransformManyToMany(string csvPath, string outputDir, Formatting formatting, bool quiet)
     {
         Directory.CreateDirectory(outputDir);
         IEnumerable<TransformManyToManyCsv> data = CSV.Deserialize<TransformManyToManyCsv>(File.ReadAllText(csvPath), csvSettings);
+        Console.WriteLine("Writing files...");
         foreach (TransformManyToManyCsv line in data)
         {
             string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
             HandleTransform(line.inputFile, outputPath, line.start, line.end, formatting);
+            if (!quiet)
+                Console.WriteLine(line.outputFile);
         }
     }
 
-    public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Formatting formatting)
+    public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Formatting formatting, bool quiet)
     {
         Directory.CreateDirectory(outputDir);
         IEnumerable<TransformOneToManyCsv> data = CSV.Deserialize<TransformOneToManyCsv>(File.ReadAllText(csvPath), csvSettings);
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
+        Console.WriteLine("Writing files...");
         foreach (TransformOneToManyCsv line in data)
         {
             string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
             JToken clonedParent = parent.DeepClone();
             HandleTransform(clonedParent, outputPath, line.start, line.end, formatting);
+            if (!quiet)
+                Console.WriteLine(line.outputFile);
         }
     }
 
