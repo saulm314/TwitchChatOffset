@@ -67,7 +67,8 @@ public static class TransformHandler
     {
         _ = Directory.CreateDirectory(outputDir);
         string[] fileNames = Directory.GetFiles(inputDir, searchPattern);
-        ConsoleUtils.WriteEnumerable(fileNames, "Input files found:");
+        if (!quiet)
+            ConsoleUtils.WriteEnumerable(fileNames, "Input files found:");
         Console.WriteLine("Writing files...");
         foreach (string fileName in fileNames)
         {
