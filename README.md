@@ -32,15 +32,29 @@ again optionally specifying `--start` and `--end` options.
 
 TwitchChatOffset also supports performing many transformations in one go. In this case, the transformation data cannot be passed over the command line, and is instead read from a CSV file. Find template CSV files [here](templates).
 
+## `transform-many-to-many`
+
 If you have many JSON chat files and would like to trim each, then use the `transform-many-to-many` command, specify your CSV file with the transformation data, optionally specify an output directory, and optionally specify formatting (e.g. `JsonIndented`). E.g.:
 
 `TwitchChatOffset transform-many-to-many data.csv -o trimmed-chats -f JsonIndented`
 
 Note: with this command, each input file found in the CSV table will be opened, and if you repeat the same input file many times, that file will be reopened and reparsed many times. This is very inefficient, so if you need to extract multiple outputs from a single JSON file, use the `transform-one-to-many` command as shown below.
 
+## `transform-one-to-many`
+
 If you have one JSON chat file and would like to split it up into many, then use the `transform-one-to-many` command, specify the input JSON file, the CSV file, optionally an output directory, and optionally a formatting option. E.g.:
 
 `TwitchChatOffset transform-one-to-many chat.json data.csv -o trimmed-chats -f JsonIndented`
+
+## `transform-all`
+
+If you want to transform all JSON files in a directory by the same parameters (i.e. same format, same start and end times if applicable, etc.), use the `transform-all` command, specify a suffix for the output files (including the extension), and optionally specify any options. E.g.:
+
+`TwitchChatOffset transform-all ".txt" -i input-directory --search-pattern "0*.json" -o output-directory -f Plaintext`
+
+This will find all files in `input-directory` whose names start with `0` and have a `.json` extension, convert each file into plaintext, and write it to `output-directory` with the same name as the original file, but the `.json` extension replaced with a `.txt` extension.
+
+## All Bulk Transformations
 
 For any bulk transformation, if you prefer the application to not print to the console every time it finishes writing a file, pass the `-q`/`--quiet` option.
 
