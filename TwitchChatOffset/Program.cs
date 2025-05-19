@@ -18,11 +18,11 @@ internal class Program
         Command transformCommand = new("transform", "Transform a JSON Twitch chat file and put the new contents in a new file");
         rootCommand.Add(transformCommand);
 
-        Argument<string> inputArgument = new("input-path", "Input path");
-        Argument<string> outputArgument = new("output-path", "Output path");
-        Option<long> startOption = new("--start", () => 0, "Starting point in seconds before which to dismiss chat messages (optional)");
-        Option<long> endOption = new("--end", () => -1, "Ending point in seconds after which to dismiss chat messages (optional)");
-        Option<Formatting> formatOption = new(["--format", "--formatting", "-f"], () => default, "Formatting for the output file (optional)");
+        var inputArgument = Tokens.InputArgument;
+        var outputArgument = Tokens.OutputArgument;
+        var startOption = Tokens.StartOption;
+        var endOption = Tokens.EndOption;
+        var formatOption = Tokens.FormatOption;
         transformCommand.Add(inputArgument);
         transformCommand.Add(outputArgument);
         transformCommand.Add(startOption);
@@ -37,16 +37,16 @@ internal class Program
         Command transformManyToManyCommand = new("transform-many-to-many", "Transform many Json Twitch files and generate new files for each transformation");
         rootCommand.Add(transformManyToManyCommand);
 
-        Argument<string> csvArgument = new("csv-path", "Path to the CSV file with data to transform");
-        Option<string> outputOption = new(["--output", "-o"], () => ".", "Output directory (will create if doesn't exist) (optional)");
-        Option<Formatting> formatOption = new(["--format", "--formatting", "-f"], () => default, "Formatting for the output file (optional)");
-        Option<bool> quietOption = new(["--quiet", "-q"], () => false, "Do not print a message after each file is written (optional)");
+        var csvArgument = Tokens.CsvArgument;
+        var outputDirOption = Tokens.OutputDirOption;
+        var formatOption = Tokens.FormatOption;
+        var quietOption = Tokens.QuietOption;
         transformManyToManyCommand.Add(csvArgument);
-        transformManyToManyCommand.Add(outputOption);
+        transformManyToManyCommand.Add(outputDirOption);
         transformManyToManyCommand.Add(formatOption);
         transformManyToManyCommand.Add(quietOption);
 
-        transformManyToManyCommand.SetHandler(TransformHandler.HandleTransformManyToMany, csvArgument, outputOption, formatOption, quietOption);
+        transformManyToManyCommand.SetHandler(TransformHandler.HandleTransformManyToMany, csvArgument, outputDirOption, formatOption, quietOption);
     }
 
     private static void AddTransformOneToManyCommand(RootCommand rootCommand)
@@ -54,17 +54,17 @@ internal class Program
         Command transformOneToManyCommand = new("transform-one-to-many", "Transform a JSON Twitch file into many new files");
         rootCommand.Add(transformOneToManyCommand);
 
-        Argument<string> inputArgument = new("input-path", "Input path (JSON file)");
-        Argument<string> csvArgument = new("csv-path", "Path to the CSV file with data to transform");
-        Option<string> outputOption = new(["--output", "-o"], () => ".", "Output directory (will create if doesn't exist) (optional)");
-        Option<Formatting> formatOption = new(["--format", "--formatting", "-f"], () => default, "Formatting for the output file (optional)");
-        Option<bool> quietOption = new(["--quiet", "-q"], () => false, "Do not print a message after each file is written (optional)");
+        var inputArgument = Tokens.InputArgument;
+        var csvArgument = Tokens.CsvArgument;
+        var outputDirOption = Tokens.OutputDirOption;
+        var formatOption = Tokens.FormatOption;
+        var quietOption = Tokens.QuietOption;
         transformOneToManyCommand.Add(inputArgument);
         transformOneToManyCommand.Add(csvArgument);
-        transformOneToManyCommand.Add(outputOption);
+        transformOneToManyCommand.Add(outputDirOption);
         transformOneToManyCommand.Add(formatOption);
         transformOneToManyCommand.Add(quietOption);
 
-        transformOneToManyCommand.SetHandler(TransformHandler.HandleTransformOneToMany, inputArgument, csvArgument, outputOption, formatOption, quietOption);
+        transformOneToManyCommand.SetHandler(TransformHandler.HandleTransformOneToMany, inputArgument, csvArgument, outputDirOption, formatOption, quietOption);
     }
 }

@@ -5,27 +5,26 @@ using System.Text;
 using CSVFile;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using JsonFormatting = Newtonsoft.Json.Formatting;
 
 namespace TwitchChatOffset;
 
 public static class TransformHandler
 {
-    public static void HandleTransform(string inputPath, string outputPath, long start, long end, Formatting formatting)
+    public static void HandleTransform(string inputPath, string outputPath, long start, long end, Format format)
     {
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
-        HandleTransform(parent, outputPath, start, end, formatting);
+        HandleTransform(parent, outputPath, start, end, format);
     }
 
-    public static void HandleTransform(JToken parent, string outputPath, long start, long end, Formatting formatting)
+    public static void HandleTransform(JToken parent, string outputPath, long start, long end, Format format)
     {
         ApplyOffset(parent, start, end);
-        string output = ApplyFormatting(parent, formatting);
+        string output = ApplyFormat(parent, format);
         File.WriteAllText(outputPath, output);
     }
 
-    public static void HandleTransformManyToMany(string csvPath, string outputDir, Formatting formatting, bool quiet)
+    public static void HandleTransformManyToMany(string csvPath, string outputDir, Format format, bool quiet)
     {
         Directory.CreateDirectory(outputDir);
         IEnumerable<TransformManyToManyCsv> data = CSV.Deserialize<TransformManyToManyCsv>(File.ReadAllText(csvPath), csvSettings);
@@ -33,13 +32,13 @@ public static class TransformHandler
         foreach (TransformManyToManyCsv line in data)
         {
             string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
-            HandleTransform(line.inputFile, outputPath, line.start, line.end, formatting);
+            HandleTransform(line.inputFile, outputPath, line.start, line.end, format);
             if (!quiet)
                 Console.WriteLine(line.outputFile);
         }
     }
 
-    public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Formatting formatting, bool quiet)
+    public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Format format, bool quiet)
     {
         Directory.CreateDirectory(outputDir);
         IEnumerable<TransformOneToManyCsv> data = CSV.Deserialize<TransformOneToManyCsv>(File.ReadAllText(csvPath), csvSettings);
@@ -50,7 +49,7 @@ public static class TransformHandler
         {
             string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
             JToken clonedParent = parent.DeepClone();
-            HandleTransform(clonedParent, outputPath, line.start, line.end, formatting);
+            HandleTransform(clonedParent, outputPath, line.start, line.end, format);
             if (!quiet)
                 Console.WriteLine(line.outputFile);
         }
@@ -87,28 +86,28 @@ public static class TransformHandler
         }
     }
 
-    private static string ApplyFormatting(JToken parent, Formatting formatting)
+    private static string ApplyFormat(JToken parent, Format format)
     {
-        return formatting switch
+        return format switch
         {
-            Formatting.Json => ApplyFormattingJson(parent),
-            Formatting.JsonIndented => ApplyFormattingJsonIndented(parent),
-            Formatting.Plaintext => ApplyFormattingPlaintext(parent),
-            _ => throw new Exception("Internal error: unrecognised formatting type")
+            Format.Json => ApplyFormatJson(parent),
+            Format.JsonIndented => ApplyFormatJsonIndented(parent),
+            Format.Plaintext => ApplyFormatPlaintext(parent),
+            _ => throw new Exception("Internal error: unrecognised format type")
         };
     }
 
-    private static string ApplyFormattingJson(JToken parent)
+    private static string ApplyFormatJson(JToken parent)
     {
         return JsonConvert.SerializeObject(parent);
     }
 
-    private static string ApplyFormattingJsonIndented(JToken parent)
+    private static string ApplyFormatJsonIndented(JToken parent)
     {
-        return JsonConvert.SerializeObject(parent, JsonFormatting.Indented);
+        return JsonConvert.SerializeObject(parent, Formatting.Indented);
     }
 
-    private static string ApplyFormattingPlaintext(JToken parent)
+    private static string ApplyFormatPlaintext(JToken parent)
     {
         StringBuilder stringBuilder = new();
         JArray comments = (JArray)parent["comments"]!;
