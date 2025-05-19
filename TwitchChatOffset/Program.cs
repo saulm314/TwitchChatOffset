@@ -10,6 +10,7 @@ internal class Program
         AddTransformCommand(rootCommand);
         AddTransformManyToManyCommand(rootCommand);
         AddTransformOneToManyCommand(rootCommand);
+        AddTransformAllCommand(rootCommand);
         rootCommand.Invoke(args);
     }
 
@@ -66,5 +67,31 @@ internal class Program
         transformOneToManyCommand.Add(quietOption);
 
         transformOneToManyCommand.SetHandler(TransformHandler.HandleTransformOneToMany, inputArgument, csvArgument, outputDirOption, formatOption, quietOption);
+    }
+
+    private static void AddTransformAllCommand(RootCommand rootCommand)
+    {
+        Command transformAllCommand = new("transform-all", "Transform all files in a directory whose name matches a search pattern");
+        rootCommand.Add(transformAllCommand);
+
+        var suffixArgument = Tokens.SuffixArgument;
+        var inputDirOption = Tokens.InputDirOption;
+        var searchPatternOption = Tokens.SearchPatternOption;
+        var outputDirOption = Tokens.OutputDirOption;
+        var formatOption = Tokens.FormatOption;
+        var quietOption = Tokens.QuietOption;
+        var startOption = Tokens.StartOption;
+        var endOption = Tokens.EndOption;
+        transformAllCommand.Add(suffixArgument);
+        transformAllCommand.Add(inputDirOption);
+        transformAllCommand.Add(searchPatternOption);
+        transformAllCommand.Add(outputDirOption);
+        transformAllCommand.Add(formatOption);
+        transformAllCommand.Add(quietOption);
+        transformAllCommand.Add(startOption);
+        transformAllCommand.Add(endOption);
+
+        transformAllCommand.SetHandler(TransformHandler.HandleTransformAll,
+            suffixArgument, inputDirOption, searchPatternOption, outputDirOption, formatOption, quietOption, startOption, endOption);
     }
 }
