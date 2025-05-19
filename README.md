@@ -16,15 +16,15 @@ Otherwise, you will have to specify the full path of where you extracted the `Tw
 
 Then, open PowerShell and navigate to the directory with your Twitch chat json file (e.g. `cd D:\TwitchDownloader`). Then simply run `TwitchChatOffset` with the `transform` command, specifying the input file, the output file, the optional start offset in seconds, and optionally the ending time in seconds. For example, if the input file is `twitchChat.json`, the desired start offset is exactly the 1 hour mark, and the desired end point is exactly the 3 hour mark, then you would run:
 
-`TwitchChatOffset transform twitchChat.json twitchChatNew.json --start 3600 --end 10800 --formatting JsonIndented`
+`TwitchChatOffset transform twitchChat.json twitchChatNew.json --start 3600 --end 10800 -f JsonIndented`
 
-(The `--formatting` option is optional but makes it more human-readable.) Or, if you didn't add the software to your PATH variable, then you have to specify the exact path of the `TwitchChatOffset.exe` file, e.g.:
+(The `-f`/`--format` option is optional but makes it more human-readable.) Or, if you didn't add the software to your PATH variable, then you have to specify the exact path of the `TwitchChatOffset.exe` file, e.g.:
 
-`D:\TwitchChatOffset\TwitchChatOffset.exe transform twitchChat.json twitchChatNew.json --start 3600 --end 10800 --formatting JsonIndented`
+`D:\TwitchChatOffset\TwitchChatOffset.exe transform twitchChat.json twitchChatNew.json --start 3600 --end 10800 -f JsonIndented`
 
 To convert the Twitch chat file to human-readable plain-text form, simply run:
 
-`TwitchChatOffset transform twitchChat.json twitchChatNew.txt --formatting Plaintext`
+`TwitchChatOffset transform twitchChat.json twitchChatNew.txt -f Plaintext`
 
 again optionally specifying `--start` and `--end` options.
 
@@ -34,13 +34,15 @@ TwitchChatOffset also supports performing many transformations in one go. In thi
 
 If you have many JSON chat files and would like to trim each, then use the `transform-many-to-many` command, specify your CSV file with the transformation data, optionally specify an output directory, and optionally specify formatting (e.g. `JsonIndented`). E.g.:
 
-`TwitchChatOffset transform-many-to-many data.csv -o trimmed-chats --formatting JsonIndented`
+`TwitchChatOffset transform-many-to-many data.csv -o trimmed-chats -f JsonIndented`
 
 Note: with this command, each input file found in the CSV table will be opened, and if you repeat the same input file many times, that file will be reopened and reparsed many times. This is very inefficient, so if you need to extract multiple outputs from a single JSON file, use the `transform-one-to-many` command as shown below.
 
 If you have one JSON chat file and would like to split it up into many, then use the `transform-one-to-many` command, specify the input JSON file, the CSV file, optionally an output directory, and optionally a formatting option. E.g.:
 
-`TwitchChatOffset transform-one-to-many chat.json data.csv -o trimmed-chats --formatting JsonIndented`
+`TwitchChatOffset transform-one-to-many chat.json data.csv -o trimmed-chats -f JsonIndented`
+
+For any bulk transformation, if you prefer the application to not print to the console every time it finishes writing a file, pass the `-q`/`--quiet` option.
 
 **WARNING: If any files with the same name already exist, they will automatically be overwritten without warning! To avoid losing files, double check that the output file names are correct, or make copies before starting a transformation!**
 
