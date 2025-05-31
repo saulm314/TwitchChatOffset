@@ -10,12 +10,6 @@ public class TransformOneToMany
     public readonly Option<Format> formatOption = Tokens.FormatOption;
     public readonly Option<bool> quietOption = Tokens.QuietOption;
 
-    public void Handle(Data data)
-    {
-        (string inputPath, string csvPath, string outputDir, Format format, bool quiet) = data;
-        TransformHandler.HandleTransformOneToMany(inputPath, csvPath, outputDir, format, quiet);
-    }
-
     public readonly record struct Data
     (
         string InputPath,
@@ -24,4 +18,10 @@ public class TransformOneToMany
         Format PFormat,
         bool Quiet
     );
+
+    public void Handle(Data data)
+    {
+        (string inputPath, string csvPath, string outputDir, Format format, bool quiet) = data;
+        TransformHandler.HandleTransformOneToMany(inputPath, csvPath, outputDir, format, quiet);
+    }
 }

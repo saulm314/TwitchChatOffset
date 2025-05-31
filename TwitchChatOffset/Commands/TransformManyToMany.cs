@@ -9,12 +9,6 @@ public class TransformManyToMany
     public readonly Option<Format> formatOption = Tokens.FormatOption;
     public readonly Option<bool> quietOption = Tokens.QuietOption;
 
-    public void Handle(Data data)
-    {
-        (string csvPath, string outputDir, Format format, bool quiet) = data;
-        TransformHandler.HandleTransformManyToMany(csvPath, outputDir, format, quiet);
-    }
-
     public readonly record struct Data
     (
         string CsvPath,
@@ -22,4 +16,10 @@ public class TransformManyToMany
         Format PFormat,
         bool Quiet
     );
+
+    public void Handle(Data data)
+    {
+        (string csvPath, string outputDir, Format format, bool quiet) = data;
+        TransformHandler.HandleTransformManyToMany(csvPath, outputDir, format, quiet);
+    }
 }

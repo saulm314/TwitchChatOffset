@@ -10,12 +10,6 @@ public class Transform
     public readonly Option<long> endOption = Tokens.EndOption;
     public readonly Option<Format> formatOption = Tokens.FormatOption;
 
-    public void Handle(Data data)
-    {
-        (string inputPath, string outputPath, long start, long end, Format format) = data;
-        TransformHandler.HandleTransform(inputPath, outputPath, start, end, format);
-    }
-
     public readonly record struct Data
     (
         string InputPath,
@@ -24,4 +18,10 @@ public class Transform
         long End,
         Format Format
     );
+
+    public void Handle(Data data)
+    {
+        (string inputPath, string outputPath, long start, long end, Format format) = data;
+        TransformHandler.HandleTransform(inputPath, outputPath, start, end, format);
+    }
 }

@@ -13,12 +13,6 @@ public class TransformAll
     public readonly Option<long> startOption = Tokens.StartOption;
     public readonly Option<long> endOption = Tokens.EndOption;
 
-    public void Handle(Data data)
-    {
-        (string suffix, string inputDir, string searchPattern, string outputDir, Format format, bool quiet, long start, long end) = data;
-        TransformHandler.HandleTransformAll(suffix, inputDir, searchPattern, outputDir, format, quiet, start, end);
-    }
-
     public readonly record struct Data
     (
         string Suffix,
@@ -30,4 +24,10 @@ public class TransformAll
         long Start,
         long End
     );
+
+    public void Handle(Data data)
+    {
+        (string suffix, string inputDir, string searchPattern, string outputDir, Format format, bool quiet, long start, long end) = data;
+        TransformHandler.HandleTransformAll(suffix, inputDir, searchPattern, outputDir, format, quiet, start, end);
+    }
 }
