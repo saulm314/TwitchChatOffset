@@ -1,17 +1,29 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Binding;
+using static TwitchChatOffset.Tokens;
 
 namespace TwitchChatOffset.Commands;
 
-public class TransformAll
+public class TransformAll : CommandBinder<TransformAll.Data>
 {
-    public readonly Argument<string> suffixArgument = Tokens.SuffixArgument;
-    public readonly Option<string> inputDirOption = Tokens.InputDirOption;
-    public readonly Option<string> searchPatternOption = Tokens.SearchPatternOption;
-    public readonly Option<string> outputDirOption = Tokens.OutputDirOption;
-    public readonly Option<Format> formatOption = Tokens.FormatOption;
-    public readonly Option<bool> quietOption = Tokens.QuietOption;
-    public readonly Option<long> startOption = Tokens.StartOption;
-    public readonly Option<long> endOption = Tokens.EndOption;
+    public override Command PCommand { get; } = new("transform-all", "Transform all files in a directory whose name matches a search pattern");
+
+    protected override Data GetBoundValue(BindingContext bindingContext)
+    {
+        T Arg<T>(Argument<T> argument) => GetArgValue(argument, bindingContext);
+        T Opt<T>(Option<T> option) => GetOptValue(option, bindingContext);
+        return new
+        (
+            Arg(SuffixArgument),
+            Opt(InputDirOption),
+            Opt(SearchPatternOption),
+            Opt(OutputDirOption),
+            Opt(FormatOption),
+            Opt(QuietOption),
+            Opt(StartOption),
+            Opt(EndOption)
+        );
+    }
 
     public readonly record struct Data
     (
@@ -25,7 +37,7 @@ public class TransformAll
         long End
     );
 
-    public void Handle(Data data)
+    protected override void Handle(Data data)
     {
         (string suffix, string inputDir, string searchPattern, string outputDir, Format format, bool quiet, long start, long end) = data;
         TransformHandler.HandleTransformAll(suffix, inputDir, searchPattern, outputDir, format, quiet, start, end);

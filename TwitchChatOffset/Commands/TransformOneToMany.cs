@@ -1,14 +1,26 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Binding;
+using static TwitchChatOffset.Tokens;
 
 namespace TwitchChatOffset.Commands;
 
-public class TransformOneToMany
+public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
 {
-    public readonly Argument<string> inputArgument = Tokens.InputArgument;
-    public readonly Argument<string> csvArgument = Tokens.CsvArgument;
-    public readonly Option<string> outputDirOption = Tokens.OutputDirOption;
-    public readonly Option<Format> formatOption = Tokens.FormatOption;
-    public readonly Option<bool> quietOption = Tokens.QuietOption;
+    public override Command PCommand { get; } = new("transform-one-to-many", "Transform a JSON Twitch file into many new files");
+
+    protected override Data GetBoundValue(BindingContext bindingContext)
+    {
+        T Arg<T>(Argument<T> argument) => GetArgValue(argument, bindingContext);
+        T Opt<T>(Option<T> option) => GetOptValue(option, bindingContext);
+        return new
+        (
+            Arg(InputArgument),
+            Arg(CsvArgument),
+            Opt(OutputDirOption),
+            Opt(FormatOption),
+            Opt(QuietOption)
+        );
+    }
 
     public readonly record struct Data
     (
@@ -19,7 +31,7 @@ public class TransformOneToMany
         bool Quiet
     );
 
-    public void Handle(Data data)
+    protected override void Handle(Data data)
     {
         (string inputPath, string csvPath, string outputDir, Format format, bool quiet) = data;
         TransformHandler.HandleTransformOneToMany(inputPath, csvPath, outputDir, format, quiet);
