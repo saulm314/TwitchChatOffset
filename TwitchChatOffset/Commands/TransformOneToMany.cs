@@ -44,6 +44,6 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
     protected override void Handle(Data data)
     {
         (string inputPath, string csvPath, string outputDir, Format format, bool quiet) = data;
-        TwitchChatOffset.Transform.HandleTransformOneToMany(inputPath, csvPath, outputDir, format, quiet);
+        BulkTransform.HandleTransformOneToMany(inputPath, csvPath, outputDir, format, quiet);
     }
 }
