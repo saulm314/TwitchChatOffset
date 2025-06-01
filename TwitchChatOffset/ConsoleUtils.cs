@@ -5,6 +5,10 @@ namespace TwitchChatOffset;
 
 public static class ConsoleUtils
 {
+    public static void WriteLine(object? message) => Console.WriteLine(message);
+
+    public static void Write(object? message) => Console.Write(message);
+
     public static void WriteError(object? message)
     {
         ConsoleColor originalColor = Console.ForegroundColor;

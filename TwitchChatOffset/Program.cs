@@ -1,4 +1,5 @@
-﻿using TwitchChatOffset.Commands;
+﻿global using static TwitchChatOffset.ConsoleUtils;
+using TwitchChatOffset.Commands;
 using System.CommandLine;
 
 namespace TwitchChatOffset;

@@ -28,11 +28,11 @@ public static class TransformHandler
     {
         _ = Directory.CreateDirectory(outputDir);
         IEnumerable<TransformManyToManyCsv> data = CSV.Deserialize<TransformManyToManyCsv>(File.ReadAllText(csvPath), csvSettings);
-        Console.WriteLine("Writing files...");
+        WriteLine("Writing files...");
         foreach (TransformManyToManyCsv line in data)
         {
             if (!quiet)
-                Console.WriteLine($"\t{line.outputFile}");
+                WriteLine($"\t{line.outputFile}");
             string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
             try
             {
@@ -40,8 +40,13 @@ public static class TransformHandler
             }
             catch (JsonReaderException e)
             {
-                ConsoleUtils.WriteError($"Could not parse JSON file {line.inputFile}");
-                ConsoleUtils.WriteError(e.Message);
+                WriteError($"Could not parse JSON file {line.inputFile}");
+                WriteError(e.Message);
+            }
+            catch (Exception e)
+            {
+                WriteError($"JSON file {line.inputFile} parsed successfully but the contents were unexpected");
+                WriteError(e.Message);
             }
         }
     }
@@ -52,11 +57,11 @@ public static class TransformHandler
         IEnumerable<TransformOneToManyCsv> data = CSV.Deserialize<TransformOneToManyCsv>(File.ReadAllText(csvPath), csvSettings);
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
-        Console.WriteLine("Writing files...");
+        WriteLine("Writing files...");
         foreach (TransformOneToManyCsv line in data)
         {
             if (!quiet)
-                Console.WriteLine($"\t{line.outputFile}");
+                WriteLine($"\t{line.outputFile}");
             string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
             JToken clonedParent = parent.DeepClone();
             HandleTransform(clonedParent, outputPath, line.start, line.end, format);
@@ -68,8 +73,8 @@ public static class TransformHandler
         _ = Directory.CreateDirectory(outputDir);
         string[] fileNames = Directory.GetFiles(inputDir, searchPattern);
         if (!quiet)
-            ConsoleUtils.WriteEnumerable(fileNames, "Input files found:");
-        Console.WriteLine("Writing files...");
+            WriteEnumerable(fileNames, "Input files found:");
+        WriteLine("Writing files...");
         foreach (string fileName in fileNames)
         {
             string fileNameBody = Path.GetFileNameWithoutExtension(fileName);
@@ -82,7 +87,7 @@ public static class TransformHandler
             outputPathBuilder.Append(suffix);
             string outputPath = outputPathBuilder.ToString();
             if (!quiet)
-                Console.WriteLine($"\t{outputPath}");
+                WriteLine($"\t{outputPath}");
 
             try
             {
@@ -90,8 +95,13 @@ public static class TransformHandler
             }
             catch (JsonReaderException e)
             {
-                ConsoleUtils.WriteError($"Could not parse JSON file {fileName}");
-                ConsoleUtils.WriteError(e.Message);
+                WriteError($"Could not parse JSON file {fileName}");
+                WriteError(e.Message);
+            }
+            catch (Exception e)
+            {
+                WriteError($"JSON file {fileName} parsed successfully but the contents were unexpected");
+                WriteError(e.Message);
             }
         }
     }
