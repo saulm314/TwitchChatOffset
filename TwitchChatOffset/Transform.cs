@@ -8,7 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace TwitchChatOffset;
 
-public static class TransformHandler
+public static class Transform
 {
     public static void HandleTransform(string inputPath, string outputPath, long start, long end, Format format)
     {

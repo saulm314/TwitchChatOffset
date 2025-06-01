@@ -44,6 +44,6 @@ public class Transform : CommandBinder<Transform.Data>
     protected override void Handle(Data data)
     {
         (string inputPath, string outputPath, long start, long end, Format format) = data;
-        TransformHandler.HandleTransform(inputPath, outputPath, start, end, format);
+        TwitchChatOffset.Transform.HandleTransform(inputPath, outputPath, start, end, format);
     }
 }

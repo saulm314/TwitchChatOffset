@@ -1,6 +1,7 @@
 ﻿global using static TwitchChatOffset.ConsoleUtils;
 using TwitchChatOffset.Commands;
 using System.CommandLine;
+using TransformCommand = TwitchChatOffset.Commands.Transform;
 
 namespace TwitchChatOffset;
 
@@ -9,7 +10,7 @@ internal class Program
     private static void Main(string[] args)
     {
         RootCommand rootCommand = new("Tools for handling Twitch chat JSON files");
-        new Transform().Add(rootCommand);
+        new TransformCommand().Add(rootCommand);
         new TransformManyToMany().Add(rootCommand);
         new TransformOneToMany().Add(rootCommand);
         new TransformAll().Add(rootCommand);
