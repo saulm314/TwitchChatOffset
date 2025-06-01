@@ -81,31 +81,42 @@ public static class BulkTransform
         }
     }
 
+    private static void WriteFiles(IEnumerable<BulkTransformCsv> lines, string inputFile, bool quiet)
+    {
+        WriteLine("Writing files...");
+        foreach (BulkTransformCsv line in lines)
+            WriteFile(line, inputFile, quiet);
+        WriteLine("Done.");
+    }
+
     private static void WriteFiles(IEnumerable<TransformManyToManyCsv> lines, bool quiet)
     {
         WriteLine("Writing files...");
         foreach (TransformManyToManyCsv line in lines)
-        {
-            if (!quiet)
-                WriteLine($"{line.outputFile}", 1);
-            _ = Directory.CreateDirectory(line.outputDir!);
-            string outputPath = line.outputDir!.EndsWith('\\') ? line.outputDir + line.outputFile : line.outputDir + '\\' + line.outputFile;
-            try
-            {
-                Transform.HandleTransform(line.inputFile!, outputPath, (long)line.start!, (long)line.end!, (Format)line.format!);
-            }
-            catch (JsonReaderException e)
-            {
-                WriteError($"Could not parse JSON file {line.inputFile}", 2);
-                WriteError(e.Message, 2);
-            }
-            catch (Exception e)
-            {
-                WriteError($"JSON file {line.inputFile} parsed successfully but the contents were unexpected", 2);
-                WriteError(e.Message, 2);
-            }
-        }
+            WriteFile(line, line.inputFile!, quiet);
         WriteLine("Done.");
+    }
+
+    private static void WriteFile(BulkTransformCsv line, string inputFile, bool quiet)
+    {
+        if (!quiet)
+            WriteLine($"{line.outputFile}", 1);
+        _ = Directory.CreateDirectory(line.outputDir!);
+        string outputPath = line.outputDir!.EndsWith('\\') ? line.outputDir + line.outputFile : line.outputDir + '\\' + line.outputFile;
+        try
+        {
+            Transform.HandleTransform(inputFile, outputPath, (long)line.start!, (long)line.end!, (Format)line.format!);
+        }
+        catch (JsonReaderException e)
+        {
+            WriteError($"Could not parse JSON file {inputFile}", 2);
+            WriteError(e.Message, 2);
+        }
+        catch (Exception e)
+        {
+            WriteError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
+            WriteError(e.Message, 2);
+        }
     }
 
     public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Format format, bool quiet)
