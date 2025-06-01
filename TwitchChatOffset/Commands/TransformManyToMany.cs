@@ -1,6 +1,5 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Binding;
-using static TwitchChatOffset.Tokens;
 
 namespace TwitchChatOffset.Commands;
 
@@ -8,16 +7,26 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
 {
     public override Command PCommand { get; } = new("transform-many-to-many", "Transform many Json Twitch files and generate new files for each transformation");
 
+    private readonly Tokens tokens = new();
+
+    protected override void AddTokens()
+    {
+        PCommand.Add(tokens.CsvArgument);
+        PCommand.Add(tokens.OutputDirOption);
+        PCommand.Add(tokens.FormatOption);
+        PCommand.Add(tokens.QuietOption);
+    }
+
     protected override Data GetBoundValue(BindingContext bindingContext)
     {
         T Arg<T>(Argument<T> argument) => GetArgValue(argument, bindingContext);
         T Opt<T>(Option<T> option) => GetOptValue(option, bindingContext);
         return new
         (
-            Arg(CsvArgument),
-            Opt(OutputDirOption),
-            Opt(FormatOption),
-            Opt(QuietOption)
+            Arg(tokens.CsvArgument),
+            Opt(tokens.OutputDirOption),
+            Opt(tokens.FormatOption),
+            Opt(tokens.QuietOption)
         );
     }
 

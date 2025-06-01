@@ -1,6 +1,5 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Binding;
-using static TwitchChatOffset.Tokens;
 
 namespace TwitchChatOffset.Commands;
 
@@ -8,20 +7,34 @@ public class TransformAll : CommandBinder<TransformAll.Data>
 {
     public override Command PCommand { get; } = new("transform-all", "Transform all files in a directory whose name matches a search pattern");
 
+    private readonly Tokens tokens = new();
+
+    protected override void AddTokens()
+    {
+        PCommand.Add(tokens.SuffixArgument);
+        PCommand.Add(tokens.InputDirOption);
+        PCommand.Add(tokens.SearchPatternOption);
+        PCommand.Add(tokens.OutputDirOption);
+        PCommand.Add(tokens.FormatOption);
+        PCommand.Add(tokens.QuietOption);
+        PCommand.Add(tokens.StartOption);
+        PCommand.Add(tokens.EndOption);
+    }
+
     protected override Data GetBoundValue(BindingContext bindingContext)
     {
         T Arg<T>(Argument<T> argument) => GetArgValue(argument, bindingContext);
         T Opt<T>(Option<T> option) => GetOptValue(option, bindingContext);
         return new
         (
-            Arg(SuffixArgument),
-            Opt(InputDirOption),
-            Opt(SearchPatternOption),
-            Opt(OutputDirOption),
-            Opt(FormatOption),
-            Opt(QuietOption),
-            Opt(StartOption),
-            Opt(EndOption)
+            Arg(tokens.SuffixArgument),
+            Opt(tokens.InputDirOption),
+            Opt(tokens.SearchPatternOption),
+            Opt(tokens.OutputDirOption),
+            Opt(tokens.FormatOption),
+            Opt(tokens.QuietOption),
+            Opt(tokens.StartOption),
+            Opt(tokens.EndOption)
         );
     }
 
