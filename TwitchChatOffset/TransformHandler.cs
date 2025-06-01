@@ -42,7 +42,7 @@ public static class TransformHandler
         foreach (TransformManyToManyCsv line in data)
         {
             if (!quiet)
-                WriteLine($"\t{line.outputFile}");
+                WriteLine($"{line.outputFile}", 1);
             _ = Directory.CreateDirectory(line.outputDir!);
             string outputPath = line.outputDir!.EndsWith('\\') ? line.outputDir + line.outputFile : line.outputDir + '\\' + line.outputFile;
             try
@@ -51,13 +51,13 @@ public static class TransformHandler
             }
             catch (JsonReaderException e)
             {
-                WriteError($"Could not parse JSON file {line.inputFile}");
-                WriteError(e.Message);
+                WriteError($"Could not parse JSON file {line.inputFile}", 2);
+                WriteError(e.Message, 2);
             }
             catch (Exception e)
             {
-                WriteError($"JSON file {line.inputFile} parsed successfully but the contents were unexpected");
-                WriteError(e.Message);
+                WriteError($"JSON file {line.inputFile} parsed successfully but the contents were unexpected", 2);
+                WriteError(e.Message, 2);
             }
         }
         WriteLine("Done.");
@@ -86,7 +86,7 @@ public static class TransformHandler
                     continue;
                 if (!cfield.Converter.IsValid(line[i]))
                 {
-                    WriteWarning($"Cannot convert \"{line[i]}\" to type {cfield.Field.FieldType.FullName}; treating as an empty string...");
+                    WriteWarning($"Cannot convert \"{line[i]}\" to type {cfield.Field.FieldType.FullName}; treating as an empty string...", 2);
                     continue;
                 }
                 object? value = cfield.Converter.ConvertFromString(line[i]);
@@ -94,12 +94,12 @@ public static class TransformHandler
             }
             if (options.inputFile == null)
             {
-                WriteError($"Input file must not be empty! Skipping...");
+                WriteError($"Input file must not be empty! Skipping...", 2);
                 continue;
             }
             if (options.outputFile == null)
             {
-                WriteError($"Output file must not be empty! Skipping...");
+                WriteError($"Output file must not be empty! Skipping...", 2);
                 continue;
             }
             options.start ??= start;
@@ -120,7 +120,7 @@ public static class TransformHandler
         foreach (TransformOneToManyCsv line in data)
         {
             if (!quiet)
-                WriteLine($"\t{line.outputFile}");
+                WriteLine($"{line.outputFile}", 1);
             string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
             JToken clonedParent = parent.DeepClone();
             HandleTransform(clonedParent, outputPath, line.start, line.end, format);
@@ -146,7 +146,7 @@ public static class TransformHandler
             outputPathBuilder.Append(suffix);
             string outputPath = outputPathBuilder.ToString();
             if (!quiet)
-                WriteLine($"\t{outputPath}");
+                WriteLine($"{outputPath}", 2);
 
             try
             {
@@ -154,13 +154,13 @@ public static class TransformHandler
             }
             catch (JsonReaderException e)
             {
-                WriteError($"Could not parse JSON file {fileName}");
-                WriteError(e.Message);
+                WriteError($"Could not parse JSON file {fileName}", 2);
+                WriteError(e.Message, 2);
             }
             catch (Exception e)
             {
-                WriteError($"JSON file {fileName} parsed successfully but the contents were unexpected");
-                WriteError(e.Message);
+                WriteError($"JSON file {fileName} parsed successfully but the contents were unexpected", 2);
+                WriteError(e.Message, 2);
             }
         }
     }
