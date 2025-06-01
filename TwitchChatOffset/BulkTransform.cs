@@ -16,11 +16,11 @@ public static class BulkTransform
         AliasesCFieldPair[] pairs =
         [
             new(["input-file", "inputFile"],    CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.inputFile))!)),
-            new(["output-file", "outputFile"],  CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.outputFile))!)),
-            new(Tokens.StartOptionAliases,      CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.start))!)),
-            new(Tokens.EndOptionAliases,        CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.end))!)),
-            new(Tokens.FormatOptionAliases,     CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.format))!)),
-            new(Tokens.OutputDirOptionAliases,  CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.outputDir))!))
+            new(["output-file", "outputFile"],  CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.outputFile))!)),
+            new(Tokens.StartOptionAliases,      CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.start))!)),
+            new(Tokens.EndOptionAliases,        CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.end))!)),
+            new(Tokens.FormatOptionAliases,     CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.format))!)),
+            new(Tokens.OutputDirOptionAliases,  CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.outputDir))!))
         ];
         AddAliasesToOptionMap(optionMap, pairs);
         IEnumerable<TransformManyToManyCsv> data = GetProcessedLines(csvPath, optionMap, start, end, format, outputDir);
