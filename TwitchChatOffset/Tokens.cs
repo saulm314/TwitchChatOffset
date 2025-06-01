@@ -1,4 +1,7 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.Reflection;
 
 namespace TwitchChatOffset;
 
@@ -35,4 +38,11 @@ public class Tokens
     public static string[] OutputDirOptionAliases { get; } = ["--output-directory", "--output", "-o"];
     public static string[] QuietOptionAliases { get; } = ["--quiet", "-q"];
     public static string[] SearchPatternOptionAliases { get; } = ["--search-pattern"];
+
+    public static void AddAliasesToOptionMap(Dictionary<string, CField> optionMap, AliasesCFieldPair[] pairs)
+    {
+        foreach (AliasesCFieldPair pair in pairs)
+            foreach (string alias in pair.Aliases)
+                optionMap[alias] = pair.PCField;
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Reflection;
 
 namespace TwitchChatOffset;
 
@@ -13,7 +14,7 @@ public static class ConsoleUtils
     {
         ConsoleColor originalColor = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(message);
+        WriteLine(message);
         Console.ForegroundColor = originalColor;
     }
 
@@ -21,15 +22,25 @@ public static class ConsoleUtils
     {
         ConsoleColor originalColor = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine(message);
+        WriteLine(message);
         Console.ForegroundColor = originalColor;
     }
 
-    public static void WriteEnumerable(IEnumerable enumerable, string? heading = null)
+    public static void WriteEnumerable(IEnumerable enumerable, string? heading = null, string? indent = null)
     {
         if (heading != null)
-            Console.WriteLine(heading);
+            WriteLine(indent + heading);
         foreach (object? item in enumerable)
-            Console.WriteLine($"\t{item}");
+            WriteLine($"{indent}\t{item}");
+    }
+
+    public static void WriteType(Type type, object? obj, string? heading = null, string? indent = null)
+    {
+        if (heading != null)
+            WriteLine(indent + heading);
+        foreach (FieldInfo field in type.GetFields())
+            WriteLine($"{indent}\tField:\t{field.Name} = {field.GetValue(obj)}");
+        foreach (PropertyInfo property in type.GetProperties())
+            WriteLine($"{indent}\tProperty:\t{property.Name} = {property.GetValue(obj)}");
     }
 }

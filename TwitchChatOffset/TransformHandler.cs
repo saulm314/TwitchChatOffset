@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Text;
 using CSVFile;
@@ -27,21 +26,28 @@ public static class TransformHandler
 
     public static void HandleTransformManyToMany(string csvPath, long start, long end, Format format, string outputDir, bool quiet)
     {
-        IEnumerable<TransformManyToManyCsv> data = CSV.Deserialize<TransformManyToManyCsv>(File.ReadAllText(csvPath), csvSettings);
+        Dictionary<string, CField> optionMap = new();
+        AliasesCFieldPair[] pairs =
+        [
+            new(["input-file", "inputFile"],    CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.inputFile))!)),
+            new(["output-file", "outputFile"],  CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.outputFile))!)),
+            new(Tokens.StartOptionAliases,      CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.start))!)),
+            new(Tokens.EndOptionAliases,        CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.end))!)),
+            new(Tokens.FormatOptionAliases,     CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.format))!)),
+            new(Tokens.OutputDirOptionAliases,  CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.outputDir))!))
+        ];
+        Tokens.AddAliasesToOptionMap(optionMap, pairs);
+        IEnumerable<TransformManyToManyCsv> data = GetProcessedLines(csvPath, optionMap, start, end, format, outputDir);
         WriteLine("Writing files...");
         foreach (TransformManyToManyCsv line in data)
         {
             if (!quiet)
                 WriteLine($"\t{line.outputFile}");
-            line.start ??= start;
-            line.end ??= end;
-            line.format ??= format;
-            line.outputDirectory = string.IsNullOrWhiteSpace(line.outputDirectory) ? outputDir : line.outputDirectory;
-            _ = Directory.CreateDirectory(line.outputDirectory!);
-            string outputPath = line.outputDirectory!.EndsWith('\\') ? line.outputDirectory + line.outputFile : line.outputDirectory + '\\' + line.outputFile;
+            _ = Directory.CreateDirectory(line.outputDir!);
+            string outputPath = line.outputDir!.EndsWith('\\') ? line.outputDir + line.outputFile : line.outputDir + '\\' + line.outputFile;
             try
             {
-                HandleTransform(line.inputFile, outputPath, (long)line.start, (long)line.end, (Format)line.format);
+                HandleTransform(line.inputFile!, outputPath, (long)line.start!, (long)line.end!, (Format)line.format!);
             }
             catch (JsonReaderException e)
             {
@@ -53,6 +59,54 @@ public static class TransformHandler
                 WriteError($"JSON file {line.inputFile} parsed successfully but the contents were unexpected");
                 WriteError(e.Message);
             }
+        }
+        WriteLine("Done.");
+    }
+
+    private static IEnumerable<TransformManyToManyCsv> GetProcessedLines(string csvPath, Dictionary<string, CField> optionMap,
+        long start, long end, Format format, string outputDir)
+    {
+        CSVReader reader = CSVReader.FromFile(csvPath, csvSettings);
+        string[] dashedHeaders = new string[reader.Headers.Length];
+        for (int i = 0; i < reader.Headers.Length; i++)
+            dashedHeaders[i] = "--" + reader.Headers[i];
+        IEnumerable<string[]> lines = reader.Lines();
+        foreach (string[] line in lines)
+        {
+            TransformManyToManyCsv options = new();
+            for (int i = 0; i < line.Length; i++)
+            {
+                string? key =
+                    optionMap.ContainsKey(reader.Headers[i]) ? reader.Headers[i] :
+                    optionMap.ContainsKey(dashedHeaders[i]) ? dashedHeaders[i] : null;
+                if (key == null)
+                    continue;
+                CField cfield = optionMap[key];
+                if (line[i] == string.Empty)
+                    continue;
+                if (!cfield.Converter.IsValid(line[i]))
+                {
+                    WriteWarning($"Cannot convert \"{line[i]}\" to type {cfield.Field.FieldType.FullName}; treating as an empty string...");
+                    continue;
+                }
+                object? value = cfield.Converter.ConvertFromString(line[i]);
+                cfield.Field.SetValue(options, value);
+            }
+            if (options.inputFile == null)
+            {
+                WriteError($"Input file must not be empty! Skipping...");
+                continue;
+            }
+            if (options.outputFile == null)
+            {
+                WriteError($"Output file must not be empty! Skipping...");
+                continue;
+            }
+            options.start ??= start;
+            options.end ??= end;
+            options.format ??= format;
+            options.outputDir ??= outputDir;
+            yield return options;
         }
     }
 

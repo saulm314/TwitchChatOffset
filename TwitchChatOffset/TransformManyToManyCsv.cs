@@ -2,10 +2,10 @@
 
 public class TransformManyToManyCsv
 {
-    public string inputFile = string.Empty;
-    public string outputFile = string.Empty;
+    public string? inputFile;
+    public string? outputFile;
     public long? start;
     public long? end;
     public Format? format;
-    public string? outputDirectory;
+    public string? outputDir;
 }
