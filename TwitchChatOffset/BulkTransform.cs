@@ -12,7 +12,7 @@ public static class BulkTransform
 {
     public static void HandleTransformManyToMany(string csvPath, long start, long end, Format format, string outputDir, bool quiet)
     {
-        Dictionary<string, CField> optionMap = new();
+        Dictionary<string, CField> optionMap = [];
         AliasesCFieldPair[] pairs =
         [
             new(["input-file", "inputFile"],    CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.inputFile))!)),
@@ -24,29 +24,7 @@ public static class BulkTransform
         ];
         AddAliasesToOptionMap(optionMap, pairs);
         IEnumerable<TransformManyToManyCsv> data = GetProcessedLines(csvPath, optionMap, start, end, format, outputDir);
-        WriteLine("Writing files...");
-        foreach (TransformManyToManyCsv line in data)
-        {
-            if (!quiet)
-                WriteLine($"{line.outputFile}", 1);
-            _ = Directory.CreateDirectory(line.outputDir!);
-            string outputPath = line.outputDir!.EndsWith('\\') ? line.outputDir + line.outputFile : line.outputDir + '\\' + line.outputFile;
-            try
-            {
-                Transform.HandleTransform(line.inputFile!, outputPath, (long)line.start!, (long)line.end!, (Format)line.format!);
-            }
-            catch (JsonReaderException e)
-            {
-                WriteError($"Could not parse JSON file {line.inputFile}", 2);
-                WriteError(e.Message, 2);
-            }
-            catch (Exception e)
-            {
-                WriteError($"JSON file {line.inputFile} parsed successfully but the contents were unexpected", 2);
-                WriteError(e.Message, 2);
-            }
-        }
-        WriteLine("Done.");
+        WriteFiles(data, quiet);
     }
 
     private static void AddAliasesToOptionMap(Dictionary<string, CField> optionMap, AliasesCFieldPair[] pairs)
@@ -101,6 +79,33 @@ public static class BulkTransform
             options.outputDir ??= outputDir;
             yield return options;
         }
+    }
+
+    private static void WriteFiles(IEnumerable<TransformManyToManyCsv> lines, bool quiet)
+    {
+        WriteLine("Writing files...");
+        foreach (TransformManyToManyCsv line in lines)
+        {
+            if (!quiet)
+                WriteLine($"{line.outputFile}", 1);
+            _ = Directory.CreateDirectory(line.outputDir!);
+            string outputPath = line.outputDir!.EndsWith('\\') ? line.outputDir + line.outputFile : line.outputDir + '\\' + line.outputFile;
+            try
+            {
+                Transform.HandleTransform(line.inputFile!, outputPath, (long)line.start!, (long)line.end!, (Format)line.format!);
+            }
+            catch (JsonReaderException e)
+            {
+                WriteError($"Could not parse JSON file {line.inputFile}", 2);
+                WriteError(e.Message, 2);
+            }
+            catch (Exception e)
+            {
+                WriteError($"JSON file {line.inputFile} parsed successfully but the contents were unexpected", 2);
+                WriteError(e.Message, 2);
+            }
+        }
+        WriteLine("Done.");
     }
 
     public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Format format, bool quiet)
