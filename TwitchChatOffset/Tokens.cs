@@ -31,8 +31,8 @@ public class Tokens
     public static string[] StartOptionAliases { get; } = ["--start"];
     public static string[] EndOptionAliases { get; } = ["--end"];
     public static string[] FormatOptionAliases { get; } = ["--format", "--formatting", "-f"];
-    public static string[] InputDirOptionAliases { get; } = ["--input", "--input-directory", "-i"];
-    public static string[] OutputDirOptionAliases { get; } = ["--output", "--output-directory", "-o"];
+    public static string[] InputDirOptionAliases { get; } = ["--input-directory", "--input", "-i"];
+    public static string[] OutputDirOptionAliases { get; } = ["--output-directory", "--output", "-o"];
     public static string[] QuietOptionAliases { get; } = ["--quiet", "-q"];
     public static string[] SearchPatternOptionAliases { get; } = ["--search-pattern"];
 }

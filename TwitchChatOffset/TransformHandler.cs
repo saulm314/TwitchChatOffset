@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Text;
 using CSVFile;
@@ -24,19 +25,23 @@ public static class TransformHandler
         File.WriteAllText(outputPath, output);
     }
 
-    public static void HandleTransformManyToMany(string csvPath, string outputDir, Format format, bool quiet)
+    public static void HandleTransformManyToMany(string csvPath, long start, long end, Format format, string outputDir, bool quiet)
     {
-        _ = Directory.CreateDirectory(outputDir);
         IEnumerable<TransformManyToManyCsv> data = CSV.Deserialize<TransformManyToManyCsv>(File.ReadAllText(csvPath), csvSettings);
         WriteLine("Writing files...");
         foreach (TransformManyToManyCsv line in data)
         {
             if (!quiet)
                 WriteLine($"\t{line.outputFile}");
-            string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
+            line.start ??= start;
+            line.end ??= end;
+            line.format ??= format;
+            line.outputDirectory = string.IsNullOrWhiteSpace(line.outputDirectory) ? outputDir : line.outputDirectory;
+            _ = Directory.CreateDirectory(line.outputDirectory!);
+            string outputPath = line.outputDirectory!.EndsWith('\\') ? line.outputDirectory + line.outputFile : line.outputDirectory + '\\' + line.outputFile;
             try
             {
-                HandleTransform(line.inputFile, outputPath, line.start, line.end, format);
+                HandleTransform(line.inputFile, outputPath, (long)line.start, (long)line.end, (Format)line.format);
             }
             catch (JsonReaderException e)
             {

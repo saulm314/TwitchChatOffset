@@ -12,8 +12,10 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
     protected override void AddTokens()
     {
         PCommand.Add(tokens.CsvArgument);
-        PCommand.Add(tokens.OutputDirOption);
+        PCommand.Add(tokens.StartOption);
+        PCommand.Add(tokens.EndOption);
         PCommand.Add(tokens.FormatOption);
+        PCommand.Add(tokens.OutputDirOption);
         PCommand.Add(tokens.QuietOption);
     }
 
@@ -24,8 +26,10 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
         return new
         (
             Arg(tokens.CsvArgument),
-            Opt(tokens.OutputDirOption),
+            Opt(tokens.StartOption),
+            Opt(tokens.EndOption),
             Opt(tokens.FormatOption),
+            Opt(tokens.OutputDirOption),
             Opt(tokens.QuietOption)
         );
     }
@@ -33,14 +37,16 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
     public readonly record struct Data
     (
         string CsvPath,
-        string OutputDir,
+        long Start,
+        long End,
         Format PFormat,
+        string OutputDir,
         bool Quiet
     );
 
     protected override void Handle(Data data)
     {
-        (string csvPath, string outputDir, Format format, bool quiet) = data;
-        TransformHandler.HandleTransformManyToMany(csvPath, outputDir, format, quiet);
+        (string csvPath, long start, long end, Format format, string outputDir, bool quiet) = data;
+        TransformHandler.HandleTransformManyToMany(csvPath, start, end, format, outputDir, quiet);
     }
 }
