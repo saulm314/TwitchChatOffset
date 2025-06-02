@@ -47,6 +47,7 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
     protected override void Handle(Data data)
     {
         (string csvPath, long start, long end, Format format, string outputDir, bool quiet) = data;
-        BulkTransform.HandleTransformManyToMany(csvPath, start, end, format, outputDir, quiet);
+        CsvOptions csvOptions = new(start, end, format, outputDir);
+        BulkTransform.HandleTransformManyToMany(csvPath, csvOptions, quiet);
     }
 }

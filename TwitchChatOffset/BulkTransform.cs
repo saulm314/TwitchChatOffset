@@ -10,7 +10,7 @@ namespace TwitchChatOffset;
 
 public static class BulkTransform
 {
-    public static void HandleTransformManyToMany(string csvPath, long start, long end, Format format, string outputDir, bool quiet)
+    public static void HandleTransformManyToMany(string csvPath, CsvOptions csvOptions, bool quiet)
     {
         BulkTransform.quiet = quiet;
         Dictionary<string, CField> optionMap = [];
@@ -24,7 +24,7 @@ public static class BulkTransform
             new(Tokens.OutputDirOptionAliases,      CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.outputDir))!))
         ];
         AddAliasesToOptionMap(optionMap, pairs);
-        IEnumerable<TransformManyToManyCsv> data = GetProcessedLines(csvPath, optionMap, start, end, format, outputDir);
+        IEnumerable<TransformManyToManyCsv> data = GetProcessedLines(csvPath, optionMap, csvOptions);
         WriteFiles(data);
     }
 
@@ -35,18 +35,17 @@ public static class BulkTransform
                 optionMap[alias] = pair.PCField;
     }
 
-    private static IEnumerable<TransformManyToManyCsv> GetProcessedLines(string csvPath, Dictionary<string, CField> optionMap,
-        long start, long end, Format format, string outputDir)
+    private static IEnumerable<TransformManyToManyCsv> GetProcessedLines(string csvPath, Dictionary<string, CField> optionMap, CsvOptions csvOptions)
     {
         GetHeadersAndLines(csvPath, out string[] headers, out IEnumerable<string[]> lines);
-        return GetProcessedLines(lines, headers, optionMap, start, end, format, outputDir);
+        return GetProcessedLines(lines, headers, optionMap, csvOptions);
     }
 
     private static IEnumerable<BulkTransformCsv> GetProcessedLines(string csvPath, string inputFile, Func<BulkTransformCsv> newOptions,
-        Dictionary<string, CField> optionMap, long start, long end, Format format, string outputDir)
+        Dictionary<string, CField> optionMap, CsvOptions csvOptions)
     {
         GetHeadersAndLines(csvPath, out string[] headers, out IEnumerable<string[]> lines);
-        return GetProcessedLines(lines, inputFile, newOptions, headers, optionMap, start, end, format, outputDir);
+        return GetProcessedLines(lines, inputFile, newOptions, headers, optionMap, csvOptions);
     }
 
     private static void GetHeadersAndLines(string csvPath, out string[] headers, out IEnumerable<string[]> lines)
@@ -65,36 +64,36 @@ public static class BulkTransform
     }
 
     private static IEnumerable<TransformManyToManyCsv> GetProcessedLines(IEnumerable<string[]> lines, string[] headers, Dictionary<string, CField> optionMap,
-        long start, long end, Format format, string outputDir)
+        CsvOptions csvOptions)
     {
         foreach (string[] line in lines)
         {
             TransformManyToManyCsv options = new();
-            bool valid = GetProcessedLine(options, line, headers, optionMap, start, end, format, outputDir);
+            bool valid = GetProcessedLine(options, line, headers, optionMap, csvOptions);
             if (valid)
                 yield return options;
         }
     }
 
     private static IEnumerable<BulkTransformCsv> GetProcessedLines(IEnumerable<string[]> lines, string inputFile, Func<BulkTransformCsv> newOptions,
-        string[] headers, Dictionary<string, CField> optionMap, long start, long end, Format format, string outputDir)
+        string[] headers, Dictionary<string, CField> optionMap, CsvOptions csvOptions)
     {
         foreach (string[] line in lines)
         {
             BulkTransformCsv options = newOptions();
-            bool valid = GetProcessedLine(options, in inputFile, line, headers, optionMap, start, end, format, outputDir);
+            bool valid = GetProcessedLine(options, in inputFile, line, headers, optionMap, csvOptions);
             if (valid)
                 yield return options;
         }
     }
 
     private static bool GetProcessedLine(TransformManyToManyCsv options, string[] line, string[] headers, Dictionary<string, CField> optionMap,
-        long start, long end, Format format, string outputDir)
-        => GetProcessedLine(options, in options.inputFile, line, headers, optionMap, start, end, format, outputDir);
+        CsvOptions csvOptions)
+        => GetProcessedLine(options, in options.inputFile, line, headers, optionMap, csvOptions);
 
     // returns false if line is invalid
     private static bool GetProcessedLine(BulkTransformCsv options, in string? inputFile, string[] line, string[] headers, Dictionary<string, CField> optionMap,
-        long start, long end, Format format, string outputDir)
+        CsvOptions csvOptions)
     {
         for (int i = 0; i < line.Length; i++)
             WriteField(options, line[i], headers[i], optionMap);
@@ -110,6 +109,7 @@ public static class BulkTransform
         }
         if (!quiet)
             WriteLine($"{options.outputFile}", 1);
+        (long start, long end, Format format, string outputDir) = csvOptions;
         options.start ??= start;
         options.end ??= end;
         options.format ??= format;
