@@ -13,26 +13,53 @@ public static class BulkTransform
     public static void HandleTransformManyToMany(string csvPath, CsvOptions csvOptions, bool quiet)
     {
         BulkTransform.quiet = quiet;
-        Dictionary<string, CField> optionMap = [];
-        AliasesCFieldPair[] pairs =
-        [
-            new(["--input-file", "--inputFile"],    CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.inputFile))!)),
-            new(["--output-file", "--outputFile"],  CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.outputFile))!)),
-            new(Tokens.StartOptionAliases,          CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.start))!)),
-            new(Tokens.EndOptionAliases,            CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.end))!)),
-            new(Tokens.FormatOptionAliases,         CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.format))!)),
-            new(Tokens.OutputDirOptionAliases,      CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.outputDir))!))
-        ];
-        AddAliasesToOptionMap(optionMap, pairs);
+        IEnumerable<AliasesCFieldPair> pairs = GetAliasesCFieldPairs<TransformManyToManyCsv>();
+        Dictionary<string, CField> optionMap = GetOptionMap(pairs);
+        WriteLine("Writing files...", 0, quiet);
         IEnumerable<TransformManyToManyCsv> data = GetProcessedLines(csvPath, optionMap, csvOptions);
         WriteFiles(data);
     }
 
-    private static void AddAliasesToOptionMap(Dictionary<string, CField> optionMap, AliasesCFieldPair[] pairs)
+    /*public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Format format, bool quiet)
     {
+        _ = Directory.CreateDirectory(outputDir);
+        IEnumerable<TransformOneToManyCsv> data = CSV.Deserialize<TransformOneToManyCsv>(File.ReadAllText(csvPath), csvSettings);
+        string input = File.ReadAllText(inputPath);
+        JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
+        WriteLine("Writing files...", 0, quiet);
+        foreach (TransformOneToManyCsv line in data)
+        {
+            WriteLine($"{line.outputFile}", 1, quiet);
+            string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
+            JToken clonedParent = parent.DeepClone();
+            Transform.HandleTransform(clonedParent, outputPath, line.start, line.end, format);
+        }
+    }*/
+
+    public static void HandleTransformOneToMany(string inputPath, string csvPath, CsvOptions csvOptions, bool quiet)
+    {
+        BulkTransform.quiet = quiet;
+
+    }
+
+    private static IEnumerable<AliasesCFieldPair> GetAliasesCFieldPairs<TBulkTransformCsv>() where TBulkTransformCsv : BulkTransformCsv
+    {
+        if (typeof(TBulkTransformCsv) == typeof(TransformManyToManyCsv))
+            yield return new(["--input-file", "--inputFile"],   CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.inputFile))!));
+        yield return new(["--output-file", "--outputFile"],     CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.outputFile))!));
+        yield return new(Tokens.StartOptionAliases,             CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.start))!));
+        yield return new(Tokens.EndOptionAliases,               CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.end))!));
+        yield return new(Tokens.FormatOptionAliases,            CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.format))!));
+        yield return new(Tokens.OutputDirOptionAliases,         CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.outputDir))!));
+    }
+
+    private static Dictionary<string, CField> GetOptionMap(IEnumerable<AliasesCFieldPair> pairs)
+    {
+        Dictionary<string, CField> optionMap = [];
         foreach (AliasesCFieldPair pair in pairs)
             foreach (string alias in pair.Aliases)
                 optionMap[alias] = pair.PCField;
+        return optionMap;
     }
 
     private static IEnumerable<TransformManyToManyCsv> GetProcessedLines(string csvPath, Dictionary<string, CField> optionMap, CsvOptions csvOptions)
@@ -99,12 +126,12 @@ public static class BulkTransform
             WriteField(options, line[i], headers[i], optionMap);
         if (inputFile == null)
         {
-            WriteError($"Input file must not be empty! Skipping...", 2);
+            WriteError($"Input file must not be empty! Skipping...", 1);
             return false;
         }
         if (options.outputFile == null)
         {
-            WriteError($"Output file must not be empty! Skipping...", 2);
+            WriteError($"Output file must not be empty! Skipping...", 1);
             return false;
         }
         if (!quiet)
@@ -125,7 +152,7 @@ public static class BulkTransform
             return;
         if (!cField.Converter.IsValid(field))
         {
-            WriteWarning($"Cannot convert \"{field}\" to type {cField.Field.FieldType.FullName}; treating as an empty string...", 2);
+            WriteWarning($"Cannot convert \"{field}\" to type {cField.Field.FieldType.FullName}; treating as an empty string...", 1);
             return;
         }
         object? value = cField.Converter.ConvertFromString(field);
@@ -162,22 +189,6 @@ public static class BulkTransform
         {
             WriteError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
             WriteError(e.Message, 2);
-        }
-    }
-
-    public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Format format, bool quiet)
-    {
-        _ = Directory.CreateDirectory(outputDir);
-        IEnumerable<TransformOneToManyCsv> data = CSV.Deserialize<TransformOneToManyCsv>(File.ReadAllText(csvPath), csvSettings);
-        string input = File.ReadAllText(inputPath);
-        JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
-        WriteLine("Writing files...", 0, quiet);
-        foreach (TransformOneToManyCsv line in data)
-        {
-            WriteLine($"{line.outputFile}", 1, quiet);
-            string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
-            JToken clonedParent = parent.DeepClone();
-            Transform.HandleTransform(clonedParent, outputPath, line.start, line.end, format);
         }
     }
 
