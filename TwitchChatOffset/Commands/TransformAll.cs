@@ -53,6 +53,6 @@ public class TransformAll : CommandBinder<TransformAll.Data>
     protected override void Handle(Data data)
     {
         (string suffix, string inputDir, string searchPattern, string outputDir, Format format, bool quiet, long start, long end) = data;
-        BulkTransform.HandleTransformAll(suffix, inputDir, searchPattern, outputDir, format, quiet, start, end);
+        BulkTransformLegacy.HandleTransformAll(suffix, inputDir, searchPattern, outputDir, format, quiet, start, end);
     }
 }

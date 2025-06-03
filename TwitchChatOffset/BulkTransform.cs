@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
-using System;
+using System.Reflection;
 using CSVFile;
-using Newtonsoft.Json.Linq;
-using System.Text;
+using Newtonsoft.Json;
 
 namespace TwitchChatOffset;
 
@@ -13,219 +13,111 @@ public static class BulkTransform
     public static void HandleTransformManyToMany(string csvPath, CsvOptions csvOptions, bool quiet)
     {
         BulkTransform.quiet = quiet;
-        IEnumerable<AliasesCFieldPair> pairs = GetAliasesCFieldPairs<TransformManyToManyCsv>();
-        Dictionary<string, CField> optionMap = GetOptionMap(pairs);
-        WriteLine("Writing files...", 0, quiet);
-        IEnumerable<TransformManyToManyCsv> data = GetProcessedLines(csvPath, optionMap, csvOptions);
+        IEnumerable<TransformManyToManyCsv> data = GetProcessedLines(csvPath, csvOptions, () => new TransformManyToManyCsv());
         WriteFiles(data);
     }
 
-    /*public static void HandleTransformOneToMany(string inputPath, string csvPath, string outputDir, Format format, bool quiet)
-    {
-        _ = Directory.CreateDirectory(outputDir);
-        IEnumerable<TransformOneToManyCsv> data = CSV.Deserialize<TransformOneToManyCsv>(File.ReadAllText(csvPath), csvSettings);
-        string input = File.ReadAllText(inputPath);
-        JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
-        WriteLine("Writing files...", 0, quiet);
-        foreach (TransformOneToManyCsv line in data)
-        {
-            WriteLine($"{line.outputFile}", 1, quiet);
-            string outputPath = outputDir.EndsWith('\\') ? outputDir + line.outputFile : outputDir + '\\' + line.outputFile;
-            JToken clonedParent = parent.DeepClone();
-            Transform.HandleTransform(clonedParent, outputPath, line.start, line.end, format);
-        }
-    }*/
-
-    public static void HandleTransformOneToMany(string inputPath, string csvPath, CsvOptions csvOptions, bool quiet)
-    {
-        BulkTransform.quiet = quiet;
-
-    }
-
-    private static IEnumerable<AliasesCFieldPair> GetAliasesCFieldPairs<TBulkTransformCsv>() where TBulkTransformCsv : BulkTransformCsv
-    {
-        if (typeof(TBulkTransformCsv) == typeof(TransformManyToManyCsv))
-            yield return new(["--input-file", "--inputFile"],   CField.New(typeof(TransformManyToManyCsv).GetField(nameof(TransformManyToManyCsv.inputFile))!));
-        yield return new(["--output-file", "--outputFile"],     CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.outputFile))!));
-        yield return new(Tokens.StartOptionAliases,             CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.start))!));
-        yield return new(Tokens.EndOptionAliases,               CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.end))!));
-        yield return new(Tokens.FormatOptionAliases,            CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.format))!));
-        yield return new(Tokens.OutputDirOptionAliases,         CField.New(typeof(BulkTransformCsv).GetField(nameof(BulkTransformCsv.outputDir))!));
-    }
-
-    private static Dictionary<string, CField> GetOptionMap(IEnumerable<AliasesCFieldPair> pairs)
-    {
-        Dictionary<string, CField> optionMap = [];
-        foreach (AliasesCFieldPair pair in pairs)
-            foreach (string alias in pair.Aliases)
-                optionMap[alias] = pair.PCField;
-        return optionMap;
-    }
-
-    private static IEnumerable<TransformManyToManyCsv> GetProcessedLines(string csvPath, Dictionary<string, CField> optionMap, CsvOptions csvOptions)
-    {
-        GetHeadersAndLines(csvPath, out string[] headers, out IEnumerable<string[]> lines);
-        return GetProcessedLines(lines, headers, optionMap, csvOptions);
-    }
-
-    private static IEnumerable<BulkTransformCsv> GetProcessedLines(string csvPath, string inputFile, Func<BulkTransformCsv> newOptions,
-        Dictionary<string, CField> optionMap, CsvOptions csvOptions)
-    {
-        GetHeadersAndLines(csvPath, out string[] headers, out IEnumerable<string[]> lines);
-        return GetProcessedLines(lines, inputFile, newOptions, headers, optionMap, csvOptions);
-    }
-
-    private static void GetHeadersAndLines(string csvPath, out string[] headers, out IEnumerable<string[]> lines)
+    private static IEnumerable<TCsvData> GetProcessedLines<TCsvData>(string csvPath, CsvOptions csvOptions, Func<TCsvData> newData) where TCsvData : ICsvData
     {
         CSVReader reader = CSVReader.FromFile(csvPath, csvSettings);
-        headers = GetDashedHeaders(reader);
-        lines = reader.Lines();
-    }
-
-    private static string[] GetDashedHeaders(CSVReader reader)
-    {
-        string[] dashedHeaders = new string[reader.Headers.Length];
-        for (int i = 0; i < dashedHeaders.Length; i++)
-            dashedHeaders[i] = "--" + reader.Headers[i];
-        return dashedHeaders;
-    }
-
-    private static IEnumerable<TransformManyToManyCsv> GetProcessedLines(IEnumerable<string[]> lines, string[] headers, Dictionary<string, CField> optionMap,
-        CsvOptions csvOptions)
-    {
-        foreach (string[] line in lines)
+        Dictionary<string, FieldInfoInfo> dataMap = GetDataMap<TCsvData>(reader.Headers);
+        foreach (string[] line in reader.Lines())
         {
-            TransformManyToManyCsv options = new();
-            bool valid = GetProcessedLine(options, line, headers, optionMap, csvOptions);
-            if (valid)
-                yield return options;
+            TCsvData data = newData();
+            bool valid = GetProcessedLine(data, line, reader.Headers, dataMap, csvOptions, out string explanation);
+            if (!valid)
+                WriteError(explanation, 1);
+            yield return data;
         }
     }
 
-    private static IEnumerable<BulkTransformCsv> GetProcessedLines(IEnumerable<string[]> lines, string inputFile, Func<BulkTransformCsv> newOptions,
-        string[] headers, Dictionary<string, CField> optionMap, CsvOptions csvOptions)
+    private static Dictionary<string, FieldInfoInfo> GetDataMap<TCsvData>(string[] headers) where TCsvData : ICsvData
     {
-        foreach (string[] line in lines)
+        Dictionary<string, FieldInfoInfo> dataMap = [];
+        List<FieldInfoInfo> fieldInfos = GetFieldInfos<TCsvData>();
+        foreach (string header in headers)
         {
-            BulkTransformCsv options = newOptions();
-            bool valid = GetProcessedLine(options, in inputFile, line, headers, optionMap, csvOptions);
-            if (valid)
-                yield return options;
+            foreach (FieldInfoInfo fieldInfo in fieldInfos)
+            {
+                foreach (string alias in fieldInfo.attribute.Aliases)
+                {
+                    if (header == alias)
+                    {
+                        dataMap.Add(alias, fieldInfo);
+                        goto Found;
+                    }
+                }
+            }
+            Found:;
         }
+        return dataMap;
     }
 
-    private static bool GetProcessedLine(TransformManyToManyCsv options, string[] line, string[] headers, Dictionary<string, CField> optionMap,
-        CsvOptions csvOptions)
-        => GetProcessedLine(options, in options.inputFile, line, headers, optionMap, csvOptions);
+    private static List<FieldInfoInfo> GetFieldInfos<TCsvData>() where TCsvData : ICsvData
+    {
+        FieldInfo[] fields = typeof(TCsvData).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+        List<FieldInfoInfo> fieldInfos = new(fields.Length);
+        foreach (FieldInfo field in fields)
+        {
+            AliasesAttribute? attribute = FieldInfoInfo.GetAliasesAttribute(field);
+            if (attribute == null)
+                continue;
+            FieldInfoInfo fieldInfo = new(field, attribute);
+            fieldInfos.Add(fieldInfo);
+        }
+        return fieldInfos;
+    }
 
-    // returns false if line is invalid
-    private static bool GetProcessedLine(BulkTransformCsv options, in string? inputFile, string[] line, string[] headers, Dictionary<string, CField> optionMap,
-        CsvOptions csvOptions)
+    private static bool GetProcessedLine(ICsvData data, string[] line, string[] headers, Dictionary<string, FieldInfoInfo> dataMap, CsvOptions csvOptions,
+        out string explanation)
     {
         for (int i = 0; i < line.Length; i++)
-            WriteField(options, line[i], headers[i], optionMap);
-        if (inputFile == null)
-        {
-            WriteError($"Input file must not be empty! Skipping...", 1);
+            WriteField(data, line[i], headers[i], dataMap);
+        if (!data.NullablesGood(out explanation))
             return false;
-        }
-        if (options.outputFile == null)
-        {
-            WriteError($"Output file must not be empty! Skipping...", 1);
-            return false;
-        }
-        if (!quiet)
-            WriteLine($"{options.outputFile}", 1);
-        (long start, long end, Format format, string outputDir) = csvOptions;
-        options.start ??= start;
-        options.end ??= end;
-        options.format ??= format;
-        options.outputDir ??= outputDir;
+        WriteLine($"{data.OutputFile}", 1, quiet);
+        data.WriteDefaultToEmptyFields(csvOptions);
         return true;
     }
 
-    private static void WriteField(BulkTransformCsv options, string field, string header, Dictionary<string, CField> optionMap)
+    private static void WriteField(ICsvData data, string field, string header, Dictionary<string, FieldInfoInfo> dataMap)
     {
-        if (!optionMap.TryGetValue(header, out CField cField))
+        if (!dataMap.TryGetValue(header, out FieldInfoInfo fieldInfo))
             return;
         if (field == string.Empty)
             return;
-        if (!cField.Converter.IsValid(field))
+        if (!fieldInfo.converter.IsValid(field))
         {
-            WriteWarning($"Cannot convert \"{field}\" to type {cField.Field.FieldType.FullName}; treating as an empty string...", 1);
+            WriteWarning($"Cannot convert \"{field}\" to type {fieldInfo.field.FieldType.FullName}; treating as an empty string...", 1);
             return;
         }
-        object? value = cField.Converter.ConvertFromString(field);
-        cField.Field.SetValue(options, value);
+        object? value = fieldInfo.converter.ConvertFromString(field);
+        fieldInfo.field.SetValue(data, value);
     }
 
-    private static void WriteFiles(IEnumerable<TransformManyToManyCsv> lines)
+    private static void WriteFiles<TCsvData>(IEnumerable<TCsvData> lines) where TCsvData : ICsvData
     {
-        foreach (TransformManyToManyCsv line in lines)
-            WriteFile(line, line.inputFile!);
-        WriteLine("Done.", 0, quiet);
-    }
-
-    private static void WriteFiles(IEnumerable<BulkTransformCsv> lines, string inputFile)
-    {
-        foreach (BulkTransformCsv line in lines)
-            WriteFile(line, inputFile);
-    }
-
-    private static void WriteFile(BulkTransformCsv line, string inputFile)
-    {
-        _ = Directory.CreateDirectory(line.outputDir!);
-        string outputPath = line.outputDir!.EndsWith('\\') ? line.outputDir + line.outputFile : line.outputDir + '\\' + line.outputFile;
-        try
+        foreach (TCsvData line in lines)
         {
-            Transform.HandleTransform(inputFile, outputPath, (long)line.start!, (long)line.end!, (Format)line.format!);
-        }
-        catch (JsonReaderException e)
-        {
-            WriteError($"Could not parse JSON file {inputFile}", 2);
-            WriteError(e.Message, 2);
-        }
-        catch (Exception e)
-        {
-            WriteError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
-            WriteError(e.Message, 2);
-        }
-    }
-
-    public static void HandleTransformAll(string suffix, string inputDir, string searchPattern, string outputDir, Format format, bool quiet, long start, long end)
-    {
-        _ = Directory.CreateDirectory(outputDir);
-        string[] fileNames = Directory.GetFiles(inputDir, searchPattern);
-        WriteEnumerable(fileNames, "Input files found:", 0, quiet);
-        WriteLine("Writing files...", 0, quiet);
-        foreach (string fileName in fileNames)
-        {
-            string fileNameBody = Path.GetFileNameWithoutExtension(fileName);
-
-            StringBuilder outputPathBuilder = new();
-            outputPathBuilder.Append(outputDir);
-            if (!outputDir.EndsWith('\\'))
-                outputPathBuilder.Append('\\');
-            outputPathBuilder.Append(fileNameBody);
-            outputPathBuilder.Append(suffix);
-            string outputPath = outputPathBuilder.ToString();
-            WriteLine($"{outputPath}", 2, quiet);
-
+            (string inputFile, string outputFile, long start, long end, Format format, string outputDir) = line;
+            _ = Directory.CreateDirectory(outputDir);
+            string outputPath = outputDir.EndsWith('\\') ? outputDir + outputFile : outputDir + '\\' + outputFile;
             try
             {
-                Transform.HandleTransform(fileName, outputPath, start, end, format);
+                Transform.HandleTransform(inputFile, outputPath, start, end, format);
             }
             catch (JsonReaderException e)
             {
-                WriteError($"Could not parse JSON file {fileName}", 2);
+                WriteError($"Could not parse JSON file {inputFile}", 2);
                 WriteError(e.Message, 2);
             }
             catch (Exception e)
             {
-                WriteError($"JSON file {fileName} parsed successfully but the contents were unexpected", 2);
+                WriteError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
                 WriteError(e.Message, 2);
             }
         }
+        WriteLine("Done.", 0, quiet);
     }
 
     private static readonly CSVSettings csvSettings = new()
@@ -234,4 +126,13 @@ public static class BulkTransform
     };
 
     private static bool quiet = false;
+
+    private readonly struct FieldInfoInfo(FieldInfo field, AliasesAttribute attribute)
+    {
+        public readonly FieldInfo field = field;
+        public readonly TypeConverter converter = TypeDescriptor.GetConverter(field.FieldType);
+        public readonly AliasesAttribute attribute = attribute;
+
+        public static AliasesAttribute? GetAliasesAttribute(FieldInfo field) => field.GetCustomAttribute<AliasesAttribute>();
+    }
 }

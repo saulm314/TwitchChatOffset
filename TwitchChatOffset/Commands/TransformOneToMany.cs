@@ -51,6 +51,6 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
     {
         (string inputPath, string csvPath, long start, long end, Format format, string outputDir, bool quiet) = data;
         CsvOptions csvOptions = new(start, end, format, outputDir);
-        BulkTransform.HandleTransformOneToMany(inputPath, csvPath, csvOptions, quiet);
+        BulkTransformLegacy.HandleTransformOneToMany(inputPath, csvPath, csvOptions, quiet);
     }
 }
