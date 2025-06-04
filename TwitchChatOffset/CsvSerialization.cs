@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using CSVFile;
@@ -20,6 +22,18 @@ public static class CsvSerialization
                 WriteField(data, line[i], reader.Headers[i], dataMap);
             yield return data;
         }
+    }
+
+    private static IEnumerable<T> DeserializeDummy<T>(CSVReader reader) => Deserialize<T>(reader);
+
+    public static IEnumerable Deserialize(CSVReader reader, Type type)
+    {
+        return
+            (IEnumerable)
+            type
+            .GetMethod(nameof(DeserializeDummy))!
+            .MakeGenericMethod(type)
+            .Invoke(null, [reader])!;
     }
 
     private static Dictionary<string, FieldInfoInfo> GetDataMap<T>(string[] headers)
