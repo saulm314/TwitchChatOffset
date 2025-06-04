@@ -8,18 +8,16 @@ namespace TwitchChatOffset;
 
 public static class Transform
 {
-    public static void HandleTransform(string inputPath, string outputPath, long start, long end, Format format)
+    public static string MTransform(string input, long start, long end, Format format)
     {
-        string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
-        HandleTransform(parent, outputPath, start, end, format);
+        return MTransform(parent, start, end, format);
     }
 
-    public static void HandleTransform(JToken parent, string outputPath, long start, long end, Format format)
+    public static string MTransform(JToken input, long start, long end, Format format)
     {
-        ApplyOffset(parent, start, end);
-        string output = ApplyFormat(parent, format);
-        File.WriteAllText(outputPath, output);
+        ApplyOffset(input, start, end);
+        return ApplyFormat(input, format);
     }
 
     private static void ApplyOffset(JToken parent, long start, long end)

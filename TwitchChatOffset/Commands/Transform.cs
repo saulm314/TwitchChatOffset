@@ -1,5 +1,6 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Binding;
+using System.IO;
 using TransformHandler = TwitchChatOffset.Transform;
 
 namespace TwitchChatOffset.Commands;
@@ -45,6 +46,8 @@ public class Transform : CommandBinder<Transform.Data>
     protected override void Handle(Data data)
     {
         (string inputPath, string outputPath, long start, long end, Format format) = data;
-        TransformHandler.HandleTransform(inputPath, outputPath, start, end, format);
+        string input = File.ReadAllText(inputPath);
+        string output = TransformHandler.MTransform(input, start, end, format);
+        File.WriteAllText(outputPath, output);
     }
 }
