@@ -7,6 +7,7 @@ namespace TwitchChatOffset;
 
 public static class CsvSerialization
 {
+    // deserialize CSV content into fields in type T that have an AliasesAttribute
     public static IEnumerable<T> Deserialize<T>(CSVReader reader)
     {
         Dictionary<string, FieldInfoInfo> dataMap = GetDataMap<T>(reader.Headers);
