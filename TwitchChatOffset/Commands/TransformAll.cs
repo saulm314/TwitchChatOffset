@@ -59,9 +59,9 @@ public class TransformAll : CommandBinder<TransformAll.Data>
     {
         (string suffix, string inputDir, string searchPattern, string outputDir, Format format, bool quiet, long start, long end) = data;
         string[] fileNames = Directory.GetFiles(inputDir, searchPattern);
-        WriteEnumerable(fileNames, "Input files found:", 0, quiet);
+        PrintEnumerable(fileNames, "Input files found:", 0, quiet);
         _ = Directory.CreateDirectory(outputDir);
-        WriteLine("Writing files...", 0, quiet);
+        PrintLine("Writing files...", 0, quiet);
         foreach (string fileName in fileNames)
         {
             string fileNameBody = Path.GetFileNameWithoutExtension(fileName);
@@ -72,7 +72,7 @@ public class TransformAll : CommandBinder<TransformAll.Data>
             outputPathBuilder.Append(fileNameBody);
             outputPathBuilder.Append(suffix);
             string outputPath = outputPathBuilder.ToString();
-            WriteLine(outputPath, 2, quiet);
+            PrintLine(outputPath, 2, quiet);
             string input = File.ReadAllText(fileName);
             string output;
             try
@@ -81,14 +81,14 @@ public class TransformAll : CommandBinder<TransformAll.Data>
             }
             catch (JsonReaderException e)
             {
-                WriteError($"Could not parse JSON file {fileName}", 2);
-                WriteError(e.Message, 2);
+                PrintError($"Could not parse JSON file {fileName}", 2);
+                PrintError(e.Message, 2);
                 continue;
             }
             catch (Exception e)
             {
-                WriteError($"JSON file {fileName} parsed successfully but the contents were unexpected", 2);
-                WriteError(e.Message, 2);
+                PrintError($"JSON file {fileName} parsed successfully but the contents were unexpected", 2);
+                PrintError(e.Message, 2);
                 continue;
             }
             File.WriteAllText(outputPath, output);

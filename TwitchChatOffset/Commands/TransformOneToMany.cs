@@ -59,15 +59,15 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
         CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
-        WriteLine("Writing files...", 0, quiet);
+        PrintLine("Writing files...", 0, quiet);
         foreach (TransformOneToManyCsv line in CsvSerialization.Deserialize<TransformOneToManyCsv>(reader))
         {
             if (line.outputFile == null)
             {
-                WriteError("Output file must not be empty! Skipping...", 1);
+                PrintError("Output file must not be empty! Skipping...", 1);
                 continue;
             }
-            WriteLine(line.outputFile, 1, quiet);
+            PrintLine(line.outputFile, 1, quiet);
             string outputFile = line.outputFile;
             start = line.start ?? start;
             end = line.end ?? end;
@@ -83,14 +83,14 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
             }
             catch (JsonReaderException e)
             {
-                WriteError($"Could not parse JSON file {inputPath}", 2);
-                WriteError(e.Message, 2);
+                PrintError($"Could not parse JSON file {inputPath}", 2);
+                PrintError(e.Message, 2);
                 continue;
             }
             catch (Exception e)
             {
-                WriteError($"JSON file {inputPath} parsed successfully but the contents were unexpected", 2);
-                WriteError(e.Message, 2);
+                PrintError($"JSON file {inputPath} parsed successfully but the contents were unexpected", 2);
+                PrintError(e.Message, 2);
                 continue;
             }
             File.WriteAllText(outputPath, output);

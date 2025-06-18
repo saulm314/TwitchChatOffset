@@ -53,20 +53,20 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
     {
         (string csvPath, long start, long end, Format format, string outputDir, bool quiet) = data;
         CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
-        WriteLine("Writing files...", 0, quiet);
+        PrintLine("Writing files...", 0, quiet);
         foreach (TransformManyToManyCsv line in CsvSerialization.Deserialize<TransformManyToManyCsv>(reader))
         {
             if (line.inputFile == null)
             {
-                WriteError("Input file must not be empty! Skipping...", 1);
+                PrintError("Input file must not be empty! Skipping...", 1);
                 continue;
             }
             if (line.outputFile == null)
             {
-                WriteError("Output file must not be empty! Skipping...", 1);
+                PrintError("Output file must not be empty! Skipping...", 1);
                 continue;
             }
-            WriteLine(line.outputFile, 1, quiet);
+            PrintLine(line.outputFile, 1, quiet);
             string inputFile = line.inputFile;
             string outputFile = line.outputFile;
             start = line.start ?? start;
@@ -83,14 +83,14 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
             }
             catch (JsonReaderException e)
             {
-                WriteError($"Could not parse JSON file {inputFile}", 2);
-                WriteError(e.Message, 2);
+                PrintError($"Could not parse JSON file {inputFile}", 2);
+                PrintError(e.Message, 2);
                 continue;
             }
             catch (Exception e)
             {
-                WriteError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
-                WriteError(e.Message, 2);
+                PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
+                PrintError(e.Message, 2);
                 continue;
             }
             File.WriteAllText(outputPath, output);
