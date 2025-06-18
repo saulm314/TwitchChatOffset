@@ -75,10 +75,11 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
             outputDir = line.outputDir ?? outputDir;
             _ = Directory.CreateDirectory(outputDir);
             string outputPath = outputDir.EndsWith('\\') ? outputDir + outputFile : outputDir + '\\' + outputFile;
+            string input = File.ReadAllText(inputFile);
             string output;
             try
             {
-                output = TransformHandler.MTransform(inputFile, start, end, format);
+                output = TransformHandler.MTransform(input, start, end, format);
             }
             catch (JsonReaderException e)
             {

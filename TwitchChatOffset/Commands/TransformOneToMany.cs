@@ -56,7 +56,8 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
     protected override void Handle(Data data)
     {
         (string inputPath, string csvPath, long start, long end, Format format, string outputDir, bool quiet) = data;
-        JToken parent = (JToken)JsonConvert.DeserializeObject(inputPath)!;
+        string input = File.ReadAllText(inputPath);
+        JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
         CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
         WriteLine("Writing files...", 0, quiet);
         foreach (TransformOneToManyCsv line in CsvSerialization.Deserialize<TransformOneToManyCsv>(reader))

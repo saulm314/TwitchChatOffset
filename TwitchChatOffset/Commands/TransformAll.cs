@@ -1,6 +1,10 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Binding;
-using TwitchChatOffset.legacy;
+using System.IO;
+using System.Text;
+using Newtonsoft.Json;
+using TransformHandler = TwitchChatOffset.Transform;
 
 namespace TwitchChatOffset.Commands;
 
@@ -54,6 +58,40 @@ public class TransformAll : CommandBinder<TransformAll.Data>
     protected override void Handle(Data data)
     {
         (string suffix, string inputDir, string searchPattern, string outputDir, Format format, bool quiet, long start, long end) = data;
-        BulkTransformLegacy.HandleTransformAll(suffix, inputDir, searchPattern, outputDir, format, quiet, start, end);
+        string[] fileNames = Directory.GetFiles(inputDir, searchPattern);
+        WriteEnumerable(fileNames, "Input files found:", 0, quiet);
+        _ = Directory.CreateDirectory(outputDir);
+        WriteLine("Writing files...", 0, quiet);
+        foreach (string fileName in fileNames)
+        {
+            string fileNameBody = Path.GetFileNameWithoutExtension(fileName);
+            StringBuilder outputPathBuilder = new();
+            outputPathBuilder.Append(outputDir);
+            if (!outputDir.EndsWith('\\'))
+                outputPathBuilder.Append('\\');
+            outputPathBuilder.Append(fileNameBody);
+            outputPathBuilder.Append(suffix);
+            string outputPath = outputPathBuilder.ToString();
+            WriteLine(outputPath, 2, quiet);
+            string input = File.ReadAllText(fileName);
+            string output;
+            try
+            {
+                output = TransformHandler.MTransform(input, start, end, format);
+            }
+            catch (JsonReaderException e)
+            {
+                WriteError($"Could not parse JSON file {fileName}", 2);
+                WriteError(e.Message, 2);
+                continue;
+            }
+            catch (Exception e)
+            {
+                WriteError($"JSON file {fileName} parsed successfully but the contents were unexpected", 2);
+                WriteError(e.Message, 2);
+                continue;
+            }
+            File.WriteAllText(outputPath, output);
+        }
     }
 }
