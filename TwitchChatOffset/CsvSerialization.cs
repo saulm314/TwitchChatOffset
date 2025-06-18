@@ -30,7 +30,7 @@ public static class CsvSerialization
     {
         return
             (IEnumerable)
-            type
+            typeof(CsvSerialization)
             .GetMethod(nameof(DeserializeDummy))!
             .MakeGenericMethod(type)
             .Invoke(null, [reader])!;
