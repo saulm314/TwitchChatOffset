@@ -1,6 +1,10 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Binding;
-using TwitchChatOffset.legacy;
+using System.IO;
+using CSVFile;
+using Newtonsoft.Json;
+using TransformHandler = TwitchChatOffset.Transform;
 
 namespace TwitchChatOffset.Commands;
 
@@ -48,7 +52,47 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
     protected override void Handle(Data data)
     {
         (string csvPath, long start, long end, Format format, string outputDir, bool quiet) = data;
-        CsvOptions csvOptions = new(start, end, format, outputDir);
-        BulkTransformLegacy.HandleTransformManyToMany(csvPath, csvOptions, quiet);
+        CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
+        WriteLine("Writing files...", 0, quiet);
+        foreach (TransformManyToManyCsv line in CsvSerialization.Deserialize<TransformManyToManyCsv>(reader))
+        {
+            if (line.inputFile == null)
+            {
+                WriteError("Input file must not be empty! Skipping...", 1);
+                continue;
+            }
+            if (line.outputFile == null)
+            {
+                WriteError("Output file must not be empty! Skipping...", 1);
+                continue;
+            }
+            WriteLine(line.outputFile, 1, quiet);
+            string inputFile = line.inputFile;
+            string outputFile = line.outputFile;
+            start = line.start ?? start;
+            end = line.end ?? end;
+            format = line.format ?? format;
+            outputDir = line.outputDir ?? outputDir;
+            _ = Directory.CreateDirectory(outputDir);
+            string outputPath = outputDir.EndsWith('\\') ? outputDir + outputFile : outputDir + '\\' + outputFile;
+            string output;
+            try
+            {
+                output = TransformHandler.MTransform(inputFile, start, end, format);
+            }
+            catch (JsonReaderException e)
+            {
+                WriteError($"Could not parse JSON file {inputFile}", 2);
+                WriteError(e.Message, 2);
+                continue;
+            }
+            catch (Exception e)
+            {
+                WriteError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
+                WriteError(e.Message, 2);
+                continue;
+            }
+            File.WriteAllText(outputPath, output);
+        }
     }
 }
