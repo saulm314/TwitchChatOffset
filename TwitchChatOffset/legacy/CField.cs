@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 
-namespace TwitchChatOffset;
+namespace TwitchChatOffset.legacy;
 
 public readonly record struct CField(FieldInfo Field, TypeConverter Converter)
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TwitchChatOffset;
+namespace TwitchChatOffset.legacy;
 
 // it is recommended that any class that extends from this one is either sealed or also abstract (and keeping NullablesGood and NullablesChecked as abstract)
 // this is because a direct subclass is forced to implement NullablesGood and NullablesChecked since they are abstract,

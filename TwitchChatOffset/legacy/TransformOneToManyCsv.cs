@@ -1,4 +1,4 @@
-﻿namespace TwitchChatOffset;
+﻿namespace TwitchChatOffset.legacy;
 
 public sealed class TransformOneToManyCsv(string inputFile) : BulkTransformCsv, ICsvData
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TwitchChatOffset;
+namespace TwitchChatOffset.legacy;
 
 public sealed class TransformManyToManyCsv : BulkTransformCsv, ICsvData
 {

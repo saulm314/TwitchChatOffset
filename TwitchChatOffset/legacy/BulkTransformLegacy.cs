@@ -6,7 +6,7 @@ using CSVFile;
 using Newtonsoft.Json.Linq;
 using System.Text;
 
-namespace TwitchChatOffset;
+namespace TwitchChatOffset.legacy;
 
 public static class BulkTransformLegacy
 {

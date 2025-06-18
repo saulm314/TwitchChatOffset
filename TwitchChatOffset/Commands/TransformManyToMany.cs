@@ -1,5 +1,6 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Binding;
+using TwitchChatOffset.legacy;
 
 namespace TwitchChatOffset.Commands;
 
