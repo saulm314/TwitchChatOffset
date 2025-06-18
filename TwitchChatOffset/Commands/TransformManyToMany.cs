@@ -1,10 +1,7 @@
-﻿using System;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Binding;
 using System.IO;
 using CSVFile;
-using Newtonsoft.Json;
-using TransformHandler = TwitchChatOffset.Transform;
 
 namespace TwitchChatOffset.Commands;
 
@@ -51,48 +48,22 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
 
     protected override void Handle(Data data)
     {
-        (string csvPath, long start, long end, Format format, string outputDir, bool quiet) = data;
+        (string csvPath, long cliStart, long cliEnd, Format cliFormat, string cliOutputDir, bool quiet) = data;
         CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
         PrintLine("Writing files...", 0, quiet);
-        foreach (TransformManyToManyCsv line in CsvSerialization.Deserialize<TransformManyToManyCsv>(reader))
+        foreach (TransformManyToManyCsvNullables nullableLine in CsvSerialization.Deserialize<TransformManyToManyCsvNullables>(reader))
         {
-            if (line.inputFile == null)
-            {
-                PrintError("Input file must not be empty! Skipping...", 1);
+            TransformManyToManyCsv? line = BulkTransform.TryGetNonNullableLine(nullableLine, cliStart, cliEnd, cliFormat, cliOutputDir);
+            if (line == null)
                 continue;
-            }
-            if (line.outputFile == null)
-            {
-                PrintError("Output file must not be empty! Skipping...", 1);
-                continue;
-            }
-            PrintLine(line.outputFile, 1, quiet);
-            string inputFile = line.inputFile;
-            string outputFile = line.outputFile;
-            start = line.start ?? start;
-            end = line.end ?? end;
-            format = line.format ?? format;
-            outputDir = line.outputDir ?? outputDir;
+            (string inputFile, string outputFile, long start, long end, Format format, string outputDir) = line;
+            PrintLine(outputFile, 1, quiet);
             _ = Directory.CreateDirectory(outputDir);
-            string outputPath = outputDir.EndsWith('\\') ? outputDir + outputFile : outputDir + '\\' + outputFile;
+            string outputPath = BulkTransform.GetOutputPath(outputDir, outputFile);
             string input = File.ReadAllText(inputFile);
-            string output;
-            try
-            {
-                output = TransformHandler.MTransform(input, start, end, format);
-            }
-            catch (JsonReaderException e)
-            {
-                PrintError($"Could not parse JSON file {inputFile}", 2);
-                PrintError(e.Message, 2);
+            string? output = BulkTransform.TryTransform(inputFile, input, start, end, format);
+            if (output == null)
                 continue;
-            }
-            catch (Exception e)
-            {
-                PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
-                PrintError(e.Message, 2);
-                continue;
-            }
             File.WriteAllText(outputPath, output);
         }
     }

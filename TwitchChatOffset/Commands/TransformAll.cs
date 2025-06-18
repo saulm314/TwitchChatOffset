@@ -1,10 +1,6 @@
-﻿using System;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Binding;
 using System.IO;
-using System.Text;
-using Newtonsoft.Json;
-using TransformHandler = TwitchChatOffset.Transform;
 
 namespace TwitchChatOffset.Commands;
 
@@ -64,33 +60,12 @@ public class TransformAll : CommandBinder<TransformAll.Data>
         PrintLine("Writing files...", 0, quiet);
         foreach (string fileName in fileNames)
         {
-            string fileNameBody = Path.GetFileNameWithoutExtension(fileName);
-            StringBuilder outputPathBuilder = new();
-            outputPathBuilder.Append(outputDir);
-            if (!outputDir.EndsWith('\\'))
-                outputPathBuilder.Append('\\');
-            outputPathBuilder.Append(fileNameBody);
-            outputPathBuilder.Append(suffix);
-            string outputPath = outputPathBuilder.ToString();
-            PrintLine(outputPath, 2, quiet);
+            string outputPath = BulkTransform.GetOutputPath(fileName, outputDir, suffix);
+            PrintLine(outputPath, 1, quiet);
             string input = File.ReadAllText(fileName);
-            string output;
-            try
-            {
-                output = TransformHandler.MTransform(input, start, end, format);
-            }
-            catch (JsonReaderException e)
-            {
-                PrintError($"Could not parse JSON file {fileName}", 2);
-                PrintError(e.Message, 2);
+            string? output = BulkTransform.TryTransform(fileName, input, start, end, format);
+            if (output == null)
                 continue;
-            }
-            catch (Exception e)
-            {
-                PrintError($"JSON file {fileName} parsed successfully but the contents were unexpected", 2);
-                PrintError(e.Message, 2);
-                continue;
-            }
             File.WriteAllText(outputPath, output);
         }
     }

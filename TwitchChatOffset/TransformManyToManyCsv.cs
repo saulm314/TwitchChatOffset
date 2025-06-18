@@ -1,24 +1,11 @@
-﻿using static TwitchChatOffset.OptionAliases;
+﻿namespace TwitchChatOffset;
 
-namespace TwitchChatOffset;
-
-public class TransformManyToManyCsv
-{
-    [Aliases(["input-file", "inputFile"])]
-    public string? inputFile;
-
-    [Aliases(["output-file", "outputFile"])]
-    public string? outputFile;
-    
-    [Aliases(typeof(OptionAliases), nameof(Start))]
-    public long? start;
-    
-    [Aliases(typeof(OptionAliases), nameof(End))]
-    public long? end;
-    
-    [Aliases(typeof(OptionAliases), nameof(PFormat))]
-    public Format? format;
-    
-    [Aliases(typeof(OptionAliases), nameof(OutputDir))]
-    public string? outputDir;
-}
+public record TransformManyToManyCsv
+(
+    string InputFile,
+    string OutputFile,
+    long Start,
+    long End,
+    Format PFormat,
+    string OutputDir
+);
