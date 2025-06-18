@@ -10,9 +10,10 @@ namespace TwitchChatOffset;
 public static class CsvSerialization
 {
     // deserialize CSV content into fields in type T that have an AliasesAttribute
+    // if no data for a field is found, then it is left with its default value
     public static IEnumerable<T> Deserialize<T>(CSVReader reader)
     {
-        Dictionary<string, FieldInfoInfo> dataMap = GetDataMap<T>(reader.Headers);
+        Dictionary<string, FieldData> dataMap = GetDataMap<T>(reader.Headers);
         ConstructorInfo constructor = typeof(T).GetConstructor([])
             ?? throw new CsvSerializationException($"Cannot serialize to type {typeof(T)} as it does not have a constructor with zero parameters");
         foreach (string[] line in reader.Lines())
@@ -36,18 +37,18 @@ public static class CsvSerialization
             .Invoke(null, [reader])!;
     }
 
-    private static Dictionary<string, FieldInfoInfo> GetDataMap<T>(string[] headers)
+    private static Dictionary<string, FieldData> GetDataMap<T>(string[] headers)
     {
-        Dictionary<string, FieldInfoInfo> dataMap = [];
+        Dictionary<string, FieldData> dataMap = [];
         foreach (string header in headers)
         {
-            foreach (FieldInfoInfo fieldInfo in GetFieldInfos<T>())
+            foreach (FieldData fieldData in GetFieldDatas<T>())
             {
-                foreach (string alias in fieldInfo.attribute.Aliases)
+                foreach (string alias in fieldData.attribute.Aliases)
                 {
-                    if (header == alias)
+                    if (alias == header)
                     {
-                        dataMap.Add(alias, fieldInfo);
+                        dataMap.Add(header, fieldData);
                         goto Found;
                     }
                 }
@@ -57,7 +58,7 @@ public static class CsvSerialization
         return dataMap;
     }
 
-    private static IEnumerable<FieldInfoInfo> GetFieldInfos<T>()
+    private static IEnumerable<FieldData> GetFieldDatas<T>()
     {
         FieldInfo[] fields = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
         foreach (FieldInfo field in fields)
@@ -65,27 +66,27 @@ public static class CsvSerialization
             AliasesAttribute? attribute = field.GetCustomAttribute<AliasesAttribute>();
             if (attribute == null)
                 continue;
-            FieldInfoInfo fieldInfo = new(field, attribute);
-            yield return fieldInfo;
+            FieldData fieldData = new(field, attribute);
+            yield return fieldData;
         }
     }
 
-    private static void WriteField<T>(T data, string field, string header, Dictionary<string, FieldInfoInfo> dataMap)
+    private static void WriteField<T>(T data, string field, string header, Dictionary<string, FieldData> dataMap)
     {
-        if (!dataMap.TryGetValue(header, out FieldInfoInfo fieldInfo))
+        if (!dataMap.TryGetValue(header, out FieldData fieldData))
             return;
         if (field == string.Empty)
             return;
-        if (!fieldInfo.converter.IsValid(field))
+        if (!fieldData.converter.IsValid(field))
         {
-            WriteWarning($"Cannot convert \"{field}\" to type {fieldInfo.field.FieldType}; treating as an empty field...", 1);
+            WriteWarning($"Cannot convert \"{field}\" to type {fieldData.field.FieldType}; treating as an empty field...", 1);
             return;
         }
-        object? value = fieldInfo.converter.ConvertFromString(field);
-        fieldInfo.field.SetValue(data, value);
+        object? value = fieldData.converter.ConvertFromString(field);
+        fieldData.field.SetValue(data, value);
     }
 
-    private readonly struct FieldInfoInfo(FieldInfo field, AliasesAttribute attribute)
+    private readonly struct FieldData(FieldInfo field, AliasesAttribute attribute)
     {
         public readonly FieldInfo field = field;
         public readonly TypeConverter converter = TypeDescriptor.GetConverter(field.FieldType);
