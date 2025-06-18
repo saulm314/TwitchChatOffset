@@ -52,7 +52,7 @@ public static class Transform
             Format.Json => ApplyFormatJson(parent),
             Format.JsonIndented => ApplyFormatJsonIndented(parent),
             Format.Plaintext => ApplyFormatPlaintext(parent),
-            _ => throw new Exception("Internal error: unrecognised format type")
+            _ => throw new InternalException("Internal error: unrecognised format type")
         };
     }
 
