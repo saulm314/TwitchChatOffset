@@ -12,14 +12,14 @@ public class AliasesAttribute : Attribute
     }
 
     // pass the type and the name of the static property (with a public get accessor) within the type which stores the
-    //      aliases so that they can be retrieved at runtime
+    //      aliasesContainer so that they can be retrieved at runtime
     // for the propertyName, it is recommended to use (e.g.) nameof(OptionAliases.Start) rather than specifying "Start" directly
-    public AliasesAttribute(Type type, string propertyName)
+    public AliasesAttribute(Type type, string propertyName, bool stripped = true)
     {
         PropertyInfo property = type.GetProperty(propertyName)!;
         MethodInfo getMethod = property.GetMethod!;
-        string[] aliases = (string[])getMethod.Invoke(null, [])!;
-        Aliases = aliases;
+        AliasesContainer container = (AliasesContainer)getMethod.Invoke(null, [])!;
+        Aliases = stripped ? container.strippedAliases : container.aliases;
     }
 
     public string[] Aliases { get; init; }

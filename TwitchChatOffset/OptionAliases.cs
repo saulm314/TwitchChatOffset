@@ -2,11 +2,11 @@
 
 public static class OptionAliases
 {
-    public static string[] Start { get; } = ["--start"];
-    public static string[] End { get; } = ["--end"];
-    public static string[] PFormat { get; } = ["--format", "--formatting", "-f"];
-    public static string[] InputDir { get; } = ["--input-directory", "--input", "-i"];
-    public static string[] OutputDir { get; } = ["--output-directory", "--output", "-o"];
-    public static string[] Quiet { get; } = ["--quiet", "-q"];
-    public static string[] SearchPattern { get; } = ["--search-pattern"];
+    public static AliasesContainer Start { get; } = new(["--start"]);
+    public static AliasesContainer End { get; } = new(["--end"]);
+    public static AliasesContainer PFormat { get; } = new(["--format", "--formatting", "-f"]);
+    public static AliasesContainer InputDir { get; } = new(["--input-directory", "--input", "-i"]);
+    public static AliasesContainer OutputDir { get; } = new(["--output-directory", "--output", "-o"]);
+    public static AliasesContainer Quiet { get; } = new(["--quiet", "-q"]);
+    public static AliasesContainer SearchPattern { get; } = new(["--search-pattern"]);
 }
