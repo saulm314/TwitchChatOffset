@@ -19,8 +19,8 @@ public abstract class CommandBinder<TData> : BinderBase<TData>
 
     protected abstract void Handle(TData data);
 
-    private Func<Argument<T>, T> GetArgMethod<T>(BindingContext bindingContext) => bindingContext.ParseResult.GetValueForArgument;
-    private Func<Option<T>, T> GetOptMethod<T>(BindingContext bindingContext) => bindingContext.ParseResult.GetValueForOption!;
-    protected T GetArgValue<T>(Argument<T> argument, BindingContext bindingContext) => GetArgMethod<T>(bindingContext)(argument);
-    protected T GetOptValue<T>(Option<T> option, BindingContext bindingContext) => GetOptMethod<T>(bindingContext)(option);
+    private static Func<Argument<T>, T> GetArgMethod<T>(BindingContext bindingContext) => bindingContext.ParseResult.GetValueForArgument;
+    private static Func<Option<T>, T> GetOptMethod<T>(BindingContext bindingContext) => bindingContext.ParseResult.GetValueForOption!;
+    protected static T GetArgValue<T>(Argument<T> argument, BindingContext bindingContext) => GetArgMethod<T>(bindingContext)(argument);
+    protected static T GetOptValue<T>(Option<T> option, BindingContext bindingContext) => GetOptMethod<T>(bindingContext)(option);
 }
