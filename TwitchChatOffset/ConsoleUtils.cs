@@ -54,10 +54,24 @@ public static class ConsoleUtils
     {
         if (heading != null)
             PrintLine(heading, indent, quiet);
-        foreach (FieldInfo field in type.GetFields())
-            PrintLine($"\tField:\t{field.Name} = {field.GetValue(obj)}", indent, quiet);
-        foreach (PropertyInfo property in type.GetProperties())
-            PrintLine($"\tProperty:\t{property.Name} = {property.GetValue(obj)}", indent, quiet);
+        BindingFlags bindingFlags = BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic;
+        bindingFlags = obj != null ? bindingFlags : bindingFlags | BindingFlags.Static;
+        foreach (FieldInfo field in type.GetFields(bindingFlags))
+        {
+            if (field.IsStatic)
+                PrintLine($"\tStatic Field:\t{field.Name} = {field.GetValue(null)}", (byte)(indent + 1), quiet);
+            else
+                PrintLine($"\tInstance Field:\t{field.Name} = {field.GetValue(obj)}", (byte)(indent + 1), quiet);
+        }
+        foreach (PropertyInfo property in type.GetProperties(bindingFlags))
+        {
+            if (!property.CanRead)
+                continue;
+            if (property.GetMethod!.IsStatic)
+                PrintLine($"\tStatic Property: \t{property.Name} = {property.GetValue(null)}", (byte)(indent + 1), quiet);
+            else
+                PrintLine($"\tInstance Property:\t{property.Name} = {property.GetValue(obj)}", indent, quiet);
+        }
     }
 
     public static void PrintObjectMembers(object obj, string? heading = null, byte indent = 0, bool quiet = false)
