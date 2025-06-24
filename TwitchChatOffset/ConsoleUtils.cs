@@ -47,7 +47,7 @@ public static class ConsoleUtils
         if (heading != null)
             PrintLine(heading, indent, quiet);
         foreach (object? item in enumerable)
-            PrintLine($"\t{item}", indent, quiet);
+            PrintLine($"\t{item}", (byte)(indent + 1), quiet);
     }
 
     public static void PrintType(Type type, object? obj, string? heading = null, byte indent = 0, bool quiet = false)
