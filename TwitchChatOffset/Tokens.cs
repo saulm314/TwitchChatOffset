@@ -15,9 +15,7 @@ public class Tokens
     public Option<string> InputDirOption => inputDirOption ??= new(InputDir.aliases, () => ".", "Input directory (optional)");
     public Option<string> OutputDirOption => outputDirOption ??= new(OutputDir.aliases, () => ".", "Output directory (will create if doesn't exist) (optional)");
     public Option<bool> QuietOption => quietOption ??= new(Quiet.aliases, () => false, "Do not print a message after each file is written (optional)");
-    public Option<string> SearchPatternOption => searchPatternOption ??= new(SearchPattern.aliases, () => "*.json", """
-        Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional)
-        """);
+    public Option<string> SearchPatternOption => searchPatternOption ??= new(SearchPattern.aliases, () => "*.json", "Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional)");
         
 
     private Argument<string>? inputArgument;
