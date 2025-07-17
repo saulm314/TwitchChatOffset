@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using CSVFile;
+using TwitchChatOffset.CommandLine.Options;
 
-namespace TwitchChatOffset;
+namespace TwitchChatOffset.CSV;
 
 public static class CsvSerialization
 {

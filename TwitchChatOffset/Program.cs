@@ -1,7 +1,7 @@
 ﻿global using static TwitchChatOffset.ConsoleUtils;
-using TwitchChatOffset.Commands;
+using TwitchChatOffset.CommandLine.Commands;
 using System.CommandLine;
-using TransformCommand = TwitchChatOffset.Commands.Transform;
+using TransformCommand = TwitchChatOffset.CommandLine.Commands.Transform;
 
 namespace TwitchChatOffset;
 

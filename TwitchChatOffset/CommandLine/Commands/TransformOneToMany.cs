@@ -4,8 +4,11 @@ using System.IO;
 using CSVFile;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TwitchChatOffset.CommandLine.Arguments;
+using TwitchChatOffset.CommandLine.Options;
+using TwitchChatOffset.CSV;
 
-namespace TwitchChatOffset.Commands;
+namespace TwitchChatOffset.CommandLine.Commands;
 
 public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
 {
@@ -21,21 +24,30 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
         PCommand.Add(tokens.EndOption);
         PCommand.Add(tokens.FormatOption);
         PCommand.Add(tokens.OutputDirOption);
+        PCommand.Add(tokens.OptionPriorityOption);
         PCommand.Add(tokens.QuietOption);
     }
 
     protected override Data GetBoundValue(BindingContext bindingContext)
     {
-        T Arg<T>(Argument<T> argument) => GetArgValue(argument, bindingContext);
-        T Opt<T>(Option<T> option) => GetOptValue(option, bindingContext);
+        T Arg<T>(TCOArgumentBase<T> argument) => argument.GetValue(bindingContext);
+        T Opt<T>(TCOOptionBase<T> option) => option.GetValue(bindingContext);
+
+        NullableOption<T> NullOpt<T>(NullableOption<T> option) where T : notnull
+        {
+            _ = Opt(option);
+            return option;
+        }
+
         return new
         (
             Arg(tokens.InputArgument),
             Arg(tokens.CsvArgument),
-            Opt(tokens.StartOption),
-            Opt(tokens.EndOption),
-            Opt(tokens.FormatOption),
-            Opt(tokens.OutputDirOption),
+            NullOpt(tokens.StartOption),
+            NullOpt(tokens.EndOption),
+            NullOpt(tokens.FormatOption),
+            NullOpt(tokens.OutputDirOption),
+            Opt(tokens.OptionPriorityOption),
             Opt(tokens.QuietOption)
         );
     }
@@ -44,23 +56,25 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
     (
         string InputPath,
         string CsvPath,
-        long Start,
-        long End,
-        Format PFormat,
-        string OutputDir,
+        NullableOption<long> Start,
+        NullableOption<long> End,
+        NullableOption<Format> PFormat,
+        NullableOption<string> OutputDir,
+        long OptionPriority,
         bool Quiet
     );
 
     protected override void Handle(Data data)
     {
-        (string inputPath, string csvPath, long cliStart, long cliEnd, Format cliFormat, string cliOutputDir, bool quiet) = data;
+        (string inputPath, string csvPath, NullableOption<long> cliStart, NullableOption<long> cliEnd, NullableOption<Format> cliFormat,
+            NullableOption<string> cliOutputDir, long cliOptionPriority, bool quiet) = data;
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
         CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
         PrintLine("Writing files...", 0, quiet);
         foreach (TransformOneToManyCsvNullables nullableLine in CsvSerialization.Deserialize<TransformOneToManyCsvNullables>(reader))
         {
-            TransformOneToManyCsv? line = BulkTransform.TryGetNonNullableLine(nullableLine, cliStart, cliEnd, cliFormat, cliOutputDir);
+            TransformOneToManyCsv? line = BulkTransform.TryGetNonNullableLine(nullableLine, cliStart, cliEnd, cliFormat, cliOutputDir, cliOptionPriority);
             if (line == null)
                 continue;
             (string outputFile, long start, long end, Format format, string outputDir) = line;
@@ -68,7 +82,7 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
             _ = Directory.CreateDirectory(outputDir);
             string outputPath = BulkTransform.GetOutputPath(outputDir, outputFile);
             JToken parentClone = parent.DeepClone();
-            string? output = BulkTransform.TryTransform(inputPath, input, start, end, format);
+            string? output = BulkTransform.TryTransform(inputPath, parentClone, start, end, format);
             if (output == null)
                 continue;
             File.WriteAllText(outputPath, output);

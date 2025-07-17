@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace TwitchChatOffset;
+namespace TwitchChatOffset.CommandLine.Options;
 
 [AttributeUsage(AttributeTargets.Field)]
 public class AliasesAttribute : Attribute

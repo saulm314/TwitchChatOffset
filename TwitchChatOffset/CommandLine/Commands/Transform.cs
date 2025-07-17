@@ -1,9 +1,11 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Binding;
 using System.IO;
+using TwitchChatOffset.CommandLine.Arguments;
+using TwitchChatOffset.CommandLine.Options;
 using TransformHandler = TwitchChatOffset.Transform;
 
-namespace TwitchChatOffset.Commands;
+namespace TwitchChatOffset.CommandLine.Commands;
 
 public class Transform : CommandBinder<Transform.Data>
 {
@@ -22,8 +24,8 @@ public class Transform : CommandBinder<Transform.Data>
 
     protected override Data GetBoundValue(BindingContext bindingContext)
     {
-        T Arg<T>(Argument<T> argument) => GetArgValue(argument, bindingContext);
-        T Opt<T>(Option<T> option) => GetOptValue(option, bindingContext);
+        T Arg<T>(TCOArgumentBase<T> argument) => argument.GetValue(bindingContext);
+        T Opt<T>(TCOOptionBase<T> option) => option.GetValue(bindingContext);
         return new
         (
             Arg(tokens.InputArgument),

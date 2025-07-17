@@ -1,4 +1,4 @@
-﻿namespace TwitchChatOffset;
+﻿namespace TwitchChatOffset.CSV;
 
 public record TransformManyToManyCsv
 (

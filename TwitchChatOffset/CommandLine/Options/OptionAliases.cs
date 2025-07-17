@@ -1,4 +1,4 @@
-﻿namespace TwitchChatOffset;
+﻿namespace TwitchChatOffset.CommandLine.Options;
 
 public static class OptionAliases
 {

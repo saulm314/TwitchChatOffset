@@ -2,8 +2,11 @@
 using System.CommandLine.Binding;
 using System.IO;
 using CSVFile;
+using TwitchChatOffset.CommandLine.Arguments;
+using TwitchChatOffset.CommandLine.Options;
+using TwitchChatOffset.CSV;
 
-namespace TwitchChatOffset.Commands;
+namespace TwitchChatOffset.CommandLine.Commands;
 
 public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
 {
@@ -18,20 +21,29 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
         PCommand.Add(tokens.EndOption);
         PCommand.Add(tokens.FormatOption);
         PCommand.Add(tokens.OutputDirOption);
+        PCommand.Add(tokens.OptionPriorityOption);
         PCommand.Add(tokens.QuietOption);
     }
 
     protected override Data GetBoundValue(BindingContext bindingContext)
     {
-        T Arg<T>(Argument<T> argument) => GetArgValue(argument, bindingContext);
-        T Opt<T>(Option<T> option) => GetOptValue(option, bindingContext);
+        T Arg<T>(TCOArgumentBase<T> argument) => argument.GetValue(bindingContext);
+        T Opt<T>(TCOOptionBase<T> option) => option.GetValue(bindingContext);
+
+        NullableOption<T> NullOpt<T>(NullableOption<T> option) where T : notnull
+        {
+            _ = Opt(option);
+            return option;
+        }
+
         return new
         (
             Arg(tokens.CsvArgument),
-            Opt(tokens.StartOption),
-            Opt(tokens.EndOption),
-            Opt(tokens.FormatOption),
-            Opt(tokens.OutputDirOption),
+            NullOpt(tokens.StartOption),
+            NullOpt(tokens.EndOption),
+            NullOpt(tokens.FormatOption),
+            NullOpt(tokens.OutputDirOption),
+            Opt(tokens.OptionPriorityOption),
             Opt(tokens.QuietOption)
         );
     }
@@ -39,21 +51,23 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
     public readonly record struct Data
     (
         string CsvPath,
-        long Start,
-        long End,
-        Format PFormat,
-        string OutputDir,
+        NullableOption<long> Start,
+        NullableOption<long> End,
+        NullableOption<Format> PFormat,
+        NullableOption<string> OutputDir,
+        long OptionPriority,
         bool Quiet
     );
 
     protected override void Handle(Data data)
     {
-        (string csvPath, long cliStart, long cliEnd, Format cliFormat, string cliOutputDir, bool quiet) = data;
+        (string csvPath, NullableOption<long> cliStart, NullableOption<long> cliEnd, NullableOption<Format> cliFormat, NullableOption<string> cliOutputDir,
+            long cliOptionPriority, bool quiet) = data;
         CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
         PrintLine("Writing files...", 0, quiet);
         foreach (TransformManyToManyCsvNullables nullableLine in CsvSerialization.Deserialize<TransformManyToManyCsvNullables>(reader))
         {
-            TransformManyToManyCsv? line = BulkTransform.TryGetNonNullableLine(nullableLine, cliStart, cliEnd, cliFormat, cliOutputDir);
+            TransformManyToManyCsv? line = BulkTransform.TryGetNonNullableLine(nullableLine, cliStart, cliEnd, cliFormat, cliOutputDir, cliOptionPriority);
             if (line == null)
                 continue;
             (string inputFile, string outputFile, long start, long end, Format format, string outputDir) = line;

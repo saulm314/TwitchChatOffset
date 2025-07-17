@@ -1,6 +1,6 @@
 ﻿using CSVFile;
 
-namespace TwitchChatOffset;
+namespace TwitchChatOffset.CSV;
 
 public static class CsvUtils
 {
