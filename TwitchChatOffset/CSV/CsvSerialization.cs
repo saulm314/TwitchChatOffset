@@ -1,10 +1,10 @@
-﻿using System;
+﻿using TwitchChatOffset.CommandLine.Options;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using CSVFile;
-using TwitchChatOffset.CommandLine.Options;
 
 namespace TwitchChatOffset.CSV;
 
@@ -12,22 +12,20 @@ public static class CsvSerialization
 {
     // deserialize CSV content into fields in type T that have an AliasesAttribute
     // if no data for a field is found, then it is left with its default value
-    public static IEnumerable<T> Deserialize<T>(CSVReader reader)
+    public static IEnumerable<T> Deserialize<T>(CSVReader reader) where T : new()
     {
         Dictionary<string, FieldData> dataMap = GetDataMap<T>(reader.Headers);
-        ConstructorInfo constructor = typeof(T).GetConstructor([])
-            ?? throw new CsvSerializationException($"Cannot serialize to type {typeof(T)} as it does not have a constructor with zero parameters");
         foreach (string[] line in reader.Lines())
         {
-            T data = (T)constructor.Invoke([]);
+            T data = new();
             for (int i = 0; i < line.Length; i++)
                 WriteField(data, line[i], reader.Headers[i], dataMap);
             yield return data;
         }
     }
 
-    private static IEnumerable<T> DeserializeDummy<T>(CSVReader reader) => Deserialize<T>(reader);
-
+    // this method calls the generic Deserialize<T> method but uses reflection to find the type
+    // so the generic method is preferred as it is (slightly) faster and type-safe
     public static IEnumerable Deserialize(CSVReader reader, Type type)
     {
         return
@@ -37,6 +35,8 @@ public static class CsvSerialization
             .MakeGenericMethod(type)
             .Invoke(null, [reader])!;
     }
+
+    private static IEnumerable<T> DeserializeDummy<T>(CSVReader reader) where T : new() => Deserialize<T>(reader);
 
     private static Dictionary<string, FieldData> GetDataMap<T>(string[] headers)
     {
