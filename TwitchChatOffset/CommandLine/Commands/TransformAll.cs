@@ -1,8 +1,8 @@
-﻿using System.CommandLine;
+﻿using TwitchChatOffset.CommandLine.Arguments;
+using TwitchChatOffset.CommandLine.Options;
+using System.CommandLine;
 using System.CommandLine.Binding;
 using System.IO;
-using TwitchChatOffset.CommandLine.Arguments;
-using TwitchChatOffset.CommandLine.Options;
 
 namespace TwitchChatOffset.CommandLine.Commands;
 

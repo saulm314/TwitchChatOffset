@@ -1,10 +1,10 @@
-﻿using System.CommandLine;
+﻿using TwitchChatOffset.CommandLine.Arguments;
+using TwitchChatOffset.CommandLine.Options;
+using TwitchChatOffset.CSV;
+using System.CommandLine;
 using System.CommandLine.Binding;
 using System.IO;
 using CSVFile;
-using TwitchChatOffset.CommandLine.Arguments;
-using TwitchChatOffset.CommandLine.Options;
-using TwitchChatOffset.CSV;
 
 namespace TwitchChatOffset.CommandLine.Commands;
 

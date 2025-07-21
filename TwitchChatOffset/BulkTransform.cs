@@ -1,10 +1,10 @@
-﻿using System;
+﻿using TwitchChatOffset.CommandLine.Options;
+using TwitchChatOffset.CSV;
+using System;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TwitchChatOffset.CommandLine.Options;
-using TwitchChatOffset.CSV;
 
 namespace TwitchChatOffset;
 
@@ -79,44 +79,6 @@ public static class BulkTransform
         };
     }
 
-    // we duplicate these methods: one for where T : struct and one for where T : class
-    // we could use where T : notnull to encapsulate both possibilities, but this feature appears to be bugged
-    //      and doesn't actually allow structs
-
-    // resolve clash when CSV is prioritised
-    private static T ClashCsv<T>(T? csvValue, NullableOption<T> cliOption) where T : struct
-    {
-        if (csvValue != null)
-            return (T)csvValue;
-        return cliOption.Value;
-    }
-
-    private static T ClashCsv<T>(T? csvValue, NullableOption<T> cliOption) where T : class
-    {
-        if (csvValue != null)
-            return csvValue;
-        return cliOption.Value;
-    }
-
-    // resolve clash when CLI is prioritised
-    private static T ClashCli<T>(T? csvValue, NullableOption<T> cliOption) where T : struct
-    {
-        if (cliOption.ValueSpecified)
-            return cliOption.Value;
-        if (csvValue != null)
-            return (T)csvValue;
-        return cliOption.Value;
-    }
-
-    private static T ClashCli<T>(T? csvValue, NullableOption<T> cliOption) where T : class
-    {
-        if (cliOption.ValueSpecified)
-            return cliOption.Value;
-        if (csvValue != null)
-            return csvValue;
-        return cliOption.Value;
-    }
-
     public static string GetOutputPath(string outputDir, string outputFile)
         => outputDir.EndsWith('\\') ? outputDir + outputFile : outputDir + '\\' + outputFile;
 
@@ -175,5 +137,44 @@ public static class BulkTransform
             return null;
         }
         return output;
+    }
+
+    // we duplicate these methods: one for where T : struct and one for where T : class
+    // we could use where T : notnull to encapsulate both possibilities, but this feature appears to be bugged
+    //      and doesn't actually allow structs
+    //      specifically, T? gets interpreted as just T which for a struct is a compile-time error
+
+    // resolve clash when CSV is prioritised
+    private static T ClashCsv<T>(T? csvValue, NullableOption<T> cliOption) where T : struct
+    {
+        if (csvValue != null)
+            return (T)csvValue;
+        return cliOption.Value;
+    }
+
+    private static T ClashCsv<T>(T? csvValue, NullableOption<T> cliOption) where T : class
+    {
+        if (csvValue != null)
+            return csvValue;
+        return cliOption.Value;
+    }
+
+    // resolve clash when CLI is prioritised
+    private static T ClashCli<T>(T? csvValue, NullableOption<T> cliOption) where T : struct
+    {
+        if (cliOption.ValueSpecified)
+            return cliOption.Value;
+        if (csvValue != null)
+            return (T)csvValue;
+        return cliOption.Value;
+    }
+
+    private static T ClashCli<T>(T? csvValue, NullableOption<T> cliOption) where T : class
+    {
+        if (cliOption.ValueSpecified)
+            return cliOption.Value;
+        if (csvValue != null)
+            return csvValue;
+        return cliOption.Value;
     }
 }
