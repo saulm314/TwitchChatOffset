@@ -108,6 +108,12 @@ public static class BulkTransform
             PrintError(e.Message, 2);
             return null;
         }
+        catch (JsonContentException e)
+        {
+            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
+            PrintError(e.Message, 2);
+            return null;
+        }
         catch (Exception e)
         {
             PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
@@ -127,6 +133,12 @@ public static class BulkTransform
         catch (JsonReaderException e)
         {
             PrintError($"Could not parse JSON file {inputFile}", 2);
+            PrintError(e.Message, 2);
+            return null;
+        }
+        catch (JsonContentException e)
+        {
+            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
             PrintError(e.Message, 2);
             return null;
         }

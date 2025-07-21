@@ -9,7 +9,7 @@ public static class Transform
 {
     public static string MTransform(string input, long start, long end, Format format)
     {
-        JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
+        JToken parent = (JToken)(JsonConvert.DeserializeObject(input) ?? throw JsonContentException.ThrowEmpty());
         return MTransform(parent, start, end, format);
     }
 
@@ -23,7 +23,7 @@ public static class Transform
     {
         if (start == 0 && end == -1)
             return;
-        JArray comments = (JArray)parent["comments"]!;
+        JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.ThrowNoComments());
         int i = 0;
         while (i < comments.Count)
         {
