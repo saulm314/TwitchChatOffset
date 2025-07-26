@@ -25,10 +25,12 @@ public static class Transform
             return;
         JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.ThrowNoComments());
         int i = 0;
+        int globalCount = -1;
         while (i < comments.Count)
         {
+            globalCount++;
             JToken comment = comments[i];
-            JValue commentOffset = (JValue)comment["content_offset_seconds"]!;
+            JValue commentOffset = (JValue)(comment["content_offset_seconds"] ?? throw JsonContentException.ThrowNoContentOffsetSeconds(globalCount));
             long commentOffsetValue = (long)commentOffset.Value!;
             if (commentOffsetValue < start)
             {
