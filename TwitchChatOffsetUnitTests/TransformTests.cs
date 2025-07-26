@@ -216,7 +216,7 @@ public class TransformTests
     [InlineData("{\"commentss\":[]}", long.MaxValue, long.MaxValue, Format.Json)]
     [InlineData("{\"commentss\":[]}", long.MaxValue, long.MaxValue, Format.JsonIndented)]
     [InlineData("{\"commentss\":[]}", long.MaxValue, long.MaxValue, Format.Plaintext)]
-    public void MTransformJToken_EmptyJToken_ThrowsJsonContentExceptionNoComments(string inputString, long start, long end, Format format)
+    public void MTransformJToken_NoComments_ThrowsJsonContentExceptionNoComments(string inputString, long start, long end, Format format)
     {
         JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
 
