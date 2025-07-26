@@ -34,7 +34,7 @@ public class TransformTests
     [InlineData(long.MaxValue, long.MaxValue, Format.Json)]
     [InlineData(long.MaxValue, long.MaxValue, Format.JsonIndented)]
     [InlineData(long.MaxValue, long.MaxValue, Format.Plaintext)]
-    public void MTransformString_EmptyString_ThrowsJsonContentException(long start, long end, Format format)
+    public void MTransformString_EmptyString_ThrowsJsonContentExceptionEmpty(long start, long end, Format format)
     {
         string input = string.Empty;
 
