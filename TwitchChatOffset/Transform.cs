@@ -73,7 +73,7 @@ public static class Transform
     private static string ApplyFormatPlaintext(JToken parent)
     {
         StringBuilder stringBuilder = new();
-        JArray comments = (JArray)parent["comments"] ?? throw JsonContentException.NoComments();
+        JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.NoComments());
         foreach (JToken comment in comments)
         {
             JValue commentOffset = (JValue)comment["content_offset_seconds"]!;
