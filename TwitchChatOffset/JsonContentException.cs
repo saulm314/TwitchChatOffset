@@ -6,7 +6,7 @@ public class JsonContentException : Exception
 {
     public static JsonContentException Empty() => new(_Empty);
     public static JsonContentException NoComments() => new(_NoComments);
-    public static JsonContentException NoContentOffsetSeconds(int i) => new(_NoContentOffsetSeconds + i);
+    public static JsonContentException NoContentOffsetSeconds(int index) => new(_NoContentOffsetSeconds + index);
 
     private const string _Empty = "JSON content must not be empty";
     private const string _NoComments = "comments object not found in JSON object";
