@@ -86,14 +86,16 @@ public static class Transform
             stringBuilder.Append(timeSpan);
             stringBuilder.Append(' ');
 
-            JValue displayName = (JValue)comment["commenter"]!["display_name"]!;
+            JValue commenter = (JValue)(comment["commenter"] ?? throw JsonContentException.NoCommenter(i));
+            JValue displayName = (JValue)(commenter["display_name"] ?? throw JsonContentException.NoDisplayName(i));
             string displayNameValue = (string)displayName.Value!;
             stringBuilder.Append(displayNameValue);
             stringBuilder.Append(": ");
 
-            JValue messageBody = (JValue)comment["message"]!["body"]!;
-            string messageBodyValue = (string)messageBody.Value!;
-            stringBuilder.Append(messageBodyValue);
+            JValue message = (JValue)(comment["message"] ?? throw JsonContentException.NoMessage(i));
+            JValue body = (JValue)(message["body"] ?? throw JsonContentException.NoBody(i));
+            string bodyValue = (string)body.Value!;
+            stringBuilder.Append(bodyValue);
             stringBuilder.Append('\n');
         }
         return stringBuilder.ToString();
