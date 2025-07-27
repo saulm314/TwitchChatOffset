@@ -30,12 +30,12 @@ public static class Transform
             return;
         JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.NoComments());
         int i = 0;
-        int globalCount = -1;
+        int originalIndex = -1;
         while (i < comments.Count)
         {
-            globalCount++;
+            originalIndex++;
             JToken comment = comments[i];
-            JValue commentOffset = (JValue)(comment["content_offset_seconds"] ?? throw JsonContentException.NoContentOffsetSeconds(globalCount));
+            JValue commentOffset = (JValue)(comment["content_offset_seconds"] ?? throw JsonContentException.NoContentOffsetSeconds(originalIndex));
             long commentOffsetValue = (long)commentOffset.Value!;
             if (commentOffsetValue < start)
             {
@@ -77,9 +77,10 @@ public static class Transform
     {
         StringBuilder stringBuilder = new();
         JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.NoComments());
-        foreach (JToken comment in comments)
+        for (int i = 0; i < comments.Count; i++)
         {
-            JValue commentOffset = (JValue)comment["content_offset_seconds"]!;
+            JToken comment = comments[i];
+            JValue commentOffset = (JValue)(comment["content_offset_seconds"] ?? throw JsonContentException.NoContentOffsetSeconds(i));
             long commentOffsetValue = (long)commentOffset.Value!;
             TimeSpan timeSpan = TimeSpan.FromSeconds(commentOffsetValue);
             stringBuilder.Append(timeSpan);

@@ -9,6 +9,10 @@ public class TransformTests
     private static long[] AllStartsEnds => [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
     private static Format[] AllFormats => [Format.Json, Format.JsonIndented, Format.Plaintext];
 
+    private const string ContentOffsetSecondsTemplate = "\"content_offset_seconds\":0";
+    private const string CommenterTemplate = "\"commenter\":{\"display_name\":\"JohnSmith\"}";
+    private const string MessageTemplate = "\"message\":{\"body\":\"Hello, World!\"}";
+
     [Fact]
     public void MTransform_EmptyString_ThrowsJsonContentExceptionEmpty()
     {
@@ -123,9 +127,9 @@ public class TransformTests
     }
 
     [Theory]
-    [InlineData("{\"comments\":[{}]}", 0)]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":0},{}]}", 1)]
-    [InlineData("{\"comments\":[{},{\"content_offset_seconds\":0}]}", 0)]
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}", 1)]
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
     public void MTransform_NoContentOffsetSecondsWithOffset_ThrowsJsonContentExceptionNoContentOffsetSeconds(string inputString, int index)
     {
         long[] starts = AllStartsEnds;
@@ -152,6 +156,35 @@ public class TransformTests
                     Assert.Equal(expectedException.Message, exception1.Message);
                     Assert.Equal(expectedException.Message, exception2.Message);
                 }
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}", 1)]
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    public void MTransform_NoContentOffsetSecondsPlaintextFormat_ThrowsJsonContentExceptionNoContentOffsetSeconds(string inputString, int index)
+    {
+        long[] starts = AllStartsEnds;
+        long[] ends = AllStartsEnds;
+        Format format = Format.Plaintext;
+        JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoContentOffsetSeconds(index);
+
+        foreach (long start in starts)
+        {
+            foreach (long end in ends)
+            {
+                void GetOutput1() => Transform.MTransform(inputString, start, end, format);
+                void GetOutput2() => Transform.MTransform(input, start, end, format);
+
+                JsonContentException exception1 = Assert.Throws<JsonContentException>(GetOutput1);
+                JsonContentException exception2 = Assert.Throws<JsonContentException>(GetOutput2);
+
+                Assert.Equal(expectedException.Message, exception1.Message);
+                Assert.Equal(expectedException.Message, exception2.Message);
             }
         }
     }
