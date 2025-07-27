@@ -6,13 +6,18 @@ namespace TwitchChatOffsetUnitTests;
 
 public class TransformTests
 {
+    private static long[] AllStartsEnds => [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
+    private static Format[] AllFormats => [Format.Json, Format.JsonIndented, Format.Plaintext];
+
     [Fact]
     public void MTransform_EmptyString_ThrowsJsonContentExceptionEmpty()
     {
-        long[] starts = [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
-        long[] ends = [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
-        Format[] formats = [Format.Json, Format.JsonIndented, Format.Plaintext];
+        long[] starts = AllStartsEnds;
+        long[] ends = AllStartsEnds;
+        Format[] formats = AllFormats;
         string inputString = string.Empty;
+
+        JsonContentException expectedException = JsonContentException.Empty();
 
         foreach (long start in starts)
         {
@@ -22,8 +27,9 @@ public class TransformTests
                 {
                     void GetOutput() => Transform.MTransform(inputString, start, end, format);
 
-                    JsonContentException e = Assert.Throws<JsonContentException>(GetOutput);
-                    Assert.Equal(JsonContentException.Empty, e.Message);
+                    JsonContentException exception = Assert.Throws<JsonContentException>(GetOutput);
+
+                    Assert.Equal(expectedException.Message, exception.Message);
                 }
             }
         }
@@ -49,6 +55,65 @@ public class TransformTests
 
             Assert.Equal(expectedOutput, output1);
             Assert.Equal(expectedOutput, output2);
+        }
+    }
+
+    [Fact]
+    public void MTransform_EmptyJsonWithOffset_ThrowsJsonContentExceptionNoComments()
+    {
+        long[] starts = AllStartsEnds;
+        long[] ends = AllStartsEnds;
+        Format[] formats = AllFormats;
+        string inputString = "{}";
+        JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoComments();
+
+        foreach (long start in starts)
+        {
+            foreach (long end in ends)
+            {
+                if (start == 0 && end < 0)
+                    continue;
+                foreach (Format format in formats)
+                {
+                    void GetOutput1() => Transform.MTransform(inputString, start, end, format);
+                    void GetOutput2() => Transform.MTransform(input, start, end, format);
+
+                    JsonContentException exception1 = Assert.Throws<JsonContentException>(GetOutput1);
+                    JsonContentException exception2 = Assert.Throws<JsonContentException>(GetOutput2);
+
+                    Assert.Equal(expectedException.Message, exception1.Message);
+                    Assert.Equal(expectedException.Message, exception2.Message);
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void MTransform_EmptyJsonPlaintextFormat_ThrowsJsonContentExceptionNoComments()
+    {
+        long[] starts = AllStartsEnds;
+        long[] ends = AllStartsEnds;
+        Format format = Format.Plaintext;
+        string inputString = "{}";
+        JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoComments();
+
+        foreach (long start in starts)
+        {
+            foreach (long end in ends)
+            {
+                void GetOutput1() => Transform.MTransform(inputString, start, end, format);
+                void GetOutput2() => Transform.MTransform(input, start, end, format);
+
+                JsonContentException exception1 = Assert.Throws<JsonContentException>(GetOutput1);
+                JsonContentException exception2 = Assert.Throws<JsonContentException>(GetOutput2);
+
+                Assert.Equal(expectedException.Message, exception1.Message);
+                Assert.Equal(expectedException.Message, exception2.Message);
+            }
         }
     }
 }

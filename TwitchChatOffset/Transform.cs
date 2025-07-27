@@ -10,7 +10,7 @@ public static class Transform
     // any negative end value represents infinity (no end)
     public static string MTransform(string input, long start, long end, Format format)
     {
-        JToken parent = (JToken)(JsonConvert.DeserializeObject(input) ?? throw JsonContentException.ThrowEmpty());
+        JToken parent = (JToken)(JsonConvert.DeserializeObject(input) ?? throw JsonContentException.Empty());
         return MTransform(parent, start, end, format);
     }
 
@@ -25,14 +25,14 @@ public static class Transform
     {
         if (start == 0 && end < 0)
             return;
-        JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.ThrowNoComments());
+        JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.NoComments());
         int i = 0;
         int globalCount = -1;
         while (i < comments.Count)
         {
             globalCount++;
             JToken comment = comments[i];
-            JValue commentOffset = (JValue)(comment["content_offset_seconds"] ?? throw JsonContentException.ThrowNoContentOffsetSeconds(globalCount));
+            JValue commentOffset = (JValue)(comment["content_offset_seconds"] ?? throw JsonContentException.NoContentOffsetSeconds(globalCount));
             long commentOffsetValue = (long)commentOffset.Value!;
             if (commentOffsetValue < start)
             {
@@ -73,7 +73,7 @@ public static class Transform
     private static string ApplyFormatPlaintext(JToken parent)
     {
         StringBuilder stringBuilder = new();
-        JArray comments = (JArray)parent["comments"]!;
+        JArray comments = (JArray)parent["comments"] ?? throw JsonContentException.NoComments();
         foreach (JToken comment in comments)
         {
             JValue commentOffset = (JValue)comment["content_offset_seconds"]!;
