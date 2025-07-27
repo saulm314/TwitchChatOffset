@@ -52,7 +52,7 @@ public class TransformTests
         foreach (long end in ends)
         {
             string output1 = Transform.MTransform(inputString, start, end, format);
-            string output2 = Transform.MTransform(input.DeepClone(), start, end, format);
+            string output2 = Transform.MTransform(input, start, end, format);
 
             Assert.Equal(expectedOutput, output1);
             Assert.Equal(expectedOutput, output2);
@@ -81,7 +81,7 @@ public class TransformTests
                 foreach (Format format in formats)
                 {
                     void GetOutput1() => Transform.MTransform(inputString, start, end, format);
-                    void GetOutput2() => Transform.MTransform(input.DeepClone(), start, end, format);
+                    void GetOutput2() => Transform.MTransform(input, start, end, format);
 
                     JsonContentException exception1 = Assert.Throws<JsonContentException>(GetOutput1);
                     JsonContentException exception2 = Assert.Throws<JsonContentException>(GetOutput2);
@@ -111,7 +111,7 @@ public class TransformTests
             foreach (long end in ends)
             {
                 void GetOutput1() => Transform.MTransform(inputString, start, end, format);
-                void GetOutput2() => Transform.MTransform(input.DeepClone(), start, end, format);
+                void GetOutput2() => Transform.MTransform(input, start, end, format);
 
                 JsonContentException exception1 = Assert.Throws<JsonContentException>(GetOutput1);
                 JsonContentException exception2 = Assert.Throws<JsonContentException>(GetOutput2);
@@ -144,7 +144,7 @@ public class TransformTests
                 foreach (Format format in formats)
                 {
                     void GetOutput1() => Transform.MTransform(inputString, start, end, format);
-                    void GetOutput2() => Transform.MTransform(input.DeepClone(), start, end, format);
+                    void GetOutput2() => Transform.MTransform(input, start, end, format);
 
                     JsonContentException exception1 = Assert.Throws<JsonContentException>(GetOutput1);
                     JsonContentException exception2 = Assert.Throws<JsonContentException>(GetOutput2);

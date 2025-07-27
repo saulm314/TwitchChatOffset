@@ -8,15 +8,18 @@ namespace TwitchChatOffset;
 public static class Transform
 {
     // any negative end value represents infinity (no end)
-    public static string MTransform(string input, long start, long end, Format format)
+    public static string MTransform(string inputString, long start, long end, Format format)
     {
-        JToken parent = (JToken)(JsonConvert.DeserializeObject(input) ?? throw JsonContentException.Empty());
-        return MTransform(parent, start, end, format);
+        JToken input = (JToken)(JsonConvert.DeserializeObject(inputString) ?? throw JsonContentException.Empty());
+        ApplyOffset(input, start, end);
+        return ApplyFormat(input, format);
     }
 
     // any negative end value represents infinity (no end)
+    // this method does not modify the input JToken provided in the arguments
     public static string MTransform(JToken input, long start, long end, Format format)
     {
+        input = input.DeepClone();
         ApplyOffset(input, start, end);
         return ApplyFormat(input, format);
     }

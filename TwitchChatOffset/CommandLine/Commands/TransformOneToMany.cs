@@ -81,8 +81,7 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
             PrintLine(outputFile, 1, quiet);
             _ = Directory.CreateDirectory(outputDir);
             string outputPath = BulkTransform.GetOutputPath(outputDir, outputFile);
-            JToken parentClone = parent.DeepClone();
-            string? output = BulkTransform.TryTransform(inputPath, parentClone, start, end, format);
+            string? output = BulkTransform.TryTransform(inputPath, parent, start, end, format);
             if (output == null)
                 continue;
             File.WriteAllText(outputPath, output);
