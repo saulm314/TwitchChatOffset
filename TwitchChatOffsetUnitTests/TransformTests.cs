@@ -190,7 +190,7 @@ public class TransformTests
         }
     }
 
-    // we do this test with no offset to ensure that the formatter has some comments left to parse
+    // we do these tests with no offset to ensure that the formatter has some comments left to parse
     [Theory]
     [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{MessageTemplate}}}]}}", 0)]
     [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{MessageTemplate}}}]}}", 1)]
@@ -203,6 +203,32 @@ public class TransformTests
         JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
 
         JsonContentException expectedException = JsonContentException.NoCommenter(index);
+
+        foreach (long end in ends)
+        {
+            void GetOutput1() => Transform.MTransform(inputString, start, end, format);
+            void GetOutput2() => Transform.MTransform(inputString, start, end, format);
+
+            JsonContentException exception1 = Assert.Throws<JsonContentException>(GetOutput1);
+            JsonContentException exception2 = Assert.Throws<JsonContentException>(GetOutput2);
+
+            Assert.Equal(expectedException.Message, exception1.Message);
+            Assert.Equal(expectedException.Message, exception2.Message);
+        }
+    }
+
+    [Theory]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}}]}}", 0)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}}]}}", 1)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    public void MTransform_NoDisplayNamePlaintextFormat_ThrowsJsonContentExceptionNoDisplayName(string inputString, int index)
+    {
+        long start = 0;
+        long[] ends = AllNegativeEnds;
+        Format format = Format.Plaintext;
+        JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoDisplayName(index);
 
         foreach (long end in ends)
         {
