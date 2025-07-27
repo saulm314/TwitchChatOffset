@@ -12,7 +12,7 @@ public class Tokens
     public TCOArgument<string> SuffixArgument => suffixArgument ??= new("suffix", "Suffix to be apended to all output file names, including the extension");
     
     public NullableOption<long> StartOption => startOption ??= NullableOption<long>.New(Start.aliases, () => 0, "Starting point in seconds before which to dismiss chat messages (optional)");
-    public NullableOption<long> EndOption => endOption ??= NullableOption<long>.New(End.aliases, () => -1, "Ending point in seconds after which to dismiss chat messages (optional)");
+    public NullableOption<long> EndOption => endOption ??= NullableOption<long>.New(End.aliases, () => -1, "Ending point in seconds after which to dismiss chat messages, or any negative number for no ending point (optional)");
     public NullableOption<Format> FormatOption => formatOption ??= NullableOption<Format>.New(PFormat.aliases, () => default, "Format for the output file (optional)");
     public NullableOption<string> OutputDirOption => outputDirOption ??= NullableOption<string>.New(OutputDir.aliases, () => ".", "Output directory (will create if doesn't exist) (optional)");
     

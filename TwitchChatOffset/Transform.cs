@@ -7,12 +7,14 @@ namespace TwitchChatOffset;
 
 public static class Transform
 {
+    // any negative end value represents infinity (no end)
     public static string MTransform(string input, long start, long end, Format format)
     {
         JToken parent = (JToken)(JsonConvert.DeserializeObject(input) ?? throw JsonContentException.ThrowEmpty());
         return MTransform(parent, start, end, format);
     }
 
+    // any negative end value represents infinity (no end)
     public static string MTransform(JToken input, long start, long end, Format format)
     {
         ApplyOffset(input, start, end);
@@ -21,7 +23,7 @@ public static class Transform
 
     private static void ApplyOffset(JToken parent, long start, long end)
     {
-        if (start == 0 && end == -1)
+        if (start == 0 && end < 0)
             return;
         JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.ThrowNoComments());
         int i = 0;
@@ -37,7 +39,7 @@ public static class Transform
                 comments.RemoveAt(i);
                 continue;
             }
-            if (end != -1 && commentOffsetValue > end)
+            if (end >= 0 && commentOffsetValue > end)
             {
                 comments.RemoveAt(i);
                 continue;
