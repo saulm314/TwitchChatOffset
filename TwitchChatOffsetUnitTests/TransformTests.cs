@@ -7,6 +7,7 @@ namespace TwitchChatOffsetUnitTests;
 public class TransformTests
 {
     private static long[] AllStartsEnds => [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
+    private static long[] AllNegativeEnds => [-1, -10, -100, -1000, long.MinValue];
     private static Format[] AllFormats => [Format.Json, Format.JsonIndented, Format.Plaintext];
 
     private const string ContentOffsetSecondsTemplate = "\"content_offset_seconds\":0";
@@ -50,7 +51,7 @@ public class TransformTests
     public void MTransform_NoOffsetJsonFormat_ReturnsFormattedJson(string inputString, Format format, string expectedOutput)
     {
         long start = 0;
-        long[] ends = [-1, -10, -100, -1000, long.MinValue];
+        long[] ends = AllNegativeEnds;
         JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
 
         foreach (long end in ends)
@@ -186,6 +187,33 @@ public class TransformTests
                 Assert.Equal(expectedException.Message, exception1.Message);
                 Assert.Equal(expectedException.Message, exception2.Message);
             }
+        }
+    }
+
+    // we do this test with no offset to ensure that the formatter has some comments left to parse
+    [Theory]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{MessageTemplate}}}]}}", 0)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{MessageTemplate}}}]}}", 1)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    public void MTransform_NoCommenterPlaintextFormat_ThrowsJsonContentExceptionNoCommenter(string inputString, int index)
+    {
+        long start = 0;
+        long[] ends = AllNegativeEnds;
+        Format format = Format.Plaintext;
+        JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoCommenter(index);
+
+        foreach (long end in ends)
+        {
+            void GetOutput1() => Transform.MTransform(inputString, start, end, format);
+            void GetOutput2() => Transform.MTransform(inputString, start, end, format);
+
+            JsonContentException exception1 = Assert.Throws<JsonContentException>(GetOutput1);
+            JsonContentException exception2 = Assert.Throws<JsonContentException>(GetOutput2);
+
+            Assert.Equal(expectedException.Message, exception1.Message);
+            Assert.Equal(expectedException.Message, exception2.Message);
         }
     }
 }

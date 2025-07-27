@@ -86,13 +86,13 @@ public static class Transform
             stringBuilder.Append(timeSpan);
             stringBuilder.Append(' ');
 
-            JValue commenter = (JValue)(comment["commenter"] ?? throw JsonContentException.NoCommenter(i));
+            JToken commenter = comment["commenter"] ?? throw JsonContentException.NoCommenter(i);
             JValue displayName = (JValue)(commenter["display_name"] ?? throw JsonContentException.NoDisplayName(i));
             string displayNameValue = (string)displayName.Value!;
             stringBuilder.Append(displayNameValue);
             stringBuilder.Append(": ");
 
-            JValue message = (JValue)(comment["message"] ?? throw JsonContentException.NoMessage(i));
+            JToken message = comment["message"] ?? throw JsonContentException.NoMessage(i);
             JValue body = (JValue)(message["body"] ?? throw JsonContentException.NoBody(i));
             string bodyValue = (string)body.Value!;
             stringBuilder.Append(bodyValue);
