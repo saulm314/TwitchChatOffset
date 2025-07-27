@@ -35,6 +35,7 @@ public class TransformTests
         }
     }
 
+    // subsequent tests should take care to avoid testing for cases that this test covers already
     [Theory]
     [InlineData("{}", Format.Json, "{}")]
     [InlineData("{}", Format.JsonIndented, "{}")]
@@ -58,13 +59,15 @@ public class TransformTests
         }
     }
 
-    [Fact]
-    public void MTransform_EmptyJsonWithOffset_ThrowsJsonContentExceptionNoComments()
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"comment\":[]}")]
+    [InlineData("{\"commentss\":[]}")]
+    public void MTransform_NoCommentsWithOffset_ThrowsJsonContentExceptionNoComments(string inputString)
     {
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
         Format[] formats = AllFormats;
-        string inputString = "{}";
         JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
 
         JsonContentException expectedException = JsonContentException.NoComments();
@@ -90,13 +93,15 @@ public class TransformTests
         }
     }
 
-    [Fact]
-    public void MTransform_EmptyJsonPlaintextFormat_ThrowsJsonContentExceptionNoComments()
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"comment\":[]}")]
+    [InlineData("{\"commentss\":[]}")]
+    public void MTransform_NoCommentsPlaintextFormat_ThrowsJsonContentExceptionNoComments(string inputString)
     {
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
         Format format = Format.Plaintext;
-        string inputString = "{}";
         JToken input = (JToken)JsonConvert.DeserializeObject(inputString)!;
 
         JsonContentException expectedException = JsonContentException.NoComments();
