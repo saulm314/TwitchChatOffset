@@ -98,6 +98,25 @@ public class TransformTests
     [InlineData("{\"commentss\":[]}")]
     public void ApplyOffset_NoComments_ThrowsJsonContentExceptionNoComments(string inputString)
     {
+        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        long[] starts = AllStartsEnds;
+        long[] ends = AllStartsEnds;
 
+        JsonContentException expectedException = JsonContentException.NoComments();
+
+        foreach (long start in starts)
+        {
+            foreach (long end in ends)
+            {
+                if (start == 0 && end < 0)
+                    continue;
+
+                void GetOutput() => Transform.ApplyOffset(json, start, end);
+
+                JsonContentException exception = Assert.Throws<JsonContentException>(GetOutput);
+
+                Assert.Equal(expectedException.Message, exception.Message);
+            }
+        }
     }
 }
