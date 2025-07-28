@@ -7,30 +7,27 @@ namespace TwitchChatOffset;
 
 public static class Transform
 {
-    // any negative end value represents infinity (no end)
     public static string MTransform(string inputString, long start, long end, Format format)
     {
-        JToken input = (JToken)(JsonConvert.DeserializeObject(inputString) ?? throw JsonContentException.Empty());
-        ApplyOffset(input, start, end);
-        return ApplyFormat(input, format);
+        JToken json = (JToken)(JsonConvert.DeserializeObject(inputString) ?? throw JsonContentException.Empty());
+        ApplyOffset(json, start, end);
+        return ApplyFormat(json, format);
     }
 
-    // any negative end value represents infinity (no end)
-    // this method does not modify the input JToken provided in the arguments
-    public static string MTransform(JToken input, long start, long end, Format format)
+    public static string MTransform(JToken inputJson, long start, long end, Format format)
     {
-        input = input.DeepClone();
-        ApplyOffset(input, start, end);
-        return ApplyFormat(input, format);
+        JToken json = inputJson.DeepClone();
+        ApplyOffset(json, start, end);
+        return ApplyFormat(json, format);
     }
 
-    private static void ApplyOffset(JToken parent, long start, long end)
+    public static void ApplyOffset(JToken json, long start, long end)
     {
         if (start == 0 && end < 0)
             return;
         if (end < start)
             PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
-        JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.NoComments());
+        JArray comments = (JArray)(json["comments"] ?? throw JsonContentException.NoComments());
         int i = 0;
         int originalIndex = -1;
         while (i < comments.Count)
@@ -54,31 +51,31 @@ public static class Transform
         }
     }
 
-    private static string ApplyFormat(JToken parent, Format format)
+    public static string ApplyFormat(JToken json, Format format)
     {
         return format switch
         {
-            Format.Json => ApplyFormatJson(parent),
-            Format.JsonIndented => ApplyFormatJsonIndented(parent),
-            Format.Plaintext => ApplyFormatPlaintext(parent),
+            Format.Json => ApplyFormatJson(json),
+            Format.JsonIndented => ApplyFormatJsonIndented(json),
+            Format.Plaintext => ApplyFormatPlaintext(json),
             _ => throw new InternalException("Internal error: unrecognised format type")
         };
     }
 
-    private static string ApplyFormatJson(JToken parent)
+    public static string ApplyFormatJson(JToken json)
     {
-        return JsonConvert.SerializeObject(parent);
+        return JsonConvert.SerializeObject(json);
     }
 
-    private static string ApplyFormatJsonIndented(JToken parent)
+    public static string ApplyFormatJsonIndented(JToken json)
     {
-        return JsonConvert.SerializeObject(parent, Formatting.Indented);
+        return JsonConvert.SerializeObject(json, Formatting.Indented);
     }
 
-    private static string ApplyFormatPlaintext(JToken parent)
+    public static string ApplyFormatPlaintext(JToken json)
     {
         StringBuilder stringBuilder = new();
-        JArray comments = (JArray)(parent["comments"] ?? throw JsonContentException.NoComments());
+        JArray comments = (JArray)(json["comments"] ?? throw JsonContentException.NoComments());
         for (int i = 0; i < comments.Count; i++)
         {
             JToken comment = comments[i];
