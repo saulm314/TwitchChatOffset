@@ -34,10 +34,9 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void GetOutput() => Transform.MTransform(inputString, start, end, format);
+                    void MTransform() => Transform.MTransform(inputString, start, end, format);
 
-                    JsonContentException exception = Assert.Throws<JsonContentException>(GetOutput);
-
+                    JsonContentException exception = Assert.Throws<JsonContentException>(MTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
                 }
             }
@@ -62,9 +61,9 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void GetOutput() => Transform.MTransform(inputString, start, end, format);
+                    void MTransform() => Transform.MTransform(inputString, start, end, format);
 
-                    Assert.ThrowsAny<JsonException>(GetOutput);
+                    Assert.ThrowsAny<JsonException>(MTransform);
                 }
             }
         }
@@ -90,7 +89,7 @@ public class TransformTests
         }
     }
 
-    // all remaining tests assume that the conditions of the previous test aren't true
+    // all remaining ApplyOffset tests assume that the conditions of the previous test aren't true
 
     [Theory]
     [InlineData("{}")]
@@ -111,10 +110,9 @@ public class TransformTests
                 if (start == 0 && end < 0)
                     continue;
 
-                void GetOutput() => Transform.ApplyOffset(json.DeepClone(), start, end);
+                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end);
 
-                JsonContentException exception = Assert.Throws<JsonContentException>(GetOutput);
-
+                JsonContentException exception = Assert.Throws<JsonContentException>(ApplyOffset);
                 Assert.Equal(expectedException.Message, exception.Message);
             }
         }
@@ -139,10 +137,9 @@ public class TransformTests
                 if (start == 0 && end < 0)
                     continue;
 
-                void GetOutput() => Transform.ApplyOffset(json.DeepClone(), start, end);
+                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end);
 
-                JsonContentException exception = Assert.Throws<JsonContentException>(GetOutput);
-
+                JsonContentException exception = Assert.Throws<JsonContentException>(ApplyOffset);
                 Assert.Equal(expectedException.Message, exception.Message);
             }
         }
@@ -184,5 +181,21 @@ public class TransformTests
         string output = JsonConvert.SerializeObject(json);
 
         Assert.Equal(expectedOutput, output);
+    }
+
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"comment\":[]}")]
+    [InlineData("{\"commentss\":[]}")]
+    public void ApplyFormatPlaintext_NoComments_ThrowsJsonContentExceptionNoComments(string inputString)
+    {
+        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoComments();
+
+        void ApplyFormatPlaintext() => Transform.ApplyFormatPlaintext(json);
+
+        JsonContentException exception = Assert.Throws<JsonContentException>(ApplyFormatPlaintext);
+        Assert.Equal(expectedException.Message, exception.Message);
     }
 }

@@ -27,7 +27,7 @@ public static class Transform
     {
         if (start == 0 && end < 0)
             return;
-        if (end < start)
+        if (end >= 0 && end < start)
             PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
         JArray comments = (JArray)(json["comments"] ?? throw JsonContentException.NoComments());
         int i = 0;
