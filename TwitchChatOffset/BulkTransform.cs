@@ -11,7 +11,7 @@ namespace TwitchChatOffset;
 public static class BulkTransform
 {
     public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables,
-        NullableOption<long> cliStart, NullableOption<long> cliEnd, NullableOption<Format> cliFormat, NullableOption<string> cliOutputDir,
+        INullableOption<long> cliStart, INullableOption<long> cliEnd, INullableOption<Format> cliFormat, INullableOption<string> cliOutputDir,
         long cliOptionPriority)
     {
         if (nullables.inputFile == null)
@@ -49,7 +49,7 @@ public static class BulkTransform
     }
 
     public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables,
-        NullableOption<long> cliStart, NullableOption<long> cliEnd, NullableOption<Format> cliFormat, NullableOption<string> cliOutputDir,
+        INullableOption<long> cliStart, INullableOption<long> cliEnd, INullableOption<Format> cliFormat, INullableOption<string> cliOutputDir,
         long cliOptionPriority)
     {
         if (nullables.outputFile == null)
@@ -157,14 +157,14 @@ public static class BulkTransform
     //      specifically, T? gets interpreted as just T which for a struct is a compile-time error
 
     // resolve clash when CSV is prioritised
-    private static T ClashCsv<T>(T? csvValue, NullableOption<T> cliOption) where T : struct
+    private static T ClashCsv<T>(T? csvValue, INullableOption<T> cliOption) where T : struct
     {
         if (csvValue != null)
             return (T)csvValue;
         return cliOption.Value;
     }
 
-    private static T ClashCsv<T>(T? csvValue, NullableOption<T> cliOption) where T : class
+    private static T ClashCsv<T>(T? csvValue, INullableOption<T> cliOption) where T : class
     {
         if (csvValue != null)
             return csvValue;
@@ -172,7 +172,7 @@ public static class BulkTransform
     }
 
     // resolve clash when CLI is prioritised
-    private static T ClashCli<T>(T? csvValue, NullableOption<T> cliOption) where T : struct
+    private static T ClashCli<T>(T? csvValue, INullableOption<T> cliOption) where T : struct
     {
         if (cliOption.ValueSpecified)
             return cliOption.Value;
@@ -181,7 +181,7 @@ public static class BulkTransform
         return cliOption.Value;
     }
 
-    private static T ClashCli<T>(T? csvValue, NullableOption<T> cliOption) where T : class
+    private static T ClashCli<T>(T? csvValue, INullableOption<T> cliOption) where T : class
     {
         if (cliOption.ValueSpecified)
             return cliOption.Value;
