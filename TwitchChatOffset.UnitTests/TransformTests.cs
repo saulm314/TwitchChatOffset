@@ -278,4 +278,74 @@ public class TransformTests
         JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
     }
+
+    // for the plaintext we avoid the raw string literal """ since the interpretation of an end of line will depend on the environment
+    // e.g. on Windows in Visual Studio an end of line is interprted as \r\n, but in other systems it may be \n
+    // for the actual SerializeToPlaintext method, we prefer just \n and let the OS convert it if appropriate
+    [Theory]
+    [InlineData(
+        """
+        {
+            "comments": [
+                {
+                    "content_offset_seconds": 0,
+                    "commenter": {
+                        "display_name": "JohnSmith"
+                    },
+                    "message": {
+                        "body": "Hello, World!"
+                    }
+                },
+                {
+                    "content_offset_seconds": 17,
+                    "commenter": {
+                        "display_name": "JaneSmith"
+                    },
+                    "message": {
+                        "body": "Hello as well!"
+                    }
+                },
+                {
+                    "content_offset_seconds": 7533,
+                    "commenter": {
+                        "display_name": "JohnSmith"
+                    },
+                    "message": {
+                        "body": "It's been over an hour."
+                    }
+                },
+                {
+                    "content_offset_seconds": 93252,
+                    "commenter": {
+                        "display_name": "JohnSmith"
+                    },
+                    "message": {
+                        "body": "Now it's been over a day."
+                    }
+                },
+                {
+                    "content_offset_seconds": 52715391,
+                    "commenter": {
+                        "display_name": "JohnSmith"
+                    },
+                    "message": {
+                        "body": "Now it's been over a year."
+                    }
+                }
+            ]
+        }
+        """,
+        "00:00:00 JohnSmith: Hello, World!\n" +
+        "00:00:17 JaneSmith: Hello as well!\n" +
+        "02:05:33 JohnSmith: It's been over an hour.\n" +
+        "1.01:54:12 JohnSmith: Now it's been over a day.\n" +
+        "610.03:09:51 JohnSmith: Now it's been over a year.\n")]
+    public void SerializeToPlaintext_ValidInput_ReturnsPlaintext(string inputString, string expectedOutput)
+    {
+        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        string output = Transform.SerializeToPlaintext(json);
+
+        Assert.Equal(expectedOutput, output);
+    }
 }
