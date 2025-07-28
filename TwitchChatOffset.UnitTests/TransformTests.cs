@@ -230,4 +230,52 @@ public class TransformTests
         JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
     }
+
+    [Theory]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}}]}}", 0)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}}]}}", 1)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    public void SerializeToPlaintext_NoDisplayName_ThrowsJsonContentExceptionNoDisplayName(string inputString, int index)
+    {
+        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoDisplayName(index);
+
+        void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
+
+        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
+        Assert.Equal(expectedException.Message, exception.Message);
+    }
+
+    [Theory]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate}}}]}}", 0)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate}}}]}}", 1)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    public void SerializeToPlaintext_NoMessage_ThrowsJsonContentExceptionNoMessage(string inputString, int index)
+    {
+        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoMessage(index);
+
+        void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
+
+        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
+        Assert.Equal(expectedException.Message, exception.Message);
+    }
+
+    [Theory]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},\"message\":{{}}}}]}}", 0)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},\"message\":{{}}}}]}}", 1)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},\"message\":{{}}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    public void SerializeToPlaintext_NoBody_ThrowsJsonContentExceptionNoBody(string inputString, int index)
+    {
+        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoBody(index);
+
+        void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
+
+        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
+        Assert.Equal(expectedException.Message, exception.Message);
+    }
 }
