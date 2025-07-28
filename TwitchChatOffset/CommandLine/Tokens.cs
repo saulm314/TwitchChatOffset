@@ -19,7 +19,7 @@ public class Tokens
     public TCOOption<string> InputDirOption => inputDirOption ??= new(InputDir.aliases, () => ".", "Input directory (optional)");
     public TCOOption<bool> QuietOption => quietOption ??= new(Quiet.aliases, () => false, "Do not print a message after each file is written (optional)");
     public TCOOption<string> SearchPatternOption => searchPatternOption ??= new(SearchPattern.aliases, () => "*.json", "Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional)");
-    public TCOOption<long> OptionPriorityOption => optionPriorityOption ??= new(OptionPriority.aliases, () => 0, "Select priority to determine which options should be used when there is a clash between the CLI options and the CSV options (can be any integer; higher priority wins; if priorities are equal, then CSV is prioritised (optional)");
+    public TCOOption<long> OptionPriorityOption => optionPriorityOption ??= new(POptionPriority.aliases, () => 0, "Select priority to determine which options should be used when there is a clash between the CLI options and the CSV options (can be any integer; higher priority wins; if priorities are equal, then CSV is prioritised (optional)");
 
     private TCOArgument<string>? inputArgument;
     private TCOArgument<string>? outputArgument;

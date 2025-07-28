@@ -2,7 +2,7 @@
 
 namespace TwitchChatOffset.CommandLine.Options;
 
-public class NullableOption<TType> : TCOOptionBase<TType> where TType : notnull
+public class NullableOption<TType> : TCOOptionBase<TType>, INullableOption<TType> where TType : notnull
 {
     public static NullableOption<TType> New(string[] aliases, Func<TType> getDefaultValue, string? description = null)
     {

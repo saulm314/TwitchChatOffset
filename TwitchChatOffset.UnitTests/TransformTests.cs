@@ -173,7 +173,7 @@ public class TransformTests
     [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 16, "{\"comments\":[]}")]
     [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 18, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
     [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 17, 17, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
-    public void ApplyOffset_ValidInput_AppliesOffset(string inputString, long start, long end, string expectedOutput)
+    public void ApplyOffset_ValidInput(string inputString, long start, long end, string expectedOutput)
     {
         JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
 
@@ -340,7 +340,7 @@ public class TransformTests
         "02:05:33 JohnSmith: It's been over an hour.\n" +
         "1.01:54:12 JohnSmith: Now it's been over a day.\n" +
         "610.03:09:51 JohnSmith: Now it's been over a year.\n")]
-    public void SerializeToPlaintext_ValidInput_ReturnsPlaintext(string inputString, string expectedOutput)
+    public void SerializeToPlaintext_ValidInput(string inputString, string expectedOutput)
     {
         JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
 

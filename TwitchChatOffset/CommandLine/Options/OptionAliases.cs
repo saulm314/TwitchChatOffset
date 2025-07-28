@@ -9,5 +9,5 @@ public static class OptionAliases
     public static AliasesContainer OutputDir { get; } = new(["--output-directory", "--output", "-o"]);
     public static AliasesContainer Quiet { get; } = new(["--quiet", "-q"]);
     public static AliasesContainer SearchPattern { get; } = new(["--search-pattern", "--pattern"]);
-    public static AliasesContainer OptionPriority { get; } = new(["--option-priority", "--priority"]);
+    public static AliasesContainer POptionPriority { get; } = new(["--option-priority", "--priority"]);
 }

@@ -24,10 +24,10 @@ public static class BulkTransform
             PrintError("Output file must not be empty! Skipping...", 2);
             return null;
         }
-        bool prioritiseCsv = (nullables.optionPriority ?? 0) - cliOptionPriority >= 0;
-        return prioritiseCsv switch
+        OptionPriority optionPriority = GetOptionPriority(nullables.optionPriority, cliOptionPriority);
+        return optionPriority switch
         {
-            true => new
+            OptionPriority.CSV => new
                 (
                     nullables.inputFile,
                     nullables.outputFile,
@@ -36,7 +36,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCsv(nullables.format, cliFormat),
                     ResolveClashPrioritiseCsv(nullables.outputDir, cliOutputDir)
                 ),
-            false => new
+            OptionPriority.CLI => new
                 (
                     nullables.inputFile,
                     nullables.outputFile,
@@ -44,7 +44,8 @@ public static class BulkTransform
                     ResolveClashPrioritiseCli(nullables.end, cliEnd),
                     ResolveClashPrioritiseCli(nullables.format, cliFormat),
                     ResolveClashPrioritiseCli(nullables.outputDir, cliOutputDir)
-                )
+                ),
+            _ => throw new InternalException("Internal error: unrecognised option priority")
         };
     }
 
@@ -57,10 +58,10 @@ public static class BulkTransform
             PrintError("Output file must not be empty! Skipping...", 2);
             return null;
         }
-        bool prioritiseCsv = (nullables.optionPriority ?? 0) - cliOptionPriority >= 0;
-        return prioritiseCsv switch
+        OptionPriority optionPriority = GetOptionPriority(nullables.optionPriority, cliOptionPriority);
+        return optionPriority switch
         {
-            true => new
+            OptionPriority.CSV => new
                 (
                     nullables.outputFile,
                     ResolveClashPrioritiseCsv(nullables.start, cliStart),
@@ -68,14 +69,15 @@ public static class BulkTransform
                     ResolveClashPrioritiseCsv(nullables.format, cliFormat),
                     ResolveClashPrioritiseCsv(nullables.outputDir, cliOutputDir)
                 ),
-            false => new
+            OptionPriority.CLI => new
                 (
                     nullables.outputFile,
                     ResolveClashPrioritiseCli(nullables.start, cliStart),
                     ResolveClashPrioritiseCli(nullables.end, cliEnd),
                     ResolveClashPrioritiseCli(nullables.format, cliFormat),
                     ResolveClashPrioritiseCli(nullables.outputDir, cliOutputDir)
-                )
+                ),
+            _ => throw new InternalException("Internal error: unrecognised option priority")
         };
     }
 
@@ -153,26 +155,29 @@ public static class BulkTransform
 
     //_____________________________________________________________________
 
+    public static OptionPriority GetOptionPriority(long? csvOptionPriority, long cliOptionPriority)
+        => (csvOptionPriority ?? 0) >= cliOptionPriority ? OptionPriority.CSV : OptionPriority.CLI;
+
     // we duplicate these methods: one for where T : struct and one for where T : class
     // we could use where T : notnull to encapsulate both possibilities, but this feature appears to be bugged
     //      and doesn't actually allow structs
     //      specifically, T? gets interpreted as just T which for a struct is a compile-time error
 
-    public static T ResolveClashPrioritiseCsv<T>(T? csvValue, NullableOption<T> cliOption) where T : struct
+    public static T ResolveClashPrioritiseCsv<T>(T? csvValue, INullableOption<T> cliOption) where T : struct
     {
         if (csvValue != null)
             return (T)csvValue;
         return cliOption.Value;
     }
 
-    public static T ResolveClashPrioritiseCsv<T>(T? csvValue, NullableOption<T> cliOption) where T : class
+    public static T ResolveClashPrioritiseCsv<T>(T? csvValue, INullableOption<T> cliOption) where T : class
     {
         if (csvValue != null)
             return csvValue;
         return cliOption.Value;
     }
 
-    public static T ResolveClashPrioritiseCli<T>(T? csvValue, NullableOption<T> cliOption) where T : struct
+    public static T ResolveClashPrioritiseCli<T>(T? csvValue, INullableOption<T> cliOption) where T : struct
     {
         if (cliOption.ValueSpecified)
             return cliOption.Value;
@@ -181,7 +186,7 @@ public static class BulkTransform
         return cliOption.Value;
     }
 
-    public static T ResolveClashPrioritiseCli<T>(T? csvValue, NullableOption<T> cliOption) where T : class
+    public static T ResolveClashPrioritiseCli<T>(T? csvValue, INullableOption<T> cliOption) where T : class
     {
         if (cliOption.ValueSpecified)
             return cliOption.Value;
