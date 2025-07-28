@@ -25,6 +25,6 @@ public class XunitSerializer : IXunitSerializer
 
     public string Serialize(object value)
     {
-        return JsonConvert.SerializeObject(value);
+        return JsonConvert.SerializeObject(value, Formatting.Indented);
     }
 }
