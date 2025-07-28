@@ -1,4 +1,6 @@
-﻿/*using System.Collections.Generic;
+﻿using TwitchChatOffset.CSV;
+using System.Collections.Generic;
+using CSVFile;
 
 namespace TwitchChatOffset.UnitTests;
 
@@ -8,12 +10,21 @@ public class CsvSerializationTests
     [MemberData(nameof(GetDeserializeTestData))]
     public void DeserializeTest(DeserializeTestData data)
     {
+        CSVReader reader = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
 
+        int i = -1;
+        foreach (MockCsvObject csvObject in CsvSerialization.Deserialize<MockCsvObject>(reader))
+        {
+            i++;
+            MockCsvObject expectedCsvObject = data.ExpectedCsvObjects[i];
+
+            Assert.Equal(expectedCsvObject, csvObject);
+        }
     }
 
     public static IEnumerable<TheoryDataRow<DeserializeTestData>> GetDeserializeTestData()
     {
-        yield return new
+        yield return new(new
         (
             """
             long-object-default,long-object-stripped,--long-object-unstripped,long-object-non-nullable,bool-object,char-object,double-object,mock-enum-object,string-object
@@ -44,8 +55,8 @@ public class CsvSerializationTests
                 new(null, null, null, 0, null, null, null, null, "1"),
                 new(null, null, null, 0, null, null, null, null, "1")
             ]
-        );
-        yield return new
+        ));
+        yield return new(new
         (
             """
             extra,long-object-default,long-object-unstripped,long-object-stripped,--long-object-unstripped,long-object-non-nullable,bool-object,char-object,double-object,mock-enum-object,string-object
@@ -76,8 +87,8 @@ public class CsvSerializationTests
                 new(null, null, null, 0, null, null, null, null, "1"),
                 new(null, null, null, 0, null, null, null, null, "1")
             ]
-        );
-        yield return new
+        ));
+        yield return new(new
         (
             """
             extra,extra,long-object-default,long-object-unstripped,long-object-stripped,--long-object-unstripped,long-object-non-nullable,bool-object,char-object,double-object,mock-enum-object,string-object
@@ -108,8 +119,8 @@ public class CsvSerializationTests
                 new(null, null, null, 0, null, null, null, null, "1"),
                 new(null, null, null, 0, null, null, null, null, "1")
             ]
-        );
+        ));
     }
 
     public record DeserializeTestData(string CsvString, MockCsvObject[] ExpectedCsvObjects);
-}*/
+}
