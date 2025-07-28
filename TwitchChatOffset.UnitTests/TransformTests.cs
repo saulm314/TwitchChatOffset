@@ -187,15 +187,31 @@ public class TransformTests
     [InlineData("{}")]
     [InlineData("{\"comment\":[]}")]
     [InlineData("{\"commentss\":[]}")]
-    public void ApplyFormatPlaintext_NoComments_ThrowsJsonContentExceptionNoComments(string inputString)
+    public void SerializeToPlaintext_NoComments_ThrowsJsonContentExceptionNoComments(string inputString)
     {
         JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
 
         JsonContentException expectedException = JsonContentException.NoComments();
 
-        void ApplyFormatPlaintext() => Transform.ApplyFormatPlaintext(json);
+        void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
 
-        JsonContentException exception = Assert.Throws<JsonContentException>(ApplyFormatPlaintext);
+        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
+        Assert.Equal(expectedException.Message, exception.Message);
+    }
+
+    [Theory]
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}", 1)]
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
+    public void SerializeToPlaintext_NoContentOffsetSeconds_ThrowsJsonContentExceptionNoContentOffsetSeconds(string inputString, int index)
+    {
+        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        JsonContentException expectedException = JsonContentException.NoContentOffsetSeconds(index);
+
+        void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
+
+        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
     }
 }

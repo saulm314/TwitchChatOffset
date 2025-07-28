@@ -11,14 +11,14 @@ public static class Transform
     {
         JToken json = (JToken)(JsonConvert.DeserializeObject(inputString) ?? throw JsonContentException.Empty());
         ApplyOffset(json, start, end);
-        return ApplyFormat(json, format);
+        return Serialize(json, format);
     }
 
     public static string MTransform(JToken inputJson, long start, long end, Format format)
     {
         JToken json = inputJson.DeepClone();
         ApplyOffset(json, start, end);
-        return ApplyFormat(json, format);
+        return Serialize(json, format);
     }
 
     //_______________________________________________________________________
@@ -53,30 +53,30 @@ public static class Transform
         }
     }
 
-    public static string ApplyFormat(JToken json, Format format)
+    public static string Serialize(JToken json, Format format)
     {
         return format switch
         {
-            Format.Json => ApplyFormatJson(json),
-            Format.JsonIndented => ApplyFormatJsonIndented(json),
-            Format.Plaintext => ApplyFormatPlaintext(json),
+            Format.Json => SerializeToJson(json),
+            Format.JsonIndented => SerializeToJsonIndented(json),
+            Format.Plaintext => SerializeToPlaintext(json),
             _ => throw new InternalException("Internal error: unrecognised format type")
         };
     }
 
     //_____________________________________________________________________
 
-    public static string ApplyFormatJson(JToken json)
+    public static string SerializeToJson(JToken json)
     {
         return JsonConvert.SerializeObject(json);
     }
 
-    public static string ApplyFormatJsonIndented(JToken json)
+    public static string SerializeToJsonIndented(JToken json)
     {
         return JsonConvert.SerializeObject(json, Formatting.Indented);
     }
 
-    public static string ApplyFormatPlaintext(JToken json)
+    public static string SerializeToPlaintext(JToken json)
     {
         StringBuilder stringBuilder = new();
         JArray comments = (JArray)(json["comments"] ?? throw JsonContentException.NoComments());
