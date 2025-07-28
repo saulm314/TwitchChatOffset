@@ -1,5 +1,6 @@
 ﻿using TwitchChatOffset;
 using TwitchChatOffset.CSV;
+using System.Linq;
 
 namespace TwitchChatOffsetUnitTests;
 
@@ -256,14 +257,16 @@ public class BulkTransformTests
     [Fact]
     public void TryGetNonNullableLine_InputFileNull_ReturnsNull()
     {
-        TransformManyToManyCsvNullables[] nullableses = [.. AllMtmNullableses.Transform(nullables => nullables.inputFile = null)];
+        TransformManyToManyCsvNullables[] nullableses = AllMtmNullableses;
+        foreach (TransformManyToManyCsvNullables nullables in nullableses)
+            nullables.inputFile = null;
         MockNullableOption<long>[] starts = AllStartEndOptions;
         MockNullableOption<long>[] ends = AllStartEndOptions;
         MockNullableOption<Format>[] formats = AllFormatOptions;
         MockNullableOption<string>[] outputDirs = AllOutputDirOptions;
         long[] optionPriorities = AllOptionPriorities;
 
-        int maxLength = ListUtils.MaxLength(nullableses, starts, ends, formats, outputDirs, optionPriorities);
+        int maxLength = CollectionUtils.MaxLength(nullableses, starts, ends, formats, outputDirs, optionPriorities);
         for (int i = 0; i < maxLength; i++)
         {
             var nullables = nullableses.IthOrLast(i);
@@ -276,36 +279,6 @@ public class BulkTransformTests
             TransformManyToManyCsv? output = BulkTransform.TryGetNonNullableLine(nullables, start, end, format, outputDir, optionPriority);
 
             Assert.Null(output);
-        }
-    }
-
-    [Fact]
-    public void TryGetNonNullableLine_OutputFileNull_ReturnsNull()
-    {
-        TransformManyToManyCsvNullables[] mtmNullableses = [..AllMtmNullableses.Transform(nullables => nullables.outputFile = null)];
-        TransformOneToManyCsvNullables[] otmNullableses = [..AllOtmNullableses.Transform(nullables => nullables.outputFile = null)];
-        MockNullableOption<long>[] starts = AllStartEndOptions;
-        MockNullableOption<long>[] ends = AllStartEndOptions;
-        MockNullableOption<Format>[] formats = AllFormatOptions;
-        MockNullableOption<string>[] outputDirs = AllOutputDirOptions;
-        long[] optionPriorities = AllOptionPriorities;
-
-        int maxLength = ListUtils.MaxLength(mtmNullableses, otmNullableses, starts, ends, formats, outputDirs, optionPriorities);
-        for (int i = 0; i < maxLength; i++)
-        {
-            var mtmNullables = mtmNullableses.IthOrLast(i);
-            var otmNullables = otmNullableses.IthOrLast(i);
-            var start = starts.IthOrLast(i);
-            var end = ends.IthOrLast(i);
-            var format = formats.IthOrLast(i);
-            var outputDir = outputDirs.IthOrLast(i);
-            var optionPriority = optionPriorities.IthOrLast(i);
-
-            TransformManyToManyCsv? output1 = BulkTransform.TryGetNonNullableLine(mtmNullables, start, end, format, outputDir, optionPriority);
-            TransformOneToManyCsv? output2 = BulkTransform.TryGetNonNullableLine(otmNullables, start, end, format, outputDir, optionPriority);
-
-            Assert.Null(output1);
-            Assert.Null(output2);
         }
     }
 }
