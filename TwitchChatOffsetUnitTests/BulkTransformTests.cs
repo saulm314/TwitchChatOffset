@@ -256,7 +256,7 @@ public class BulkTransformTests
     [Fact]
     public void TryGetNonNullableLine_InputFileNull_ReturnsNull()
     {
-        TransformManyToManyCsvNullables[] nullableses = [.. AllMtmNullableses.Transform(nullables => nullables.inputFile = null)];
+        TransformManyToManyCsvNullables[] nullableses = [..AllMtmNullableses.Transform(nullables => nullables.inputFile = null)];
         MockNullableOption<long>[] starts = AllStartEndOptions;
         MockNullableOption<long>[] ends = AllStartEndOptions;
         MockNullableOption<Format>[] formats = AllFormatOptions;
