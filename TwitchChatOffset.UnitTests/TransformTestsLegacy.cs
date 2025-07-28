@@ -1,10 +1,9 @@
-﻿using TwitchChatOffset;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace TwitchChatOffsetUnitTests;
+namespace TwitchChatOffset.UnitTests;
 
-public class TransformTests
+public class TransformTestsLegacy
 {
     private static long[] AllStartsEnds => [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
     private static long[] AllNegativeEnds => [-1, -10, -100, -1000, long.MinValue];

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.35201.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitchChatOffset", "TwitchChatOffset\TwitchChatOffset.csproj", "{96F15BF7-DB1A-47BC-8B78-53F93D4314A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitchChatOffsetUnitTests", "TwitchChatOffsetUnitTests\TwitchChatOffsetUnitTests.csproj", "{338F357B-27EF-44D2-9156-5A3669D9385A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitchChatOffset.UnitTests", "TwitchChatOffset.UnitTests\TwitchChatOffset.UnitTests.csproj", "{338F357B-27EF-44D2-9156-5A3669D9385A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
