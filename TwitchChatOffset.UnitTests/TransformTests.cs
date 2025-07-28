@@ -147,4 +147,42 @@ public class TransformTests
             }
         }
     }
+
+    [Theory]
+    [InlineData("{\"comments\":[]}", 0, -1, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[]}", 0, long.MinValue, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[]}", long.MaxValue, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, -1, "{\"comments\":[{\"content_offset_seconds\":5}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 0, -1, "{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, 4, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, 5, "{\"comments\":[{\"content_offset_seconds\":5}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 3, -1, "{\"comments\":[{\"content_offset_seconds\":2}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 3, 5, "{\"comments\":[{\"content_offset_seconds\":2}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, -1, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, 7, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, 5, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, 4, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 4, 4, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, 6, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, -1, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, 15, "{\"comments\":[{\"content_offset_seconds\":2}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, 17, "{\"comments\":[{\"content_offset_seconds\":2},{\"content_offset_seconds\":14}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, -1, "{\"comments\":[{\"content_offset_seconds\":2},{\"content_offset_seconds\":14}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, -1, "{\"comments\":[{\"content_offset_seconds\":0},{\"content_offset_seconds\":12}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, 16, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, 17, "{\"comments\":[{\"content_offset_seconds\":0},{\"content_offset_seconds\":12}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 17, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, -1, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 16, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 18, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 17, 17, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
+    public void ApplyOffset_ValidInput_AppliesOffset(string inputString, long start, long end, string expectedOutput)
+    {
+        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+
+        Transform.ApplyOffset(json, start, end);
+        string output = JsonConvert.SerializeObject(json);
+
+        Assert.Equal(expectedOutput, output);
+    }
 }
