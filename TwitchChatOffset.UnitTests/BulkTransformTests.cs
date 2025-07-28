@@ -105,4 +105,20 @@ public class BulkTransformTests
 
         Assert.Equal(expectedOutput, output);
     }
+
+    [Theory]
+    [InlineData("5", "2", false, "5")]
+    [InlineData("2", "5", false, "2")]
+    [InlineData(null, "2", false, "2")]
+    [InlineData("5", "2", true, "2")]
+    [InlineData("2", "5", true, "5")]
+    [InlineData(null, "2", true, "2")]
+    public void ResolveClashPrioritiseCliClassTest(string? csvValue, string cliValue, bool cliValueSpecified, string expectedOutput)
+    {
+        MockNullableOption<string> cliOption = new(cliValue, cliValueSpecified);
+
+        string output = BulkTransform.ResolveClashPrioritiseCli(csvValue, cliOption);
+
+        Assert.Equal(expectedOutput, output);
+    }
 }
