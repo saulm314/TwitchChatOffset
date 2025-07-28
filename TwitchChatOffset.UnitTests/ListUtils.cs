@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace TwitchChatOffsetUnitTests;
+namespace TwitchChatOffset.UnitTests;
 
 public static class ListUtils
 {
