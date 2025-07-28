@@ -15,6 +15,26 @@ public class BulkTransformTests
     }
 
     [Theory]
+    [InlineData("chat.json", "transformed", ".json", @"transformed\chat.json")]
+    [InlineData("chat.json", "transformed", ".txt", @"transformed\chat.txt")]
+    [InlineData("chat.json", "transformed", "", @"transformed\chat")]
+    [InlineData("chat.json", @"transformed\", ".json", @"transformed\chat.json")]
+    [InlineData("chat.json", @"transformed\", ".txt", @"transformed\chat.txt")]
+    [InlineData("chat.json", @"transformed\", "", @"transformed\chat")]
+    [InlineData("chat", "transformed", ".json", @"transformed\chat.json")]
+    [InlineData("chat", "transformed", ".txt", @"transformed\chat.txt")]
+    [InlineData("chat", "transformed", "", @"transformed\chat")]
+    [InlineData("chat", @"transformed\", ".json", @"transformed\chat.json")]
+    [InlineData("chat", @"transformed\", ".txt", @"transformed\chat.txt")]
+    [InlineData("chat", @"transformed\", "", @"transformed\chat")]
+    public void GetOutputPath2Test(string inputFileName, string outputDir, string outputSuffix, string expectedOutput)
+    {
+        string output = BulkTransform.GetOutputPath(inputFileName, outputDir, outputSuffix);
+
+        Assert.Equal(expectedOutput, output);
+    }
+
+    [Theory]
     [InlineData((long)0, 0, OptionPriority.CSV)]
     [InlineData((long)1, 0, OptionPriority.CSV)]
     [InlineData((long)0, -1, OptionPriority.CSV)]

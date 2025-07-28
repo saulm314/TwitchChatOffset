@@ -84,9 +84,9 @@ public static class BulkTransform
     public static string GetOutputPath(string outputDir, string outputFile)
         => outputDir.EndsWith('\\') ? outputDir + outputFile : outputDir + '\\' + outputFile;
 
-    public static string GetOutputPath(string inputFile, string outputDir, string outputSuffix)
+    public static string GetOutputPath(string inputFileName, string outputDir, string outputSuffix)
     {
-        string inputFileNameBody = Path.GetFileNameWithoutExtension(inputFile);
+        string inputFileNameBody = Path.GetFileNameWithoutExtension(inputFileName);
         StringBuilder outputPathBuilder = new();
         outputPathBuilder.Append(outputDir);
         if (!outputDir.EndsWith('\\'))
