@@ -102,7 +102,7 @@ public static class BulkTransform
         {
             output = Transform.MTransform(input, start, end, format);
         }
-        catch (JsonReaderException e)
+        catch (JsonException e)
         {
             PrintError($"Could not parse JSON file {inputFile}", 2);
             PrintError(e.Message, 2);
@@ -130,7 +130,7 @@ public static class BulkTransform
         {
             output = Transform.MTransform(input, start, end, format);
         }
-        catch (JsonReaderException e)
+        catch (JsonException e)
         {
             PrintError($"Could not parse JSON file {inputFile}", 2);
             PrintError(e.Message, 2);
