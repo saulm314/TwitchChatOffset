@@ -1,4 +1,5 @@
 ﻿using TwitchChatOffset.CommandLine.Options;
+using System;
 using static TwitchChatOffset.UnitTests.MockOptionAliases;
 
 namespace TwitchChatOffset.UnitTests;
@@ -152,6 +153,37 @@ public class MockCsvObject
             stringObjectLeft != stringObjectRight;
     }
 
-    public override bool Equals(object? obj) => base.Equals(obj);
-    public override int GetHashCode() => base.GetHashCode();
+    public override bool Equals(object? obj)
+    {
+        if (obj == null)
+            return false;
+        return this == (MockCsvObject)obj;
+    }
+
+    public override int GetHashCode()
+    {
+        (
+            long? longObjectDefault,
+            long? longObjectStripped,
+            long? longObjectUnstripped,
+            long longObjectNonNullable,
+            bool? boolObject,
+            char? charObject,
+            double? doubleObject,
+            MockEnum? mockEnumObject,
+            string? stringObject
+        ) = this;
+        return
+            (longObjectDefault?.GetHashCode() ?? hash) ^
+            (longObjectStripped?.GetHashCode() ?? hash) ^
+            (longObjectUnstripped?.GetHashCode() ?? hash) ^
+            longObjectNonNullable.GetHashCode() ^
+            (boolObject?.GetHashCode() ?? hash) ^
+            (charObject?.GetHashCode() ?? hash) ^
+            (doubleObject?.GetHashCode() ?? hash) ^
+            (mockEnumObject?.GetHashCode() ?? hash) ^
+            (stringObject?.GetHashCode() ?? hash);
+    }
+
+    private static int hash = Guid.NewGuid().GetHashCode();
 };
