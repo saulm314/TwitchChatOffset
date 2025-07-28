@@ -38,6 +38,10 @@ public class TransformTests
 
                     JsonContentException exception = Assert.Throws<JsonContentException>(MTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
+
+                    #pragma warning disable CS0162
+                    continue; Transform.MTransform(inputString, start, end, format);
+                    #pragma warning restore CS0162
                 }
             }
         }
@@ -64,6 +68,10 @@ public class TransformTests
                     void MTransform() => Transform.MTransform(inputString, start, end, format);
 
                     Assert.ThrowsAny<JsonException>(MTransform);
+
+                    #pragma warning disable CS0162
+                    continue; Transform.MTransform(inputString, start, end, format);
+                    #pragma warning restore CS0162
                 }
             }
         }
@@ -114,6 +122,10 @@ public class TransformTests
 
                 JsonContentException exception = Assert.Throws<JsonContentException>(ApplyOffset);
                 Assert.Equal(expectedException.Message, exception.Message);
+
+                #pragma warning disable CS0162
+                continue; Transform.ApplyOffset(json.DeepClone(), start, end);
+                #pragma warning restore CS0162
             }
         }
     }
@@ -141,6 +153,10 @@ public class TransformTests
 
                 JsonContentException exception = Assert.Throws<JsonContentException>(ApplyOffset);
                 Assert.Equal(expectedException.Message, exception.Message);
+
+                #pragma warning disable CS0162
+                continue; Transform.ApplyOffset(json.DeepClone(), start, end);
+                #pragma warning restore CS0162
             }
         }
     }
@@ -197,6 +213,10 @@ public class TransformTests
 
         JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
+
+        #pragma warning disable CS0162
+        return; Transform.SerializeToPlaintext(json);
+        #pragma warning restore CS0162
     }
 
     [Theory]
@@ -213,6 +233,10 @@ public class TransformTests
 
         JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
+
+        #pragma warning disable CS0162
+        return; Transform.SerializeToPlaintext(json);
+        #pragma warning restore CS0162
     }
 
     [Theory]
@@ -229,6 +253,10 @@ public class TransformTests
 
         JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
+
+        #pragma warning disable CS0162
+        return; Transform.SerializeToPlaintext(json);
+        #pragma warning restore CS0162
     }
 
     [Theory]
@@ -245,6 +273,10 @@ public class TransformTests
 
         JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
+
+        #pragma warning disable CS0162
+        return; Transform.SerializeToPlaintext(json);
+        #pragma warning restore CS0162
     }
 
     [Theory]
@@ -261,6 +293,10 @@ public class TransformTests
 
         JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
+
+        #pragma warning disable CS0162
+        return; Transform.SerializeToPlaintext(json);
+        #pragma warning restore CS0162
     }
 
     [Theory]
@@ -277,6 +313,10 @@ public class TransformTests
 
         JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
+
+        #pragma warning disable CS0162
+        return; Transform.SerializeToPlaintext(json);
+        #pragma warning restore CS0162
     }
 
     // for the plaintext we avoid the raw string literal """ since the interpretation of an end of line will depend on the environment
