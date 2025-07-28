@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace TwitchChatOffsetUnitTests;
 
-public static class CollectionUtils
+public static class ListUtils
 {
     public static int Max(int int1, params int[] ints)
     {
@@ -24,4 +25,11 @@ public static class CollectionUtils
     }
 
     public static T IthOrLast<T>(this IList<T> list, int i) => i < list.Count ? list[i] : list[^1];
+
+    public static IEnumerable<T> Transform<T>(this IEnumerable<T> enumerable, Action<T> transform)
+    {
+        foreach (T item in enumerable)
+            transform(item);
+        return enumerable;
+    }
 }
