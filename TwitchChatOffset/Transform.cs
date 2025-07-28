@@ -21,6 +21,8 @@ public static class Transform
         return ApplyFormat(json, format);
     }
 
+    //_______________________________________________________________________
+
     public static void ApplyOffset(JToken json, long start, long end)
     {
         if (start == 0 && end < 0)
@@ -61,6 +63,8 @@ public static class Transform
             _ => throw new InternalException("Internal error: unrecognised format type")
         };
     }
+
+    //_____________________________________________________________________
 
     public static string ApplyFormatJson(JToken json)
     {
