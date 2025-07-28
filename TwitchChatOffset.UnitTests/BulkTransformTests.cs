@@ -5,6 +5,16 @@ namespace TwitchChatOffset.UnitTests;
 public class BulkTransformTests
 {
     [Theory]
+    [InlineData(".", "transformedChat.json", @".\transformedChat.json")]
+    [InlineData(@".\", "transformedChat.json", @".\transformedChat.json")]
+    public void GetOutputPath1Test(string outputDir, string outputFile, string expectedOutput)
+    {
+        string output = BulkTransform.GetOutputPath(outputDir, outputFile);
+
+        Assert.Equal(expectedOutput, output);
+    }
+
+    [Theory]
     [InlineData((long)0, 0, OptionPriority.CSV)]
     [InlineData((long)1, 0, OptionPriority.CSV)]
     [InlineData((long)0, -1, OptionPriority.CSV)]
@@ -21,7 +31,7 @@ public class BulkTransformTests
     [InlineData(null, long.MinValue, OptionPriority.CSV)]
     [InlineData(null, 1, OptionPriority.CLI)]
     [InlineData(null, long.MaxValue, OptionPriority.CLI)]
-    public void GetOptionPriority(long? csvOptionPriority, long cliOptionPriority, OptionPriority expectedOutput)
+    public void GetOptionPriorityTest(long? csvOptionPriority, long cliOptionPriority, OptionPriority expectedOutput)
     {
         OptionPriority output = BulkTransform.GetOptionPriority(csvOptionPriority, cliOptionPriority);
 
