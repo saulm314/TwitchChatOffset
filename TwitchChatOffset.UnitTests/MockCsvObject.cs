@@ -155,9 +155,9 @@ public class MockCsvObject
 
     public override bool Equals(object? obj)
     {
-        if (obj == null)
+        if (obj is not MockCsvObject other)
             return false;
-        return this == (MockCsvObject)obj;
+        return this == other;
     }
 
     public override int GetHashCode()
@@ -174,16 +174,16 @@ public class MockCsvObject
             string? stringObject
         ) = this;
         return
-            (longObjectDefault?.GetHashCode() ?? hash) ^
-            (longObjectStripped?.GetHashCode() ?? hash) ^
-            (longObjectUnstripped?.GetHashCode() ?? hash) ^
-            longObjectNonNullable.GetHashCode() ^
-            (boolObject?.GetHashCode() ?? hash) ^
-            (charObject?.GetHashCode() ?? hash) ^
-            (doubleObject?.GetHashCode() ?? hash) ^
-            (mockEnumObject?.GetHashCode() ?? hash) ^
-            (stringObject?.GetHashCode() ?? hash);
+            HashUtils.GetHashCode(longObjectDefault, hash) ^
+            HashUtils.GetHashCode(longObjectStripped, hash) ^
+            HashUtils.GetHashCode(longObjectUnstripped, hash) ^
+            HashUtils.GetHashCode(longObjectNonNullable) ^
+            HashUtils.GetHashCode(boolObject, hash) ^
+            HashUtils.GetHashCode(charObject, hash) ^
+            HashUtils.GetHashCode(doubleObject, hash) ^
+            HashUtils.GetHashCode(mockEnumObject, hash) ^
+            HashUtils.GetHashCode(stringObject, hash);
     }
 
-    private static int hash = Guid.NewGuid().GetHashCode();
+    private static readonly int hash = Guid.NewGuid().GetHashCode();
 };
