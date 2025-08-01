@@ -1,5 +1,4 @@
 ﻿using TwitchChatOffset.CommandLine.Options;
-using System;
 using static TwitchChatOffset.UnitTests.MockOptionAliases;
 
 namespace TwitchChatOffset.UnitTests;
@@ -45,145 +44,37 @@ public class MockCsvObject
     public string? stringObject = _stringObject;
 
     public MockCsvObject() : this
-        (
-            default,
-            default,
-            default,
-            default,
-            default,
-            default,
-            default,
-            default,
-            default
-        ) { }
-
-    public void Deconstruct
     (
-        out long? longObjectDefault,
-        out long? longObjectStripped,
-        out long? longObjectUnstripped,
-        out long longObjectNonNullable,
-        out bool? boolObject,
-        out char? charObject,
-        out double? doubleObject,
-        out MockEnum? mockEnumObject,
-        out string? stringObject
-    )
-    {
-        longObjectDefault = this.longObjectDefault;
-        longObjectStripped = this.longObjectStripped;
-        longObjectUnstripped = this.longObjectUnstripped;
-        longObjectNonNullable = this.longObjectNonNullable;
-        boolObject = this.boolObject;
-        charObject = this.charObject;
-        doubleObject = this.doubleObject;
-        mockEnumObject = this.mockEnumObject;
-        stringObject = this.stringObject;
-    }
+        default,
+        default,
+        default,
+        default,
+        default,
+        default,
+        default,
+        default,
+        default
+    ) { }
 
-    public static bool operator ==(MockCsvObject left, MockCsvObject right)
-    {
-        (
-            long? longObjectDefaultLeft,
-            long? longObjectStrippedLeft,
-            long? longObjectUnstrippedLeft,
-            long longObjectNonNullableLeft,
-            bool? boolObjectLeft,
-            char? charObjectLeft,
-            double? doubleObjectLeft,
-            MockEnum? mockEnumObjectLeft,
-            string? stringObjectLeft
-        ) = left;
-        (
-            long? longObjectDefaultRight,
-            long? longObjectStrippedRight,
-            long? longObjectUnstrippedRight,
-            long longObjectNonNullableRight,
-            bool? boolObjectRight,
-            char? charObjectRight,
-            double? doubleObjectRight,
-            MockEnum? mockEnumObjectRight,
-            string? stringObjectRight
-        ) = right;
-        return
-            longObjectDefaultLeft == longObjectDefaultRight &&
-            longObjectStrippedLeft == longObjectStrippedRight &&
-            longObjectUnstrippedLeft == longObjectUnstrippedRight &&
-            longObjectNonNullableLeft == longObjectNonNullableRight &&
-            boolObjectLeft == boolObjectRight &&
-            charObjectLeft == charObjectRight &&
-            doubleObjectLeft == doubleObjectRight &&
-            mockEnumObjectLeft == mockEnumObjectRight &&
-            stringObjectLeft == stringObjectRight;
-    }
-
-    public static bool operator !=(MockCsvObject left, MockCsvObject right)
-    {
-        (
-            long? longObjectDefaultLeft,
-            long? longObjectStrippedLeft,
-            long? longObjectUnstrippedLeft,
-            long longObjectNonNullableLeft,
-            bool? boolObjectLeft,
-            char? charObjectLeft,
-            double? doubleObjectLeft,
-            MockEnum? mockEnumObjectLeft,
-            string? stringObjectLeft
-        ) = left;
-        (
-            long? longObjectDefaultRight,
-            long? longObjectStrippedRight,
-            long? longObjectUnstrippedRight,
-            long longObjectNonNullableRight,
-            bool? boolObjectRight,
-            char? charObjectRight,
-            double? doubleObjectRight,
-            MockEnum? mockEnumObjectRight,
-            string? stringObjectRight
-        ) = right;
-        return
-            longObjectDefaultLeft != longObjectDefaultRight ||
-            longObjectStrippedLeft != longObjectStrippedRight ||
-            longObjectUnstrippedLeft != longObjectUnstrippedRight ||
-            longObjectNonNullableLeft != longObjectNonNullableRight ||
-            boolObjectLeft != boolObjectRight ||
-            charObjectLeft != charObjectRight ||
-            doubleObjectLeft != doubleObjectRight ||
-            mockEnumObjectLeft != mockEnumObjectRight ||
-            stringObjectLeft != stringObjectRight;
-    }
+    private (long?, long?, long?, long, bool?, char?, double?, MockEnum?, string?) EqualityFields =>
+    (
+        longObjectDefault,
+        longObjectStripped,
+        longObjectUnstripped,
+        longObjectNonNullable,
+        boolObject,
+        charObject,
+        doubleObject,
+        mockEnumObject,
+        stringObject
+    );
 
     public override bool Equals(object? obj)
     {
         if (obj is not MockCsvObject other)
             return false;
-        return this == other;
+        return EqualityFields == other.EqualityFields;
     }
 
-    public override int GetHashCode()
-    {
-        (
-            long? longObjectDefault,
-            long? longObjectStripped,
-            long? longObjectUnstripped,
-            long longObjectNonNullable,
-            bool? boolObject,
-            char? charObject,
-            double? doubleObject,
-            MockEnum? mockEnumObject,
-            string? stringObject
-        ) = this;
-        return
-            HashUtils.GetHashCode(longObjectDefault, hash) ^
-            HashUtils.GetHashCode(longObjectStripped, hash) ^
-            HashUtils.GetHashCode(longObjectUnstripped, hash) ^
-            HashUtils.GetHashCode(longObjectNonNullable) ^
-            HashUtils.GetHashCode(boolObject, hash) ^
-            HashUtils.GetHashCode(charObject, hash) ^
-            HashUtils.GetHashCode(doubleObject, hash) ^
-            HashUtils.GetHashCode(mockEnumObject, hash) ^
-            HashUtils.GetHashCode(stringObject, hash);
-    }
-
-    private static readonly int hash = Guid.NewGuid().GetHashCode();
+    public override int GetHashCode() => EqualityFields.GetHashCode();
 };
