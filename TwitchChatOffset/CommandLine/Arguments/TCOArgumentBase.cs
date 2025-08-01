@@ -3,8 +3,7 @@ using System.CommandLine.Binding;
 
 namespace TwitchChatOffset.CommandLine.Arguments;
 
-public abstract class TCOArgumentBase<T>(string? name, string? description = null)
-    : Argument<T>(name, description)
+public abstract class TCOArgumentBase<T>(string? name, string? description = null) : Argument<T>(name, description)
 {
     public T GetValue(BindingContext bindingContext)
     {
