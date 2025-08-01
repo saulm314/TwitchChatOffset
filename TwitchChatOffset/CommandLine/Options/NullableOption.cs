@@ -4,7 +4,7 @@ namespace TwitchChatOffset.CommandLine.Options;
 
 public class NullableOption<T> : TCOOptionBase<T>, INullableOption<T> where T : notnull
 {
-    public NullableOption(string[] aliases, Func<T> getDefaultValue, string? description) : this(aliases, new Data(getDefaultValue), description) { }
+    public NullableOption(string[] aliases, Func<T> getDefaultValue, string? description = null) : this(aliases, new Data(getDefaultValue), description) { }
 
     public bool ValueSpecified => data.valueSpecified;
 
