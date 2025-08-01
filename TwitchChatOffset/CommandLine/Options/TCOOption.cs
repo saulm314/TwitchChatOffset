@@ -2,5 +2,4 @@
 
 namespace TwitchChatOffset.CommandLine.Options;
 
-public class TCOOption<TType>(string[] aliases, Func<TType> getDefaultValue, string? description = null)
-    : TCOOptionBase<TType>(aliases, getDefaultValue, description);
+public class TCOOption<T>(string[] aliases, Func<T> getDefaultValue, string? description = null) : TCOOptionBase<T>(aliases, getDefaultValue, description);

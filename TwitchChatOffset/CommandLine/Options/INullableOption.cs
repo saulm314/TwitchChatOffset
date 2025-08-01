@@ -1,7 +1,7 @@
 ﻿namespace TwitchChatOffset.CommandLine.Options;
 
-public interface INullableOption<TType> where TType : notnull
+public interface INullableOption<T> where T : notnull
 {
-    TType Value { get; }
+    T Value { get; }
     bool ValueSpecified { get; }
 }
