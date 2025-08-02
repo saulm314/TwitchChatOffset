@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using CSVFile;
 
@@ -42,9 +43,10 @@ public static class CsvSerialization
     private static Dictionary<string, FieldData> GetDataMap<T>(string[] headers)
     {
         Dictionary<string, FieldData> dataMap = [];
+        FieldData[] fieldDatas = [..GetFieldDatas<T>()];
         foreach (string header in headers)
         {
-            foreach (FieldData fieldData in GetFieldDatas<T>())
+            foreach (FieldData fieldData in fieldDatas)
             {
                 foreach (string alias in fieldData.attribute.Aliases)
                 {
