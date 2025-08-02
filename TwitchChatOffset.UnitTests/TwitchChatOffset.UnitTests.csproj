@@ -35,7 +35,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    <!-- temporarily using a fork while a bug is being fixed -->
+    <!-- when pull request is approved, should move back to latest NuGet package in main project-->
+    <!-- and it should automatically transfer to this project -->
+    <!-- https://github.com/tspence/csharp-csv-reader/pull/69 -->
+    <Reference Include="CSVFile">
+      <HintPath>..\libs\CSVFile\CSVFile.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
