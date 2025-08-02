@@ -94,6 +94,7 @@ public class CsvSerializationTests
             ,
 
             5
+
             """,
             [
                 new(5, 5, default, default, default, default, default, default, default),
