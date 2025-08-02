@@ -80,12 +80,20 @@ public static class CsvSerialization
             return;
         if (field == string.Empty)
             return;
-        if (!fieldData.converter.IsValid(field))
+
+        // we do not bother with a fieldData.converter.IsValid(field) call, for two reasons:
+        // 1. this method is case sensitive, meaning it does not accept an enum if the case doesn't match exactly
+        // 2. this method just does a try catch anyway, also catching all types of exception
+        object? value;
+        try
+        {
+            value = fieldData.converter.ConvertFromString(field);
+        }
+        catch
         {
             PrintWarning($"Cannot convert \"{field}\" to type {fieldData.field.FieldType.FullName}; treating as an empty field...", 1);
             return;
         }
-        object? value = fieldData.converter.ConvertFromString(field);
         fieldData.field.SetValue(data, value);
     }
 
