@@ -4,6 +4,7 @@ using System;
 using Newtonsoft.Json;
 
 [assembly: RegisterXunitSerializer(typeof(XunitSerializer), typeof(CsvSerializationTests.DeserializeTestData))]
+[assembly: RegisterXunitSerializer(typeof(XunitSerializer), typeof(CsvSerializationTests.DeserializeBadTestData))]
 
 namespace TwitchChatOffset.UnitTests;
 

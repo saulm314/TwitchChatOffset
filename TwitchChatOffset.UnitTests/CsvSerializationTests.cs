@@ -1,5 +1,6 @@
 ﻿using TwitchChatOffset.CSV;
 using System.Collections.Generic;
+using System.Linq;
 using CSVFile;
 
 namespace TwitchChatOffset.UnitTests;
@@ -22,6 +23,22 @@ public class CsvSerializationTests
         }
         // make sure the correct number of objects was outputted
         Assert.Equal(i, data.ExpectedCsvObjects.Length - 1);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetDeserializeBadTestData))]
+    public void Deserialize_DuplicateHeader_ThrowsCsvContentExceptionDuplicateOption(DeserializeBadTestData data)
+    {
+        CSVReader reader = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
+
+        void Deserialize() => _ = CsvSerialization.Deserialize<MockCsvObject>(reader).Count();
+
+        CsvContentException exception = Assert.Throws<CsvContentException>(Deserialize);
+        Assert.Equal(data.ExpectedException.Message, exception.Message);
+
+        #pragma warning disable CS0162
+        return; _ = CsvSerialization.Deserialize<MockCsvObject>(reader).Count();
+        #pragma warning restore CS0162
     }
 
     public static IEnumerable<TheoryDataRow<DeserializeTestData>> GetDeserializeTestData()
@@ -420,5 +437,19 @@ public class CsvSerializationTests
         ));
     }
 
-    public record DeserializeTestData(string testName, string CsvString, MockCsvObject[] ExpectedCsvObjects);
+    public static IEnumerable<TheoryDataRow<DeserializeBadTestData>> GetDeserializeBadTestData()
+    {
+        yield return new(new
+        (
+            "duplicate long-object-default",
+            """
+            long-object-default,long-object-default
+            """,
+            CsvContentException.DuplicateOption("long-object-default")
+        ));
+    }
+
+    public record DeserializeTestData(string TestName, string CsvString, MockCsvObject[] ExpectedCsvObjects);
+
+    public record DeserializeBadTestData(string TestName, string CsvString, CsvContentException ExpectedException);
 }
