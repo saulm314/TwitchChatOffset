@@ -50,7 +50,7 @@ public static class CsvSerialization
                 {
                     if (alias == header)
                     {
-                        if (dataMap.ContainsKey(header))
+                        if (dataMap.ContainsValue(fieldData))
                             throw CsvContentException.DuplicateOption(header);
                         dataMap.Add(header, fieldData);
                         goto Found;

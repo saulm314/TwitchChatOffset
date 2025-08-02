@@ -447,6 +447,63 @@ public class CsvSerializationTests
             """,
             CsvContentException.DuplicateOption("long-object-default")
         ));
+
+        yield return new(new
+        (
+            "duplicate long-object-default with lines",
+            """
+            long-object-default,long-object-default
+
+
+
+            """,
+            CsvContentException.DuplicateOption("long-object-default")
+        ));
+
+        yield return new(new
+        (
+            "duplicate long-object-default with data",
+            """
+            long-object-default,long-object-default
+            1,2
+            5,1
+            6,7
+            """,
+            CsvContentException.DuplicateOption("long-object-default")
+        ));
+
+        yield return new(new
+        (
+            "duplicate long-object-default longObjectDefault",
+            """
+            long-object-default,longObjectDefault
+            """,
+            CsvContentException.DuplicateOption("longObjectDefault")
+        ));
+
+        yield return new(new
+        (
+            "duplicate long-object-default longObjectDefault with lines",
+            """
+            long-object-default,longObjectDefault
+
+
+
+            """,
+            CsvContentException.DuplicateOption("longObjectDefault")
+        ));
+
+        yield return new(new
+        (
+            "duplicate long-object-default longObjectDefault with data",
+            """
+            long-object-default,longObjectDefault
+            1,2
+            5,1
+            6,7
+            """,
+            CsvContentException.DuplicateOption("longObjectDefault")
+        ));
     }
 
     public record DeserializeTestData(string TestName, string CsvString, MockCsvObject[] ExpectedCsvObjects);
