@@ -96,7 +96,6 @@ public static class BulkTransform
         return outputPathBuilder.ToString();
     }
 
-
     public static string? TryTransform(string inputFile, string input, long start, long end, Format format)
     {
         string output;
