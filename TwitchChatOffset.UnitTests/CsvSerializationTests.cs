@@ -59,6 +59,32 @@ public class CsvSerializationTests
 
         yield return new(new
         (
+            "too many commas",
+            """
+            hello,hello2
+            ,,
+
+            """,
+            [
+                new()
+            ]
+        ));
+
+        yield return new(new
+        (
+            "way too many commas",
+            """
+            hello,hello2
+            ,,,,,,,,,
+
+            """,
+            [
+                new()
+            ]
+        ));
+
+        yield return new(new
+        (
             "empty extra headers with no data (two rows)",
             """
             hello,hello2

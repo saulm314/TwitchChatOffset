@@ -18,7 +18,8 @@ public static class CsvSerialization
         foreach (string[] line in reader.Lines())
         {
             T data = new();
-            for (int i = 0; i < line.Length; i++)
+            int fieldCount = int.Min(line.Length, reader.Headers.Length);
+            for (int i = 0; i < fieldCount; i++)
                 WriteField(data, line[i], reader.Headers[i], dataMap);
             yield return data;
         }
