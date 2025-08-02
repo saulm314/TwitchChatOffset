@@ -20,13 +20,93 @@ public class CsvSerializationTests
 
             Assert.Equal(expectedCsvObject, csvObject);
         }
+        // make sure the correct number of objects was outputted
+        Assert.Equal(i, data.ExpectedCsvObjects.Length - 1);
     }
 
     public static IEnumerable<TheoryDataRow<DeserializeTestData>> GetDeserializeTestData()
     {
-        // general test, exhausting all edge cases of all types
         yield return new(new
         (
+            "empty header",
+            """
+            hello
+            """,
+            []
+        ));
+
+        yield return new(new
+        (
+            "two extra empty headers",
+            """
+            hello,hello2
+            """,
+            []
+        ));
+
+        yield return new(new
+        (
+            "empty extra headers with no data",
+            """
+            hello,hello2
+            ,
+
+            """,
+            [
+                new()
+            ]
+        ));
+
+        yield return new(new
+        (
+            "empty extra headers with no data (two rows)",
+            """
+            hello,hello2
+            ,
+            ,
+            """,
+            [
+                new(),
+                new()
+            ]
+        ));
+
+        yield return new(new
+        (
+            "empty real headers with no data",
+            """
+            long-object-default,long-object-stripped
+            ,
+
+            """,
+            [
+                new(),
+            ]
+        ));
+
+        yield return new(new
+        (
+            "missing data",
+            """
+            long-object-default,long-object-stripped
+            5,5
+            5
+            ,
+
+            5
+            """,
+            [
+                new(5, 5, default, default, default, default, default, default, default),
+                new(5, default, default, default, default, default, default, default, default),
+                new(),
+                new(),
+                new(5, default, default, default, default, default, default, default, default)
+            ]
+        ));
+
+        yield return new(new
+        (
+            "general test, exhausting all edge cases of all types",
             """
             long-object-default,long-object-stripped,--long-object-unstripped,long-object-non-nullable,bool-object,char-object,double-object,mock-enum-object,string-object
             ,,,,,,,,
@@ -58,11 +138,13 @@ public class CsvSerializationTests
             ]
         ));
 
-        // extra header should be ignored in final output
-        // long-object-unstripped header should be ignored in final output, since it doesn't match any alias (alias is supposed to be unstripped)
-        //      that is, it should have "--" in the beginning, but the correct alias --long-object-unstripped is still counted
         yield return new(new
         (
+            """
+            extra header should be ignored in final output
+            long-object-unstripped header should be ignored in final output, since it doesn't match any alias (alias is supposed to be unstripped)
+                 that is, it should have "--" in the beginning, but the correct alias --long-object-unstripped is still counted
+            """,
             """
             extra,long-object-default,long-object-unstripped,long-object-stripped,--long-object-unstripped,long-object-non-nullable,bool-object,char-object,double-object,mock-enum-object,string-object
             19,,17,,,,,,,,
@@ -94,9 +176,9 @@ public class CsvSerializationTests
             ]
         ));
 
-        // --long-object-stripped and long-object-unstripped (both wrong aliases) both ignored, thus all values are default for those two headers
         yield return new(new
         (
+            "--long-object-stripped and long-object-unstripped (both wrong aliases) both ignored, thus all values are default for those two headers",
             """
             long-object-default,--long-object-stripped,long-object-unstripped,long-object-non-nullable,bool-object,char-object,double-object,mock-enum-object,string-object
             ,,,,,,,,
@@ -128,9 +210,9 @@ public class CsvSerializationTests
             ]
         ));
 
-        // two extras with the same name, both ignored
         yield return new(new
         (
+            "two extras with the same name, both ignored",
             """
             extra,extra,long-object-default,long-object-unstripped,long-object-stripped,--long-object-unstripped,long-object-non-nullable,bool-object,char-object,double-object,mock-enum-object,string-object
             19,20,,17,,,,,,,,
@@ -162,10 +244,12 @@ public class CsvSerializationTests
             ]
         ));
 
-        // two long-object-unstripped headers (supposed to have "--") - both ignored (--long-object-unstripped also present)
-        // --long-object-stripped (supposed to be stripped, that is, no "--" in the beginning), should be ignored (long-object-stripped also present)
         yield return new(new
         (
+            """
+            two long-object-unstripped headers (supposed to have "--") - both ignored (--long-object-unstripped also present)
+            --long-object-stripped (supposed to be stripped, that is, no "--" in the beginning), should be ignored (long-object-stripped also present)
+            """,
             """
             long-object-unstripped,--long-object-stripped,long-object-default,long-object-unstripped,long-object-stripped,--long-object-unstripped,long-object-non-nullable,bool-object,char-object,double-object,mock-enum-object,string-object
             19,20,,17,,,,,,,,
@@ -197,9 +281,9 @@ public class CsvSerializationTests
             ]
         ));
 
-        // second aliases general test
         yield return new(new
         (
+            "second aliases general test",
             """
             long-object-unstripped,--long-object-stripped,longObjectDefault,long-object-unstripped,long-stripped,--long-unstripped,long-non-nullable,bool,char,double,mock-enum,string
             19,20,,17,,,,,,,,
@@ -231,9 +315,9 @@ public class CsvSerializationTests
             ]
         ));
 
-        // second aliases general test, including false stripping second aliases
         yield return new(new
         (
+            "second aliases general test, including false stripping second aliases",
             """
             long-unstripped,--long-stripped,longObjectDefault,long-unstripped,long-stripped,--long-unstripped,long-non-nullable,bool,char,double,mock-enum,string
             19,20,,17,,,,,,,,
@@ -266,5 +350,5 @@ public class CsvSerializationTests
         ));
     }
 
-    public record DeserializeTestData(string CsvString, MockCsvObject[] ExpectedCsvObjects);
+    public record DeserializeTestData(string testName, string CsvString, MockCsvObject[] ExpectedCsvObjects);
 }
