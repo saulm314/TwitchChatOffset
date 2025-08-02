@@ -28,6 +28,15 @@ public class CsvSerializationTests
     {
         yield return new(new
         (
+            "empty string",
+            """
+
+            """,
+            []
+        ));
+
+        yield return new(new
+        (
             "empty header",
             """
             hello
