@@ -2,25 +2,24 @@
 using Xunit.Sdk;
 using System;
 using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 
-[assembly: RegisterXunitSerializer(typeof(XunitSerializer), typeof(CsvSerializationTests.DeserializeTestData))]
-[assembly: RegisterXunitSerializer(typeof(XunitSerializer), typeof(CsvSerializationTests.DeserializeBadTestData))]
+[assembly: RegisterXunitSerializer(typeof(XunitSerializer),
+    typeof(CsvSerializationTests.DeserializeTestData),
+    typeof(CsvSerializationTests.DeserializeBadTestData))]
 
 namespace TwitchChatOffset.UnitTests;
 
 public class XunitSerializer : IXunitSerializer
 {
-    private static readonly Type[] serializableTypes =
-    [
-        typeof(CsvSerializationTests.DeserializeTestData),
-        typeof(CsvSerializationTests.DeserializeBadTestData)
-    ];
+    private static readonly RegisterXunitSerializerAttribute? attribute
+        = Assembly.GetExecutingAssembly().GetCustomAttribute<RegisterXunitSerializerAttribute>();
 
     public bool IsSerializable(Type type, object? value, out string failureReason)
     {
         failureReason = string.Empty;
-        if (serializableTypes.Contains(type))
+        if (attribute != null && attribute.SupportedTypesForSerialization.Contains(type))
             return true;
         failureReason = $"Type {type} not supported for serialization";
         return false;
