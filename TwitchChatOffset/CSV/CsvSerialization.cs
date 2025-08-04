@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using CSVFile;
 
@@ -12,6 +11,7 @@ namespace TwitchChatOffset.CSV;
 public static class CsvSerialization
 {
     // deserialize CSV content into fields in type T that have an AliasesAttribute
+    // type T may not have any duplicate aliases (across multiple fields or in the same field), or an internal exception will be thrown
     // if no data for a field is found, then it is left with its default value
     public static IEnumerable<T> Deserialize<T>(CSVReader reader) where T : new()
     {
@@ -43,23 +43,26 @@ public static class CsvSerialization
     private static Dictionary<string, FieldData> GetDataMap<T>(string[] headers)
     {
         Dictionary<string, FieldData> dataMap = [];
+        HashSet<FieldData> addedFields = [];
         FieldData[] fieldDatas = [..GetFieldDatas<T>()];
+        ThrowIfDuplicateAliases<T>(fieldDatas);
         foreach (string header in headers)
         {
             foreach (FieldData fieldData in fieldDatas)
             {
-                foreach (string alias in fieldData.attribute.Aliases)
+                foreach (string alias in fieldData.Attribute.Aliases)
                 {
                     if (alias == header)
                     {
-                        if (dataMap.ContainsValue(fieldData))
+                        if (addedFields.Contains(fieldData))
                             throw CsvContentException.DuplicateOption(header);
                         dataMap.Add(header, fieldData);
+                        addedFields.Add(fieldData);
                         goto Found;
                     }
                 }
             }
-            Found:;
+        Found:;
         }
         return dataMap;
     }
@@ -77,6 +80,20 @@ public static class CsvSerialization
         }
     }
 
+    private static void ThrowIfDuplicateAliases<T>(FieldData[] fieldDatas)
+    {
+        HashSet<string> aliases = [];
+        foreach (FieldData fieldData in fieldDatas)
+        {
+            foreach (string alias in fieldData.Attribute.Aliases)
+            {
+                if (aliases.Contains(alias))
+                    throw new InternalException($"Internal error: duplicate alias {alias} in type {typeof(T).FullName} found");
+                aliases.Add(alias);
+            }
+        }
+    }
+
     private static void WriteField<T>(T data, string field, string header, Dictionary<string, FieldData> dataMap)
     {
         if (!dataMap.TryGetValue(header, out FieldData fieldData))
@@ -90,20 +107,18 @@ public static class CsvSerialization
         object? value;
         try
         {
-            value = fieldData.converter.ConvertFromString(field);
+            value = fieldData.Converter.ConvertFromString(field);
         }
         catch
         {
-            PrintWarning($"Cannot convert \"{field}\" to type {fieldData.field.FieldType.FullName}; treating as an empty field...", 1);
+            PrintWarning($"Cannot convert \"{field}\" to type {fieldData.Field.FieldType.FullName}; treating as an empty field...", 1);
             return;
         }
-        fieldData.field.SetValue(data, value);
+        fieldData.Field.SetValue(data, value);
     }
 
-    private readonly struct FieldData(FieldInfo field, AliasesAttribute attribute)
+    private readonly record struct FieldData(FieldInfo Field, AliasesAttribute Attribute)
     {
-        public readonly FieldInfo field = field;
-        public readonly TypeConverter converter = TypeDescriptor.GetConverter(field.FieldType);
-        public readonly AliasesAttribute attribute = attribute;
+        public readonly TypeConverter Converter = TypeDescriptor.GetConverter(Field.FieldType);
     }
 }
