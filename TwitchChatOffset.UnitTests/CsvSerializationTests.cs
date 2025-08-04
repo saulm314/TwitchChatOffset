@@ -1,4 +1,6 @@
 ﻿using TwitchChatOffset.CSV;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CSVFile;
@@ -11,10 +13,22 @@ public class CsvSerializationTests
     [MemberData(nameof(GetDeserializeTestData))]
     public void DeserializeTest(DeserializeTestData data)
     {
-        using CSVReader reader = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
+        using CSVReader reader1 = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
+        using CSVReader reader2 = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
 
         int i = -1;
-        foreach (MockCsvObject csvObject in CsvSerialization.Deserialize<MockCsvObject>(reader))
+        foreach (MockCsvObject csvObject in CsvSerialization.Deserialize<MockCsvObject>(reader1))
+        {
+            i++;
+            MockCsvObject expectedCsvObject = data.ExpectedCsvObjects[i];
+
+            Assert.Equal(expectedCsvObject, csvObject);
+        }
+        // make sure the correct number of objects was outputted
+        Assert.Equal(i, data.ExpectedCsvObjects.Length - 1);
+
+        i = -1;
+        foreach (MockCsvObject csvObject in CsvSerialization.Deserialize(reader1, typeof(MockCsvObject)))
         {
             i++;
             MockCsvObject expectedCsvObject = data.ExpectedCsvObjects[i];
@@ -29,15 +43,21 @@ public class CsvSerializationTests
     [MemberData(nameof(GetDeserializeBadTestData))]
     public void Deserialize_DuplicateHeader_ThrowsCsvContentExceptionDuplicateOption(DeserializeBadTestData data)
     {
-        using CSVReader reader = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
+        using CSVReader reader1 = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
+        using CSVReader reader2 = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
 
-        void Deserialize() => _ = CsvSerialization.Deserialize<MockCsvObject>(reader).Count();
+        void Deserialize1() => _ = CsvSerialization.Deserialize<MockCsvObject>(reader1).Count();
+        void Deserialize2() => _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader2, typeof(MockCsvObject))).Count();
 
-        CsvContentException exception = Assert.Throws<CsvContentException>(Deserialize);
-        Assert.Equal(data.ExpectedException.Message, exception.Message);
+        CsvContentException exception1 = Assert.Throws<CsvContentException>(Deserialize1);
+        CsvContentException exception2 = Assert.Throws<CsvContentException>(Deserialize2);
+        Assert.Equal(data.ExpectedException.Message, exception1.Message);
+        Assert.Equal(data.ExpectedException.Message, exception2.Message);
 
         #pragma warning disable CS0162
-        return; _ = CsvSerialization.Deserialize<MockCsvObject>(reader).Count();
+        return;
+        _ = CsvSerialization.Deserialize<MockCsvObject>(reader1).Count();
+        _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader2, typeof(MockCsvObject))).Count();
         #pragma warning restore CS0162
     }
 

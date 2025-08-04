@@ -33,7 +33,7 @@ public static class CsvSerialization
         return
             (IEnumerable)
             typeof(CsvSerialization)
-            .GetMethod(nameof(DeserializeDummy))!
+            .GetMethod(nameof(DeserializeDummy), BindingFlags.NonPublic | BindingFlags.Static)!
             .MakeGenericMethod(type)
             .Invoke(null, [reader])!;
     }
