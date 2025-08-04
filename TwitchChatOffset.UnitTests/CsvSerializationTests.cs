@@ -82,6 +82,21 @@ public class CsvSerializationTests
         #pragma warning restore CS0162
     }
 
+    [Fact]
+    public void Deserialize_BadGenericNew_Throws()
+    {
+        using CSVReader reader = CSVReader.FromString(string.Empty);
+        Type type = typeof(MockCsvObjectBad.BadGenericNew);
+
+        void Deserialize() => _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader, type)).Count();
+
+        Assert.ThrowsAny<Exception>(Deserialize);
+
+        #pragma warning disable CS0162
+        return; _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader, type)).Count();
+        #pragma warning restore CS0162
+    }
+
     public static IEnumerable<TheoryDataRow<DeserializeTestData>> GetDeserializeTestData()
     {
         yield return new(new
