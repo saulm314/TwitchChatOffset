@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TwitchChatOffset.CSV;
+namespace TwitchChatOffset.Csv;
 
 public class CsvSerializationInternalException : InternalException
 {

@@ -1,7 +1,7 @@
 ﻿using TwitchChatOffset.CommandLine.Options;
 using static TwitchChatOffset.CommandLine.Options.OptionAliases;
 
-namespace TwitchChatOffset.CSV;
+namespace TwitchChatOffset.Csv;
 
 public class TransformManyToManyCsvNullables
 {

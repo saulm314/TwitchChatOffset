@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Reflection;
 using CSVFile;
 
-namespace TwitchChatOffset.CSV;
+namespace TwitchChatOffset.Csv;
 
 public static class CsvSerialization
 {
