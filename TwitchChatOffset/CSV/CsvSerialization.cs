@@ -88,7 +88,7 @@ public static class CsvSerialization
             foreach (string alias in fieldData.Attribute.Aliases)
             {
                 if (aliases.Contains(alias))
-                    throw new InternalException($"Internal error: duplicate alias {alias} in type {typeof(T).FullName} found");
+                    throw CsvSerializationInternalException.DuplicateAliases(alias, typeof(T));
                 aliases.Add(alias);
             }
         }

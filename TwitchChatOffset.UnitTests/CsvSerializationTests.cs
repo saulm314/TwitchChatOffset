@@ -1,6 +1,5 @@
 ﻿using TwitchChatOffset.CSV;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CSVFile;
@@ -28,7 +27,7 @@ public class CsvSerializationTests
         Assert.Equal(i, data.ExpectedCsvObjects.Length - 1);
 
         i = -1;
-        foreach (MockCsvObject csvObject in CsvSerialization.Deserialize(reader1, typeof(MockCsvObject)))
+        foreach (MockCsvObject csvObject in CsvSerialization.Deserialize(reader2, typeof(MockCsvObject)))
         {
             i++;
             MockCsvObject expectedCsvObject = data.ExpectedCsvObjects[i];
@@ -58,6 +57,28 @@ public class CsvSerializationTests
         return;
         _ = CsvSerialization.Deserialize<MockCsvObject>(reader1).Count();
         _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader2, typeof(MockCsvObject))).Count();
+        #pragma warning restore CS0162
+    }
+
+    [Theory]
+    [MemberData(nameof(GetDeserializeBadInternalTestData))]
+    public void Deserialize_DuplicateFields_ThrowsCsvSerializationInternalExceptionDuplicateAliases(DeserializeBadInternalTestData data)
+    {
+        using CSVReader reader1 = CSVReader.FromString(string.Empty);
+        using CSVReader reader2 = CSVReader.FromString(string.Empty);
+
+        void Deserialize1() => _ = data.GenericDeserialize(reader1).Count();
+        void Deserialize2() => _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader2, data.PType)).Count();
+
+        CsvSerializationInternalException exception1 = Assert.Throws<CsvSerializationInternalException>(Deserialize1);
+        CsvSerializationInternalException exception2 = Assert.Throws<CsvSerializationInternalException>(Deserialize2);
+        Assert.Equal(data.ExpectedException.Message, exception1.Message);
+        Assert.Equal(data.ExpectedException.Message, exception2.Message);
+
+        #pragma warning disable CS0162
+        return;
+        _ = CsvSerialization.Deserialize<MockCsvObjectBad.DuplicateAliasesSameField>(reader1).Count();
+        _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader2, data.PType)).Count();
         #pragma warning restore CS0162
     }
 
@@ -568,7 +589,29 @@ public class CsvSerializationTests
         ));
     }
 
+    public static IEnumerable<TheoryDataRow<DeserializeBadInternalTestData>> GetDeserializeBadInternalTestData()
+    {
+        yield return new(new
+        (
+            nameof(MockCsvObjectBad.DuplicateAliasesSameField),
+            CsvSerialization.Deserialize<MockCsvObjectBad.DuplicateAliasesSameField>,
+            typeof(MockCsvObjectBad.DuplicateAliasesSameField),
+            CsvSerializationInternalException.DuplicateAliases("number", typeof(MockCsvObjectBad.DuplicateAliasesSameField))
+        ));
+
+        yield return new(new
+        (
+            nameof(MockCsvObjectBad.DuplicateAliasesMultipleFields),
+            CsvSerialization.Deserialize<MockCsvObjectBad.DuplicateAliasesMultipleFields>,
+            typeof(MockCsvObjectBad.DuplicateAliasesMultipleFields),
+            CsvSerializationInternalException.DuplicateAliases("number", typeof(MockCsvObjectBad.DuplicateAliasesMultipleFields))
+        ));
+    }
+
     public record DeserializeTestData(string TestName, string CsvString, MockCsvObject[] ExpectedCsvObjects);
 
     public record DeserializeBadTestData(string TestName, string CsvString, CsvContentException ExpectedException);
+
+    public record DeserializeBadInternalTestData(string TestName, Func<CSVReader, IEnumerable<object>> GenericDeserialize, Type PType,
+        CsvSerializationInternalException ExpectedException);
 }
