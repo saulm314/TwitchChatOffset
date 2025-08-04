@@ -5,6 +5,9 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 
+// for any Theory tests that use the MemberDataAttribute, the underlying type must be either serializable by default
+//      or explicitly added through this assembly attribute
+// otherwise the test explorer will not display the tests correctly (multiple tests will show as one)
 [assembly: RegisterXunitSerializer(typeof(XunitSerializer),
     typeof(CsvSerializationTests.DeserializeTestData),
     typeof(CsvSerializationTests.DeserializeBadTestData),

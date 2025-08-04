@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CSVFile;
+using Newtonsoft.Json;
 
 namespace TwitchChatOffset.UnitTests;
 
@@ -627,6 +628,8 @@ public class CsvSerializationTests
 
     public record DeserializeBadTestData(string TestName, string CsvString, CsvContentException ExpectedException);
 
-    public record DeserializeBadInternalTestData(string TestName, Func<CSVReader, IEnumerable<object>> GenericDeserialize, Type PType,
+    // Newtonsoft.Json cannot serialize delegates correctly, so we specify that it should be ignored
+    // else all tests that use this as its underlying type in the MemberDataAttribute will show up as a single test
+    public record DeserializeBadInternalTestData(string TestName, [property: JsonIgnore] Func<CSVReader, IEnumerable<object>> GenericDeserialize, Type PType,
         CsvSerializationInternalException ExpectedException);
 }
