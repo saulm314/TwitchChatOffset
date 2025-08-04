@@ -4,7 +4,17 @@ namespace TwitchChatOffset.Json;
 
 public class JsonContentException : Exception
 {
-    public static JsonContentException Empty() => new(_Empty);
+    public static JsonContentException Empty() => new("JSON content must not be empty");
+    public static JsonContentException PropertyNotFound(string path) => new($"JSON property {path} not found");
+    public static JsonContentException InvalidConversion<T>(string path)
+        => new($"Could not convert JSON property {path} to type {typeof(T).FullName}");
+    public static JsonContentException InvalidConversion(Type desiredType, string path)
+        => new($"Could not convert JSON property {path} to type {desiredType.FullName}");
+
+
+
+
+
     public static JsonContentException NoComments() => new(_NoComments);
     public static JsonContentException NoContentOffsetSeconds(int index) => new(_NoContentOffsetSeconds + index);
     public static JsonContentException NoCommenter(int index) => new(_NoCommenter + index);
@@ -13,6 +23,9 @@ public class JsonContentException : Exception
     public static JsonContentException NoBody(int index) => new(_NoBody + index);
 
     private const string _Empty = "JSON content must not be empty";
+    private const string _PropertyNotFound = "JSON property not found: ";
+
+
     private const string _NoComments = "comments object not found in JSON object";
     private const string _NoContentOffsetSeconds = "content_offset_seconds object not found in comments element ";
     private const string _NoCommenter = "commenter object not found in comments element ";
