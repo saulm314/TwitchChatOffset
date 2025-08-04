@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TwitchChatOffset;
+namespace TwitchChatOffset.Json;
 
 public class JsonContentException : Exception
 {

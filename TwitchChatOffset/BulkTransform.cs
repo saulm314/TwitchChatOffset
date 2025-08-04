@@ -1,5 +1,6 @@
 ﻿using TwitchChatOffset.CommandLine.Options;
 using TwitchChatOffset.Csv;
+using TwitchChatOffset.Json;
 using System;
 using System.IO;
 using System.Text;

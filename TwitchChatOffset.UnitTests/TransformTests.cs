@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using TwitchChatOffset.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace TwitchChatOffset.UnitTests;

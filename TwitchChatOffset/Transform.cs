@@ -1,4 +1,5 @@
-﻿using System;
+﻿using TwitchChatOffset.Json;
+using System;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
