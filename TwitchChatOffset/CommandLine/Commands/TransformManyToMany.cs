@@ -71,7 +71,7 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
             if (line == null)
                 continue;
             (string inputFile, string outputFile, long start, long end, Format format, string outputDir) = line;
-            PrintLine(outputFile, 1, quiet);
+            PrintObjectMembers(line, outputFile, 1, quiet);
             _ = Directory.CreateDirectory(outputDir);
             string outputPath = BulkTransform.GetOutputPath(outputDir, outputFile);
             string input = File.ReadAllText(inputFile);

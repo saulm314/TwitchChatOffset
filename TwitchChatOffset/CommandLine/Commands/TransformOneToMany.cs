@@ -78,7 +78,7 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
             if (line == null)
                 continue;
             (string outputFile, long start, long end, Format format, string outputDir) = line;
-            PrintLine(outputFile, 1, quiet);
+            PrintObjectMembers(line, outputFile, 1, quiet);
             _ = Directory.CreateDirectory(outputDir);
             string outputPath = BulkTransform.GetOutputPath(outputDir, outputFile);
             string? output = BulkTransform.TryTransform(inputPath, parent, start, end, format);
