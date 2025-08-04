@@ -11,7 +11,7 @@ public class CsvSerializationTests
     [MemberData(nameof(GetDeserializeTestData))]
     public void DeserializeTest(DeserializeTestData data)
     {
-        CSVReader reader = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
+        using CSVReader reader = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
 
         int i = -1;
         foreach (MockCsvObject csvObject in CsvSerialization.Deserialize<MockCsvObject>(reader))
@@ -29,7 +29,7 @@ public class CsvSerializationTests
     [MemberData(nameof(GetDeserializeBadTestData))]
     public void Deserialize_DuplicateHeader_ThrowsCsvContentExceptionDuplicateOption(DeserializeBadTestData data)
     {
-        CSVReader reader = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
+        using CSVReader reader = CSVReader.FromString(data.CsvString, CsvUtils.csvSettings);
 
         void Deserialize() => _ = CsvSerialization.Deserialize<MockCsvObject>(reader).Count();
 

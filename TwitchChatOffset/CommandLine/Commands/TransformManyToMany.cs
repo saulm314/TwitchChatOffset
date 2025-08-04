@@ -63,7 +63,7 @@ public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
     {
         (string csvPath, NullableOption<long> cliStart, NullableOption<long> cliEnd, NullableOption<Format> cliFormat, NullableOption<string> cliOutputDir,
             long cliOptionPriority, bool quiet) = data;
-        CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
+        using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
         PrintLine("Writing files...", 0, quiet);
         foreach (TransformManyToManyCsvNullables nullableLine in CsvSerialization.Deserialize<TransformManyToManyCsvNullables>(reader))
         {

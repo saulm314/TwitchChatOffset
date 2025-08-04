@@ -70,7 +70,7 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
             NullableOption<string> cliOutputDir, long cliOptionPriority, bool quiet) = data;
         string input = File.ReadAllText(inputPath);
         JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
-        CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
+        using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
         PrintLine("Writing files...", 0, quiet);
         foreach (TransformOneToManyCsvNullables nullableLine in CsvSerialization.Deserialize<TransformOneToManyCsvNullables>(reader))
         {
