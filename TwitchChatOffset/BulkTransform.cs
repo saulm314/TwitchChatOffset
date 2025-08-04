@@ -21,7 +21,7 @@ public static class BulkTransform
         }
         if (nullables.outputFile == null)
         {
-            PrintError("Output file must not be empty! Skipping...", 2);
+            PrintError("Output file must not be empty! Skipping...", 1);
             return null;
         }
         OptionPriority optionPriority = GetOptionPriority(nullables.optionPriority, cliOptionPriority);
@@ -55,7 +55,7 @@ public static class BulkTransform
     {
         if (nullables.outputFile == null)
         {
-            PrintError("Output file must not be empty! Skipping...", 2);
+            PrintError("Output file must not be empty! Skipping...", 1);
             return null;
         }
         OptionPriority optionPriority = GetOptionPriority(nullables.optionPriority, cliOptionPriority);
