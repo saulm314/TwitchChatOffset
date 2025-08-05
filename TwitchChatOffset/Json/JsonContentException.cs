@@ -2,7 +2,7 @@
 
 namespace TwitchChatOffset.Json;
 
-public abstract class JsonContentException : Exception
+public abstract class JsonContentException(string? message) : Exception(message)
 {
     public class Empty() : JsonContentException("base JSON object { } not found");
 
@@ -29,6 +29,4 @@ public abstract class JsonContentException : Exception
         public string Path => Path;
         public object? Value => value;
     }
-
-    private JsonContentException(string? message) : base(message) { }
 }

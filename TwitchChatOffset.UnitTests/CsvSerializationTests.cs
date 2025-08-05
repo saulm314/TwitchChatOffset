@@ -49,8 +49,8 @@ public class CsvSerializationTests
         void Deserialize1() => _ = CsvSerialization.Deserialize<MockCsvObject>(reader1).Count();
         void Deserialize2() => _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader2, typeof(MockCsvObject))).Count();
 
-        CsvContentException exception1 = Assert.Throws<CsvContentException>(Deserialize1);
-        CsvContentException exception2 = Assert.Throws<CsvContentException>(Deserialize2);
+        CsvContentException.DuplicateOption exception1 = Assert.Throws<CsvContentException.DuplicateOption>(Deserialize1);
+        CsvContentException.DuplicateOption exception2 = Assert.Throws<CsvContentException.DuplicateOption>(Deserialize2);
         Assert.Equal(data.ExpectedException.Message, exception1.Message);
         Assert.Equal(data.ExpectedException.Message, exception2.Message);
 
@@ -71,14 +71,14 @@ public class CsvSerializationTests
         void Deserialize1() => _ = data.GenericDeserialize(reader1).Count();
         void Deserialize2() => _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader2, data.PType)).Count();
 
-        CsvSerializationInternalException exception1 = Assert.Throws<CsvSerializationInternalException>(Deserialize1);
-        CsvSerializationInternalException exception2 = Assert.Throws<CsvSerializationInternalException>(Deserialize2);
+        CsvSerializationInternalException.DuplicateAlias exception1 = Assert.ThrowsAny<CsvSerializationInternalException.DuplicateAlias>(Deserialize1);
+        CsvSerializationInternalException.DuplicateAlias exception2 = Assert.ThrowsAny<CsvSerializationInternalException.DuplicateAlias>(Deserialize2);
         Assert.Equal(data.ExpectedException.Message, exception1.Message);
         Assert.Equal(data.ExpectedException.Message, exception2.Message);
 
         #pragma warning disable CS0162
         return;
-        _ = CsvSerialization.Deserialize<MockCsvObjectBad.DuplicateAliasesSameField>(reader1).Count();
+        _ = CsvSerialization.Deserialize<MockCsvObjectBad.DuplicateAliasSameField>(reader1).Count();
         _ = ((IEnumerable<object>)CsvSerialization.Deserialize(reader2, data.PType)).Count();
         #pragma warning restore CS0162
     }
@@ -502,7 +502,7 @@ public class CsvSerializationTests
             """
             long-object-default,long-object-default
             """,
-            CsvContentException.DuplicateOption("long-object-default")
+            new("long-object-default")
         ));
 
         yield return new(new
@@ -514,7 +514,7 @@ public class CsvSerializationTests
 
 
             """,
-            CsvContentException.DuplicateOption("long-object-default")
+            new("long-object-default")
         ));
 
         yield return new(new
@@ -526,7 +526,7 @@ public class CsvSerializationTests
             5,1
             6,7
             """,
-            CsvContentException.DuplicateOption("long-object-default")
+            new("long-object-default")
         ));
 
         yield return new(new
@@ -535,7 +535,7 @@ public class CsvSerializationTests
             """
             long-object-default,longObjectDefault
             """,
-            CsvContentException.DuplicateOption("longObjectDefault")
+            new("longObjectDefault")
         ));
 
         yield return new(new
@@ -547,7 +547,7 @@ public class CsvSerializationTests
 
 
             """,
-            CsvContentException.DuplicateOption("longObjectDefault")
+            new("longObjectDefault")
         ));
 
         yield return new(new
@@ -559,7 +559,7 @@ public class CsvSerializationTests
             5,1
             6,7
             """,
-            CsvContentException.DuplicateOption("longObjectDefault")
+            new("longObjectDefault")
         ));
 
         yield return new(new
@@ -580,7 +580,7 @@ public class CsvSerializationTests
             19,20,hello,17,51.0,true, ,yes,two,hello,snakecase,1
             19,20,5a,17,a5,0.0,5f,no,three,5.0f,snakecase,1
             """,
-            CsvContentException.DuplicateOption("long-object-stripped")
+            new("long-object-stripped")
         ));
 
         yield return new(new
@@ -601,7 +601,7 @@ public class CsvSerializationTests
             19,20,hello,17,51.0,true, ,yes,two,hello,snakecase,1
             19,20,5a,17,a5,0.0,5f,no,three,5.0f,snakecase,1
             """,
-            CsvContentException.DuplicateOption("long-stripped")
+            new("long-stripped")
         ));
     }
 
@@ -609,27 +609,27 @@ public class CsvSerializationTests
     {
         yield return new(new
         (
-            nameof(MockCsvObjectBad.DuplicateAliasesSameField),
-            CsvSerialization.Deserialize<MockCsvObjectBad.DuplicateAliasesSameField>,
-            typeof(MockCsvObjectBad.DuplicateAliasesSameField),
-            CsvSerializationInternalException.DuplicateAliases("number", typeof(MockCsvObjectBad.DuplicateAliasesSameField))
+            nameof(MockCsvObjectBad.DuplicateAliasSameField),
+            CsvSerialization.Deserialize<MockCsvObjectBad.DuplicateAliasSameField>,
+            typeof(MockCsvObjectBad.DuplicateAliasSameField),
+            new CsvSerializationInternalException.DuplicateAlias<MockCsvObjectBad.DuplicateAliasSameField>("number")
         ));
 
         yield return new(new
         (
-            nameof(MockCsvObjectBad.DuplicateAliasesMultipleFields),
-            CsvSerialization.Deserialize<MockCsvObjectBad.DuplicateAliasesMultipleFields>,
-            typeof(MockCsvObjectBad.DuplicateAliasesMultipleFields),
-            CsvSerializationInternalException.DuplicateAliases("number", typeof(MockCsvObjectBad.DuplicateAliasesMultipleFields))
+            nameof(MockCsvObjectBad.DuplicateAliasMultipleFields),
+            CsvSerialization.Deserialize<MockCsvObjectBad.DuplicateAliasMultipleFields>,
+            typeof(MockCsvObjectBad.DuplicateAliasMultipleFields),
+            new CsvSerializationInternalException.DuplicateAlias<MockCsvObjectBad.DuplicateAliasMultipleFields>("number")
         ));
     }
 
     public record DeserializeTestData(string TestName, string CsvString, MockCsvObject[] ExpectedCsvObjects);
 
-    public record DeserializeBadTestData(string TestName, string CsvString, CsvContentException ExpectedException);
+    public record DeserializeBadTestData(string TestName, string CsvString, CsvContentException.DuplicateOption ExpectedException);
 
     // Newtonsoft.Json cannot serialize delegates correctly, so we specify that it should be ignored
     // else all tests that use this as its underlying type in the MemberDataAttribute will show up as a single test
     public record DeserializeBadInternalTestData(string TestName, [property: JsonIgnore] Func<CSVReader, IEnumerable<object>> GenericDeserialize, Type PType,
-        CsvSerializationInternalException ExpectedException);
+        CsvSerializationInternalException.DuplicateAlias ExpectedException);
 }

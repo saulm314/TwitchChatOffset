@@ -2,12 +2,14 @@
 
 namespace TwitchChatOffset.Csv;
 
-public class CsvSerializationInternalException : InternalException
+public abstract class CsvSerializationInternalException(string? message) : InternalException(message)
 {
-    public static CsvSerializationInternalException DuplicateAliases(string alias, Type type)
-        => new(_DuplicateAliases + $"{alias} (type {type.FullName})");
+    public class DuplicateAlias<T>(string alias) : DuplicateAlias(alias, typeof(T));
 
-    private const string _DuplicateAliases = "Internal error: duplicate aliases found in type to deserialize CSV into: ";
-
-    private CsvSerializationInternalException(string? message) : base(message) { }
+    public class DuplicateAlias(string alias, Type type)
+        : CsvSerializationInternalException($"Internal error: duplicate alias {alias} found in type {type.FullName}")
+    {
+        public string Alias => alias;
+        public Type PType => type;
+    }
 }

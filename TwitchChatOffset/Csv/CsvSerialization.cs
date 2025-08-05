@@ -55,7 +55,7 @@ public static class CsvSerialization
                     if (alias == header)
                     {
                         if (addedFields.Contains(fieldData))
-                            throw CsvContentException.DuplicateOption(header);
+                            throw new CsvContentException.DuplicateOption(header);
                         dataMap.Add(header, fieldData);
                         addedFields.Add(fieldData);
                         goto Found;
@@ -88,7 +88,7 @@ public static class CsvSerialization
             foreach (string alias in fieldData.Attribute.Aliases)
             {
                 if (aliases.Contains(alias))
-                    throw CsvSerializationInternalException.DuplicateAliases(alias, typeof(T));
+                    throw new CsvSerializationInternalException.DuplicateAlias<T>(alias);
                 aliases.Add(alias);
             }
         }

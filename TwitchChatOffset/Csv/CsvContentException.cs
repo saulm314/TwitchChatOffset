@@ -2,11 +2,10 @@
 
 namespace TwitchChatOffset.Csv;
 
-public class CsvContentException : Exception
+public abstract class CsvContentException(string? message) : Exception(message)
 {
-    public static CsvContentException DuplicateOption(string option) => new(_DuplicateOption + option);
-
-    private const string _DuplicateOption = "CSV data contains duplicate option ";
-
-    private CsvContentException(string? message) : base(message) { }
+    public class DuplicateOption(string option) : CsvContentException($"CSV data contains duplicate option {option}")
+    {
+        public string Option => option;
+    }
 }
