@@ -1,28 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 
 namespace TwitchChatOffset.Json;
 
 public static class JsonUtils
 {
-    /// <summary>
-    /// Deserializes a JSON string into a JObject, or throws JsonContentException if no parent JObject is found
-    /// </summary>
-    /// <param name="jsonString">the JSON string to deserialize</param>
-    /// <returns>the deserialized JObject</returns>
-    /// <exception cref="JsonContentException.Empty"/>
     public static JObject Deserialize(string jsonString) => (JObject)(JsonConvert.DeserializeObject(jsonString) ?? throw new JsonContentException.Empty());
 
-    /// <summary>
-    /// If T is a JToken (or derived type), returns jtoken but cast to T;
-    /// If jtoken is a JValue and its value is of type T, returns the value;
-    /// Else throws JsonContentException
-    /// </summary>
-    /// <typeparam name="T">either a JToken or a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
-    /// <param name="jtoken">the JToken to convert or get a value of if it's a JValue</param>
-    /// <returns>the converted jtoken or the value of the jtoken if it's a JValue</returns>
-    /// <exception cref="JsonContentException.InvalidConversion{T}"/>
     public static T As<T>(this JToken jtoken)
     {
         if (typeof(T).IsAssignableTo(typeof(JToken)))
@@ -38,86 +22,21 @@ public static class JsonUtils
         return value;
     }
 
-    /// <summary>
-    /// Dereferences the property of a JObject, and gets the JToken representing it, or throws JsonContentException if property not found
-    /// E.g. the object.property1.property3 dereference is represented by jobject.D("property1").D("property3")
-    /// </summary>
-    /// <param name="jtoken">the JObject containing the property to dereference</param>
-    /// <param name="propertyName">the name of the property to dereference</param>
-    /// <returns>the deferenced JToken</returns>
-    /// <exception cref="JsonContentException.InvalidConversion{JObject}"/>
-    /// <exception cref="JsonContentException.PropertyNotFound"/>
     public static JToken D(this JToken jtoken, string propertyName)
         => jtoken.As<JObject>()[propertyName] ?? throw new JsonContentException.PropertyNotFound(jtoken.Path, propertyName);
 
-    /// <summary>
-    /// Dereferences the property of a JObject, and converts it to a JToken subtype, or gets its value if the dereferenced JToken is a JValue
-    /// </summary>
-    /// <typeparam name="T">either a JToken or a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
-    /// <param name="jtoken">the JObject containing the property to dereference</param>
-    /// <param name="propertyName">the name of the property to dereference</param>
-    /// <returns>the dereferenced jtoken converted to T if T is a JToken subtype, or the dereferenced value of type T if the dereferenced JToken is a JValue</returns>
-    /// <exception cref="JsonContentException.InvalidConversion{JObject}"/>
-    /// <exception cref="JsonContentException.PropertyNotFound"/>
-    /// <exception cref="JsonContentException.InvalidConversion{T}"/>
     public static T D<T>(this JToken jtoken, string propertyName) => jtoken.D(propertyName).As<T>();
 
-    /// <summary>
-    /// Gets the JToken at the specified index of a JArray, or throws ArgumentOutOfRangeException if index is out of range
-    /// </summary>
-    /// <param name="jtoken">the JArray</param>
-    /// <param name="index">index of the desired element</param>
-    /// <returns>the JToken representing the element at the specified index</returns>
-    /// <exception cref="JsonContentException.InvalidConversion{JArray}"/>
-    /// <exception cref="ArgumentOutOfRangeException"/>
     public static JToken At(this JToken jtoken, int index) => jtoken.As<JArray>()[index];
 
-    /// <summary>
-    /// For a specified index of an array, gets the element converted to a JToken subtype, or gets the element's value, or throws ArgumentOutOfRangeException
-    /// </summary>
-    /// <typeparam name="T">either a JToken or a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
-    /// <param name="jtoken">the JArray</param>
-    /// <param name="index">index of the desired element</param>
-    /// <returns>the element at the specified index, converted to T if T is a JToken subtype, or the value of type T if the element is a JValue</returns>
-    /// <exception cref="JsonContentException.InvalidConversion{JArray}"/>
-    /// <exception cref="ArgumentOutOfRangeException"/>
-    /// <exception cref="JsonContentException.InvalidConversion{T}"/>
     public static T At<T>(this JToken jtoken, int index) => jtoken.At(index).As<T>();
 
-    /// <summary>
-    /// Sets the value of a JValue to null
-    /// </summary>
-    /// <param name="jtoken">the JValue</param>
-    /// <exception cref="JsonContentException.InvalidConversion{JValue}"/>
     public static void SetNull(this JToken jtoken) => jtoken.As<JValue>().Value = null;
 
-    /// <summary>
-    /// Sets the value of a JValue
-    /// </summary>
-    /// <typeparam name="T">a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
-    /// <param name="jtoken">the JValue</param>
-    /// <param name="value">the value to set, possibly null</param>
-    /// <exception cref="JsonContentException.InvalidConversion{JValue}"/>
-    /// <exception cref="ArgumentException"/>
     public static void Set<T>(this JToken jtoken, T value) => jtoken.As<JValue>().Value = value;
 
-    /// <summary>
-    /// Sets a property of a given JObject to the null JValue
-    /// </summary>
-    /// <param name="jtoken">the JObject</param>
-    /// <param name="propertyName">the property to set to null</param>
-    /// <exception cref="JsonContentException.InvalidConversion{JObject}"/>
     public static void SetNull(this JToken jtoken, string propertyName) => jtoken.As<JObject>()[propertyName] = JValue.CreateNull();
 
-    /// <summary>
-    /// Sets a property of a given JObject to a given JToken, or a JValue with the given value, or a null JValue
-    /// </summary>
-    /// <typeparam name="T">either a JToken(?) or a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
-    /// <param name="jtoken">the JObject</param>
-    /// <param name="propertyName">the property to set</param>
-    /// <param name="value">the JToken to set, the value to set to the JValue, or null</param>
-    /// <exception cref="JsonContentException.InvalidConversion{JObject}"/>
-    /// <exception cref="ArgumentException"/>
     public static void Set<T>(this JToken jtoken, string propertyName, T value)
     {
         JObject jobject = jtoken.As<JObject>();
@@ -139,25 +58,8 @@ public static class JsonUtils
         jobject[propertyName] = new JValue(value);
     }
 
-    /// <summary>
-    /// Sets the element at the given index of a JArray to the null JValue, or throws ArgumentOutOfRangeException
-    /// </summary>
-    /// <param name="jtoken">the JArray</param>
-    /// <param name="index">the index at which the element is to be set to null</param>
-    /// <exception cref="JsonContentException.InvalidConversion{JArray}"/>
-    /// <exception cref="ArgumentOutOfRangeException"/>
     public static void SetNull(this JToken jtoken, int index) => jtoken.As<JArray>()[index] = JValue.CreateNull();
 
-    /// <summary>
-    /// Sets the element at a given index of a JArray to a given JToken, or a JValue with the given value, or a null JValue, or throws ArgumentOutOfRangeException
-    /// </summary>
-    /// <typeparam name="T">either a JToken(?) or a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
-    /// <param name="jtoken">the JArray</param>
-    /// <param name="index">the index at which the element is to be set</param>
-    /// <param name="value">the JToken to set, the value to set to the JValue, or null</param>
-    /// <exception cref="JsonContentException.InvalidConversion{JArray}"/>
-    /// <exception cref="ArgumentOutOfRangeException"/>
-    /// <exception cref="ArgumentException"/>
     public static void Set<T>(this JToken jtoken, int index, T value)
     {
         JArray jarray = jtoken.As<JArray>();
@@ -178,13 +80,6 @@ public static class JsonUtils
         jarray[index] = new JValue(value);
     }
 
-    /// <summary>
-    /// Deep clones a JToken and converts it to a JToken subtype or gets its value if it's a JValue
-    /// </summary>
-    /// <typeparam name="T">either a JToken or a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
-    /// <param name="jtoken">the JToken to deep clone</param>
-    /// <returns>the deep clone of the JToken converted to type T, or the value of type T of the deep clone if it's a JValue</returns>
-    /// <exception cref="JsonContentException.InvalidConversion{T}"/>
     public static T DeepClone<T>(this JToken jtoken) => jtoken.DeepClone().As<T>();
 
     public static string AddPathWarning(this string message)
