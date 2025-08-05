@@ -4,16 +4,19 @@ namespace TwitchChatOffset.Json;
 
 public class JsonContentException : Exception
 {
-    public static JsonContentException Empty() => new("JSON content must not be empty");
-    public static JsonContentException PropertyNotFound(string path) => new($"JSON property {path} not found");
-    public static JsonContentException InvalidConversion<T>(string path)
-        => new($"Could not convert JSON property {path} to type {typeof(T).FullName}");
-    public static JsonContentException InvalidConversion(Type desiredType, string path)
-        => new($"Could not convert JSON property {path} to type {desiredType.FullName}");
-
-
-
-
+    public static JsonContentException Empty() => new("base JSON object { } not found");
+    public static JsonContentException PropertyNotFound(string path, string propertyName)
+        => new($"JSON property {path.Dereference(propertyName)} not found".AddPathWarning());
+    public static JsonContentException InvalidConversion<T>(string path, object? value) => InvalidConversion(typeof(T), path, value);
+    public static JsonContentException InvalidConversion(Type desiredType, string path, object? value)
+        => new($"""
+            Could not convert value:
+            {value}
+            in JSON path:
+            {path}
+            to type:
+            {desiredType.FullName}
+            """.AddPathWarning());
 
     public static JsonContentException NoComments() => new(_NoComments);
     public static JsonContentException NoContentOffsetSeconds(int index) => new(_NoContentOffsetSeconds + index);
