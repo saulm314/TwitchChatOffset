@@ -10,7 +10,7 @@ public static class Transform
 {
     public static string MTransform(string inputString, long start, long end, Format format)
     {
-        JToken json = (JToken)(JsonConvert.DeserializeObject(inputString) ?? throw JsonContentException.Empty());
+        JObject json = JsonUtils.Deserialize(inputString);
         ApplyOffset(json, start, end);
         return Serialize(json, format);
     }
@@ -30,26 +30,19 @@ public static class Transform
             return;
         if (end >= 0 && end < start)
             PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
-        JArray comments = (JArray)(json["comments"] ?? throw JsonContentException.NoComments());
+        JArray comments = json.D<JArray>("comments");
         int i = 0;
-        int originalIndex = -1;
         while (i < comments.Count)
         {
-            originalIndex++;
-            JToken comment = comments[i];
-            JValue commentOffset = (JValue)(comment["content_offset_seconds"] ?? throw JsonContentException.NoContentOffsetSeconds(originalIndex));
-            long commentOffsetValue = (long)commentOffset.Value!;
-            if (commentOffsetValue < start)
+            JValue offsetJValue = comments[i].D<JValue>("content_offset_seconds");
+            long offset = offsetJValue.As<long>();
+            bool inRange = offset >= start && (offset <= end || end < 0);
+            if (!inRange)
             {
                 comments.RemoveAt(i);
                 continue;
             }
-            if (end >= 0 && commentOffsetValue > end)
-            {
-                comments.RemoveAt(i);
-                continue;
-            }
-            commentOffset.Value = commentOffsetValue - start;
+            offsetJValue.Set(offset - start);
             i++;
         }
     }
@@ -79,29 +72,22 @@ public static class Transform
 
     public static string SerializeToPlaintext(JToken json)
     {
-        StringBuilder stringBuilder = new();
-        JArray comments = (JArray)(json["comments"] ?? throw JsonContentException.NoComments());
+        StringBuilder builder = new();
+        JArray comments = json.D<JArray>("comments");
         for (int i = 0; i < comments.Count; i++)
         {
-            JToken comment = comments[i];
-            JValue commentOffset = (JValue)(comment["content_offset_seconds"] ?? throw JsonContentException.NoContentOffsetSeconds(i));
-            long commentOffsetValue = (long)commentOffset.Value!;
-            TimeSpan timeSpan = TimeSpan.FromSeconds(commentOffsetValue);
-            stringBuilder.Append(timeSpan);
-            stringBuilder.Append(' ');
+            long offset = comments[i].D<long>("content_offset_seconds");
+            TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
+            string displayName = comments[i].D("commenter").D<string>("display_name");
+            string message = comments[i].D("message").D<string>("body");
 
-            JToken commenter = comment["commenter"] ?? throw JsonContentException.NoCommenter(i);
-            JValue displayName = (JValue)(commenter["display_name"] ?? throw JsonContentException.NoDisplayName(i));
-            string displayNameValue = (string)displayName.Value!;
-            stringBuilder.Append(displayNameValue);
-            stringBuilder.Append(": ");
-
-            JToken message = comment["message"] ?? throw JsonContentException.NoMessage(i);
-            JValue body = (JValue)(message["body"] ?? throw JsonContentException.NoBody(i));
-            string bodyValue = (string)body.Value!;
-            stringBuilder.Append(bodyValue);
-            stringBuilder.Append('\n');
+            builder.Append(timeSpan);
+            builder.Append(' ');
+            builder.Append(displayName);
+            builder.Append(": ");
+            builder.Append(message);
+            builder.Append('\n');
         }
-        return stringBuilder.ToString();
+        return builder.ToString();
     }
 }

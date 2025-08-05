@@ -145,6 +145,14 @@ public static class JsonUtils
         jarray[index] = new JValue(value);
     }
 
+    /// <summary>
+    /// Deep clone a JToken and convert it to a JToken subtype or get its value if it's a JValue
+    /// </summary>
+    /// <typeparam name="T">either a JToken or a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
+    /// <param name="jtoken">the JToken to deep clone</param>
+    /// <returns>the deep clone of the JToken converted to type T, or the value of type T of the deep clone if it's a JValue</returns>
+    public static T DeepClone<T>(this JToken jtoken) => jtoken.DeepClone().As<T>();
+
     public static string AddPathWarning(this string message)
         => message + '\n' + "(path may not be the original path if JSON object was modified at the time of the exception being thrown)";
 
