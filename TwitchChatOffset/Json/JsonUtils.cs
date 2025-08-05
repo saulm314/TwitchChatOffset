@@ -10,6 +10,7 @@ public static class JsonUtils
     /// </summary>
     /// <param name="jsonString">the JSON string to deserialize</param>
     /// <returns>the deserialized JObject</returns>
+    /// <exception cref="JsonContentException"/>
     public static JObject Deserialize(string jsonString) => (JObject)(JsonConvert.DeserializeObject(jsonString) ?? throw JsonContentException.Empty());
 
     /// <summary>
@@ -20,6 +21,7 @@ public static class JsonUtils
     /// <typeparam name="T">either a JToken or a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
     /// <param name="jtoken">the JToken to convert or get a value of if it's a JValue</param>
     /// <returns>the converted jtoken or the value of the jtoken if it's a JValue</returns>
+    /// <exception cref="JsonContentException"/>
     public static T As<T>(this JToken jtoken)
     {
         if (typeof(T).IsAssignableTo(typeof(JToken)))
@@ -42,6 +44,7 @@ public static class JsonUtils
     /// <param name="jtoken">the JObject containing the property to dereference</param>
     /// <param name="propertyName">the name of the property to dereference</param>
     /// <returns>the deferenced JToken</returns>
+    /// <exception cref="JsonContentException"/>
     public static JToken D(this JToken jtoken, string propertyName)
         => jtoken.As<JObject>()[propertyName] ?? throw JsonContentException.PropertyNotFound(jtoken.Path, propertyName);
 
@@ -52,6 +55,7 @@ public static class JsonUtils
     /// <param name="jtoken">the JObject containing the property to dereference</param>
     /// <param name="propertyName">the name of the property to dereference</param>
     /// <returns>the dereferenced jtoken converted to T if T is a JToken subtype, or the dereferenced value of type T if the dereferenced JToken is a JValue</returns>
+    /// <exception cref="JsonContentException"/>
     public static T D<T>(this JToken jtoken, string propertyName) => jtoken.D(propertyName).As<T>();
 
     /// <summary>
@@ -60,6 +64,8 @@ public static class JsonUtils
     /// <param name="jtoken">the JArray</param>
     /// <param name="index">index of the desired element</param>
     /// <returns>the JToken representing the element at the specified index</returns>
+    /// <exception cref="JsonContentException"/>
+    /// <exception cref="System.ArgumentOutOfRangeException"/>
     public static JToken At(this JToken jtoken, int index) => jtoken.As<JArray>()[index];
 
     /// <summary>
@@ -69,12 +75,15 @@ public static class JsonUtils
     /// <param name="jtoken">the JArray</param>
     /// <param name="index">index of the desired element</param>
     /// <returns>the element at the specified index, converted to T if T is a JToken subtype, or the value of type T if the element is a JValue</returns>
+    /// <exception cref="JsonContentException"/>
+    /// <exception cref="System.ArgumentOutOfRangeException"/>
     public static T At<T>(this JToken jtoken, int index) => jtoken.At(index).As<T>();
 
     /// <summary>
     /// Set the value of a JValue to null
     /// </summary>
     /// <param name="jtoken">the JValue</param>
+    /// <exception cref="JsonContentException"/>
     public static void SetNull(this JToken jtoken) => jtoken.As<JValue>().Value = null;
 
     /// <summary>
@@ -83,6 +92,8 @@ public static class JsonUtils
     /// <typeparam name="T">a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
     /// <param name="jtoken">the JValue</param>
     /// <param name="value">the value to set, possibly null</param>
+    /// <exception cref="JsonContentException"/>
+    /// <exception cref="System.ArgumentException"/>
     public static void Set<T>(this JToken jtoken, T value) => jtoken.As<JValue>().Value = value;
 
     /// <summary>
@@ -90,6 +101,7 @@ public static class JsonUtils
     /// </summary>
     /// <param name="jtoken">the JObject</param>
     /// <param name="propertyName">the property to set to null</param>
+    /// <exception cref="JsonContentException"/>
     public static void SetNull(this JToken jtoken, string propertyName) => jtoken.As<JObject>()[propertyName] = JValue.CreateNull();
 
     /// <summary>
@@ -99,6 +111,8 @@ public static class JsonUtils
     /// <param name="jtoken">the JObject</param>
     /// <param name="propertyName">the property to set</param>
     /// <param name="value">the JToken to set, the value to set to the JValue, or null</param>
+    /// <exception cref="JsonContentException"/>
+    /// <exception cref="System.ArgumentException"/>
     public static void Set<T>(this JToken jtoken, string propertyName, T value)
     {
         JObject jobject = jtoken.As<JObject>();
@@ -120,6 +134,8 @@ public static class JsonUtils
     /// </summary>
     /// <param name="jtoken">the JArray</param>
     /// <param name="index">the index at which the element is to be set to null</param>
+    /// <exception cref="JsonContentException"/>
+    /// <exception cref="System.ArgumentOutOfRangeException"/>
     public static void SetNull(this JToken jtoken, int index) => jtoken.As<JArray>()[index] = JValue.CreateNull();
 
     /// <summary>
@@ -129,6 +145,9 @@ public static class JsonUtils
     /// <param name="jtoken">the JArray</param>
     /// <param name="index">the index at which the element is to be set</param>
     /// <param name="value">the JToken to set, the value to set to the JValue, or null</param>
+    /// <exception cref="JsonContentException"/>
+    /// <exception cref="System.ArgumentOutOfRangeException"/>
+    /// <exception cref="System.ArgumentException"/>
     public static void Set<T>(this JToken jtoken, int index, T value)
     {
         JArray jarray = jtoken.As<JArray>();
@@ -151,6 +170,7 @@ public static class JsonUtils
     /// <typeparam name="T">either a JToken or a valid serializable type as in JValue.GetValueType(JTokenType?, object)</typeparam>
     /// <param name="jtoken">the JToken to deep clone</param>
     /// <returns>the deep clone of the JToken converted to type T, or the value of type T of the deep clone if it's a JValue</returns>
+    /// <exception cref="JsonContentException"/>
     public static T DeepClone<T>(this JToken jtoken) => jtoken.DeepClone().As<T>();
 
     public static string AddPathWarning(this string message)
