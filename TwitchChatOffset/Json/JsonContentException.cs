@@ -29,4 +29,20 @@ public abstract class JsonContentException(string? message) : Exception(message)
         public string Path => Path;
         public object? Value => value;
     }
+
+    public class InvalidValueAssignment<T>(string path) : InvalidValueAssignment(typeof(T), path);
+
+    public class InvalidValueAssignment(Type type, string path)
+        : JsonContentException($"Cannot assign a value of type {type.FullName} to JValue at {path}".AddPathWarning())
+    {
+        public Type PType => type;
+        public string Path => path;
+    }
+
+    public class OutOfRange(string path, int index)
+        : JsonContentException($"Index {index} out of range of JArray at {path}".AddPathWarning())
+    {
+        public string Path => path;
+        public int Index => index;
+    }
 }
