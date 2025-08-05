@@ -1,11 +1,11 @@
 ﻿using TwitchChatOffset.CommandLine.Arguments;
 using TwitchChatOffset.CommandLine.Options;
 using TwitchChatOffset.Csv;
+using TwitchChatOffset.Json;
 using System.CommandLine;
 using System.CommandLine.Binding;
 using System.IO;
 using CSVFile;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace TwitchChatOffset.CommandLine.Commands;
@@ -69,7 +69,7 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
         (string inputPath, string csvPath, NullableOption<long> cliStart, NullableOption<long> cliEnd, NullableOption<Format> cliFormat,
             NullableOption<string> cliOutputDir, long cliOptionPriority, bool quiet) = data;
         string input = File.ReadAllText(inputPath);
-        JToken parent = (JToken)JsonConvert.DeserializeObject(input)!;
+        JToken parent = JsonUtils.Deserialize(input);
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
         PrintLine("Writing files...", 0, quiet);
         foreach (TransformOneToManyCsvNullables nullableLine in CsvSerialization.Deserialize<TransformOneToManyCsvNullables>(reader))

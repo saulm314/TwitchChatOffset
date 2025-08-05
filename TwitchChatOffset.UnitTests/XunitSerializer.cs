@@ -1,4 +1,5 @@
 ﻿using TwitchChatOffset.UnitTests;
+using TwitchChatOffset.Json;
 using Xunit.Sdk;
 using System;
 using System.Linq;
@@ -31,7 +32,7 @@ public class XunitSerializer : IXunitSerializer
 
     public object Deserialize(Type type, string serializedValue)
     {
-        return JsonConvert.DeserializeObject(serializedValue, type)!;
+        return JsonConvert.DeserializeObject(serializedValue, type) ?? throw new JsonContentException.Empty();
     }
 
     public string Serialize(object value)

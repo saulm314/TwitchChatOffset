@@ -27,7 +27,7 @@ public class TransformTests
         long[] ends = AllStartsEnds;
         Format[] formats = AllFormats;
 
-        JsonContentException expectedException = JsonContentException.Empty();
+        JsonContentException.Empty expectedException = new();
 
         foreach (long start in starts)
         {
@@ -37,7 +37,7 @@ public class TransformTests
                 {
                     void MTransform() => Transform.MTransform(inputString, start, end, format);
 
-                    JsonContentException exception = Assert.Throws<JsonContentException>(MTransform);
+                    JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(MTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
 
                     #pragma warning disable CS0162
@@ -85,7 +85,7 @@ public class TransformTests
     [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{}}]}}")]
     public void ApplyOffset_Start0EndNegative_DoesNothing(string inputString)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
         long start = 0;
         long[] ends = AllNegativeEnds;
 
@@ -104,13 +104,13 @@ public class TransformTests
     [InlineData("{}")]
     [InlineData("{\"comment\":[]}")]
     [InlineData("{\"commentss\":[]}")]
-    public void ApplyOffset_NoComments_ThrowsJsonContentExceptionNoComments(string inputString)
+    public void ApplyOffset_NoComments_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
 
-        JsonContentException expectedException = JsonContentException.NoComments();
+        JsonContentException.PropertyNotFound expectedException = new(string.Empty, "comments");
 
         foreach (long start in starts)
         {
@@ -121,7 +121,7 @@ public class TransformTests
 
                 void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end);
 
-                JsonContentException exception = Assert.Throws<JsonContentException>(ApplyOffset);
+                JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
                 Assert.Equal(expectedException.Message, exception.Message);
 
                 #pragma warning disable CS0162
@@ -132,16 +132,17 @@ public class TransformTests
     }
 
     [Theory]
-    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}", 1)]
-    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
-    public void ApplyOffset_NoContentOffsetSeconds_ThrowsJsonContentExceptionNoContentOffsetSeconds(string inputString, int index)
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
+    public void ApplyOffset_NoContentOffsetSeconds_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
 
-        JsonContentException expectedException = JsonContentException.NoContentOffsetSeconds(index);
+        string expectedPathRegex = @"comments\[\d*\]";
+        string expectedPropertyName = "content_offset_seconds";
 
         foreach (long start in starts)
         {
@@ -152,8 +153,9 @@ public class TransformTests
 
                 void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end);
 
-                JsonContentException exception = Assert.Throws<JsonContentException>(ApplyOffset);
-                Assert.Equal(expectedException.Message, exception.Message);
+                JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
+                Assert.Matches(expectedPathRegex, exception.Path);
+                Assert.Equal(expectedPropertyName, exception.PropertyName);
 
                 #pragma warning disable CS0162
                 continue; Transform.ApplyOffset(json.DeepClone(), start, end);
@@ -192,7 +194,7 @@ public class TransformTests
     [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 17, 17, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
     public void ApplyOffset_ValidInput(string inputString, long start, long end, string expectedOutput)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
 
         Transform.ApplyOffset(json, start, end);
         string output = JsonConvert.SerializeObject(json);
@@ -204,15 +206,15 @@ public class TransformTests
     [InlineData("{}")]
     [InlineData("{\"comment\":[]}")]
     [InlineData("{\"commentss\":[]}")]
-    public void SerializeToPlaintext_NoComments_ThrowsJsonContentExceptionNoComments(string inputString)
+    public void SerializeToPlaintext_NoComments_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
 
-        JsonContentException expectedException = JsonContentException.NoComments();
+        JsonContentException.PropertyNotFound expectedException = new(string.Empty, "comments");
 
         void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
 
-        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
+        JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(SerializeToPlaintext);
         Assert.Equal(expectedException.Message, exception.Message);
 
         #pragma warning disable CS0162
@@ -221,19 +223,21 @@ public class TransformTests
     }
 
     [Theory]
-    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}", 1)]
-    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
-    public void SerializeToPlaintext_NoContentOffsetSeconds_ThrowsJsonContentExceptionNoContentOffsetSeconds(string inputString, int index)
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
+    public void SerializeToPlaintext_NoContentOffsetSeconds_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
 
-        JsonContentException expectedException = JsonContentException.NoContentOffsetSeconds(index);
+        string expectedPathRegex = @"comments\[\d*\]";
+        string expectedPropertyName = "content_offset_seconds";
 
         void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
 
-        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
-        Assert.Equal(expectedException.Message, exception.Message);
+        JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(SerializeToPlaintext);
+        Assert.Matches(expectedPathRegex, exception.Path);
+        Assert.Equal(expectedPropertyName, exception.PropertyName);
 
         #pragma warning disable CS0162
         return; Transform.SerializeToPlaintext(json);
@@ -241,19 +245,21 @@ public class TransformTests
     }
 
     [Theory]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{MessageTemplate}}}]}}", 0)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{MessageTemplate}}}]}}", 1)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
-    public void SerializeToPlaintext_NoCommenter_ThrowsJsonContentExceptionNoCommenter(string inputString, int index)
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
+    public void SerializeToPlaintext_NoCommenter_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
 
-        JsonContentException expectedException = JsonContentException.NoCommenter(index);
+        string expectedPathRegex = @"comments\[\d*\]";
+        string expectedPropertyName = "commenter";
 
         void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
 
-        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
-        Assert.Equal(expectedException.Message, exception.Message);
+        JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(SerializeToPlaintext);
+        Assert.Matches(expectedPathRegex, exception.Path);
+        Assert.Equal(expectedPropertyName, exception.PropertyName);
 
         #pragma warning disable CS0162
         return; Transform.SerializeToPlaintext(json);
@@ -261,19 +267,21 @@ public class TransformTests
     }
 
     [Theory]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}}]}}", 0)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}}]}}", 1)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
-    public void SerializeToPlaintext_NoDisplayName_ThrowsJsonContentExceptionNoDisplayName(string inputString, int index)
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},\"commenter\":{{}},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
+    public void SerializeToPlaintext_NoDisplayName_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
 
-        JsonContentException expectedException = JsonContentException.NoDisplayName(index);
+        string expectedPathRegex = @"comments\[\d*\]\.commenter";
+        string expectedPropertyName = "display_name";
 
         void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
 
-        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
-        Assert.Equal(expectedException.Message, exception.Message);
+        JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(SerializeToPlaintext);
+        Assert.Matches(expectedPathRegex, exception.Path);
+        Assert.Equal(expectedPropertyName, exception.PropertyName);
 
         #pragma warning disable CS0162
         return; Transform.SerializeToPlaintext(json);
@@ -281,19 +289,21 @@ public class TransformTests
     }
 
     [Theory]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate}}}]}}", 0)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate}}}]}}", 1)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
-    public void SerializeToPlaintext_NoMessage_ThrowsJsonContentExceptionNoMessage(string inputString, int index)
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
+    public void SerializeToPlaintext_NoMessage_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
 
-        JsonContentException expectedException = JsonContentException.NoMessage(index);
+        string expectedPathRegex = @"comments\[\d*\]";
+        string expectedPropertyName = "message";
 
         void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
 
-        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
-        Assert.Equal(expectedException.Message, exception.Message);
+        JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(SerializeToPlaintext);
+        Assert.Matches(expectedPathRegex, exception.Path);
+        Assert.Equal(expectedPropertyName, exception.PropertyName);
 
         #pragma warning disable CS0162
         return; Transform.SerializeToPlaintext(json);
@@ -301,19 +311,21 @@ public class TransformTests
     }
 
     [Theory]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},\"message\":{{}}}}]}}", 0)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},\"message\":{{}}}}]}}", 1)]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},\"message\":{{}}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}", 0)]
-    public void SerializeToPlaintext_NoBody_ThrowsJsonContentExceptionNoBody(string inputString, int index)
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},\"message\":{{}}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},\"message\":{{}}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},\"message\":{{}}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
+    public void SerializeToPlaintext_NoBody_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
 
-        JsonContentException expectedException = JsonContentException.NoBody(index);
+        string expectedPathRegex = @"comments\[\d*\]\.message";
+        string expectedPropertyName = "body";
 
         void SerializeToPlaintext() => Transform.SerializeToPlaintext(json);
 
-        JsonContentException exception = Assert.Throws<JsonContentException>(SerializeToPlaintext);
-        Assert.Equal(expectedException.Message, exception.Message);
+        JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(SerializeToPlaintext);
+        Assert.Matches(expectedPathRegex, exception.Path);
+        Assert.Equal(expectedPropertyName, exception.PropertyName);
 
         #pragma warning disable CS0162
         return; Transform.SerializeToPlaintext(json);
@@ -383,7 +395,7 @@ public class TransformTests
         "610.03:09:51 JohnSmith: Now it's been over a year.\n")]
     public void SerializeToPlaintext_ValidInput(string inputString, string expectedOutput)
     {
-        JToken json = (JToken)JsonConvert.DeserializeObject(inputString)!;
+        JToken json = JsonUtils.Deserialize(inputString);
 
         string output = Transform.SerializeToPlaintext(json);
 

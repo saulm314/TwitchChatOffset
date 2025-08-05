@@ -2,39 +2,33 @@
 
 namespace TwitchChatOffset.Json;
 
-public class JsonContentException : Exception
+public abstract class JsonContentException : Exception
 {
-    public static JsonContentException Empty() => new("base JSON object { } not found");
-    public static JsonContentException PropertyNotFound(string path, string propertyName)
-        => new($"JSON property {path.Dereference(propertyName)} not found".AddPathWarning());
-    public static JsonContentException InvalidConversion<T>(string path, object? value) => InvalidConversion(typeof(T), path, value);
-    public static JsonContentException InvalidConversion(Type desiredType, string path, object? value)
-        => new($"""
+    public class Empty() : JsonContentException("base JSON object { } not found");
+
+    public class PropertyNotFound(string path, string propertyName)
+        : JsonContentException($"JSON property {path.Dereference(propertyName)} not found".AddPathWarning())
+    {
+        public string Path => path;
+        public string PropertyName => propertyName;
+    }
+
+    public class InvalidConversion<T>(string path, object? value) : InvalidConversion(typeof(T), path, value);
+
+    public class InvalidConversion(Type desiredType, string path, object? value)
+        : JsonContentException($"""
             Could not convert value:
             {value}
             in JSON path:
             {path}
             to type:
             {desiredType.FullName}
-            """.AddPathWarning());
-
-    public static JsonContentException NoComments() => new(_NoComments);
-    public static JsonContentException NoContentOffsetSeconds(int index) => new(_NoContentOffsetSeconds + index);
-    public static JsonContentException NoCommenter(int index) => new(_NoCommenter + index);
-    public static JsonContentException NoDisplayName(int index) => new(_NoDisplayName + index);
-    public static JsonContentException NoMessage(int index) => new(_NoMessage + index);
-    public static JsonContentException NoBody(int index) => new(_NoBody + index);
-
-    private const string _Empty = "JSON content must not be empty";
-    private const string _PropertyNotFound = "JSON property not found: ";
-
-
-    private const string _NoComments = "comments object not found in JSON object";
-    private const string _NoContentOffsetSeconds = "content_offset_seconds object not found in comments element ";
-    private const string _NoCommenter = "commenter object not found in comments element ";
-    private const string _NoDisplayName = "display_name object not found in commenter object in comments element ";
-    private const string _NoMessage = "message object not found in comments element ";
-    private const string _NoBody = "body object not found in message object in comments element ";
+            """.AddPathWarning())
+    {
+        public Type DesiredType => desiredType;
+        public string Path => Path;
+        public object? Value => value;
+    }
 
     private JsonContentException(string? message) : base(message) { }
 }
