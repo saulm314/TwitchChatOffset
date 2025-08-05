@@ -30,11 +30,11 @@ public static class Transform
             return;
         if (end >= 0 && end < start)
             PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
-        JArray comments = json.D<JArray>("comments");
+        JArray comments = json.D("comments").As<JArray>();
         int i = 0;
         while (i < comments.Count)
         {
-            JValue offsetJValue = comments[i].D<JValue>("content_offset_seconds");
+            JValue offsetJValue = comments[i].D("content_offset_seconds").As<JValue>();
             long offset = offsetJValue.As<long>();
             bool inRange = offset >= start && (offset <= end || end < 0);
             if (!inRange)
@@ -73,13 +73,13 @@ public static class Transform
     public static string SerializeToPlaintext(JToken json)
     {
         StringBuilder builder = new();
-        JArray comments = json.D<JArray>("comments");
-        for (int i = 0; i < comments.Count; i++)
+        JArray comments = json.D("comments").As<JArray>();
+        foreach (JToken comment in comments)
         {
-            long offset = comments[i].D<long>("content_offset_seconds");
+            long offset = comment.D("content_offset_seconds").As<long>();
             TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
-            string displayName = comments[i].D("commenter").D<string>("display_name");
-            string message = comments[i].D("message").D<string>("body");
+            string displayName = comment.D("commenter").D("display_name").As<string>();
+            string message = comment.D("message").D("body").As<string>();
 
             builder.Append(timeSpan);
             builder.Append(' ');
