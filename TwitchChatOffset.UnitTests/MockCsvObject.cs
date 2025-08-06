@@ -77,4 +77,7 @@ public class MockCsvObject
     }
 
     public override int GetHashCode() => EqualityFields.GetHashCode();
+
+    public static bool operator ==(MockCsvObject left, MockCsvObject right) => left.EqualityFields == right.EqualityFields;
+    public static bool operator !=(MockCsvObject left, MockCsvObject right) => left.EqualityFields != right.EqualityFields;
 };
