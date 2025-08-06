@@ -8,7 +8,7 @@ public static class JsonUtils
 {
     public static JObject Deserialize(string jsonString) => (JObject)(JsonConvert.DeserializeObject(jsonString) ?? throw new JsonContentException.Empty());
 
-    public static T As<T>(this JToken jtoken)
+    public static T As<T>(this JToken jtoken) where T : notnull
     {
         if (typeof(T).IsAssignableTo(typeof(JToken)))
         {
@@ -23,22 +23,22 @@ public static class JsonUtils
         return value;
     }
 
-    public static T? AsN<T>(this JToken jtoken)
+    public static Box<T>? AsN<T>(this JToken jtoken) where T : notnull
     {
         if (typeof(T).IsAssignableTo(typeof(JToken)))
         {
             if (jtoken is not T _jtoken)
-                return default;
+                return null;
             return _jtoken;
         }
         if (jtoken is not JValue jvalue)
-            return default;
+            return null;
         if (jvalue.Value is not T value)
-            return default;
+            return null;
         return value;
     }
 
-    public static bool Is<T>(this JToken jtoken)
+    public static bool Is<T>(this JToken jtoken) where T : notnull
     {
         if (typeof(T).IsAssignableTo(typeof(JToken)))
             return jtoken is T;
@@ -47,14 +47,21 @@ public static class JsonUtils
         return jvalue.Value is T;
     }
 
+    public static bool IsNull(this JToken jtoken)
+    {
+        if (jtoken is not JValue jvalue)
+            return false;
+        return jvalue.Value == null;
+    }
+
     public static JToken D(this JToken jtoken, string propertyName)
         => jtoken.As<JObject>()[propertyName] ?? throw new JsonContentException.PropertyNotFound(jtoken.Path, propertyName);
 
-    public static JToken? DN(this JToken jtoken, string propertyName) => jtoken.AsN<JObject>()?[propertyName];
+    public static JToken? DN(this JToken jtoken, string propertyName) => (jtoken as JObject)?[propertyName];
 
-    public static T D<T>(this JToken jtoken, string propertyName) => jtoken.D(propertyName).As<T>();
+    public static T D<T>(this JToken jtoken, string propertyName) where T : notnull => jtoken.D(propertyName).As<T>();
 
-    public static T? DN<T>(this JToken jtoken, string propertyName)
+    public static Box<T>? DN<T>(this JToken jtoken, string propertyName) where T : notnull
     {
         JToken? subtoken = jtoken.DN(propertyName);
         if (subtoken == null)
@@ -64,7 +71,7 @@ public static class JsonUtils
 
     public static bool ContainsProperty(this JToken jtoken, string propertyName) => (jtoken as JObject)?.ContainsKey(propertyName) ?? false;
 
-    public static bool ContainsProperty<T>(this JToken jtoken, string propertyName) => jtoken.DN(propertyName)?.Is<T>() ?? false;
+    public static bool ContainsProperty<T>(this JToken jtoken, string propertyName) where T : notnull => jtoken.DN(propertyName)?.Is<T>() ?? false;
 
     public static bool ContainsProperty(this JToken jtoken, string propertyName, out JToken? subtoken)
     {
@@ -72,7 +79,7 @@ public static class JsonUtils
         return subtoken != null;
     }
 
-    public static bool ContainsProperty<T>(this JToken jtoken, string propertyName, out T? subtoken)
+    public static bool ContainsProperty<T>(this JToken jtoken, string propertyName, out Box<T>? subtoken) where T : notnull
     {
         subtoken = jtoken.DN<T>(propertyName);
         return subtoken != null;
@@ -95,9 +102,9 @@ public static class JsonUtils
         return jarray[index];
     }
 
-    public static T At<T>(this JToken jtoken, int index) => jtoken.At(index).As<T>();
+    public static T At<T>(this JToken jtoken, int index) where T : notnull => jtoken.At(index).As<T>();
 
-    public static T? AtN<T>(this JToken jtoken, int index)
+    public static Box<T>? AtN<T>(this JToken jtoken, int index) where T : notnull
     {
         JToken? subtoken = jtoken.AtN(index);
         if (subtoken == null)
@@ -198,9 +205,9 @@ public static class JsonUtils
         return true;
     }
 
-    public static T DeepClone<T>(this JToken jtoken) => jtoken.DeepClone().As<T>();
+    public static T DeepClone<T>(this JToken jtoken) where T : notnull => jtoken.DeepClone().As<T>();
 
-    public static T? DeepCloneN<T>(this JToken jtoken) => jtoken.DeepClone().AsN<T>();
+    public static Box<T>? DeepCloneN<T>(this JToken jtoken) where T : notnull => jtoken.DeepClone().AsN<T>();
 
     public static JToken ToJToken(object? obj)
     {
