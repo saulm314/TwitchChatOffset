@@ -158,40 +158,9 @@ public static class BulkTransform
     public static OptionPriority GetOptionPriority(long? csvOptionPriority, long cliOptionPriority)
         => (csvOptionPriority ?? 0) >= cliOptionPriority ? OptionPriority.CSV : OptionPriority.CLI;
 
-    // we duplicate these methods: one for where T : struct and one for where T : class
-    // we could use where T : notnull to encapsulate both possibilities, but this feature appears to be bugged
-    //      and doesn't actually allow structs
-    //      specifically, T? gets interpreted as just T which for a struct is a compile-time error
+    public static T ResolveClashPrioritiseCsv<T>(Box<T>? csvValue, INullableOption<T> cliOption) where T : notnull
+        => csvValue is null ? cliOption.Value : (T)csvValue;
 
-    public static T ResolveClashPrioritiseCsv<T>(T? csvValue, INullableOption<T> cliOption) where T : struct
-    {
-        if (csvValue != null)
-            return (T)csvValue;
-        return cliOption.Value;
-    }
-
-    public static T ResolveClashPrioritiseCsv<T>(T? csvValue, INullableOption<T> cliOption) where T : class
-    {
-        if (csvValue != null)
-            return csvValue;
-        return cliOption.Value;
-    }
-
-    public static T ResolveClashPrioritiseCli<T>(T? csvValue, INullableOption<T> cliOption) where T : struct
-    {
-        if (cliOption.ValueSpecified)
-            return cliOption.Value;
-        if (csvValue != null)
-            return (T)csvValue;
-        return cliOption.Value;
-    }
-
-    public static T ResolveClashPrioritiseCli<T>(T? csvValue, INullableOption<T> cliOption) where T : class
-    {
-        if (cliOption.ValueSpecified)
-            return cliOption.Value;
-        if (csvValue != null)
-            return csvValue;
-        return cliOption.Value;
-    }
+    public static T ResolveClashPrioritiseCli<T>(Box<T>? csvValue, INullableOption<T> cliOption) where T : notnull
+        => cliOption.ValueSpecified || csvValue is null ? cliOption.Value : (T)csvValue;
 }
