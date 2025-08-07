@@ -161,10 +161,4 @@ public static class BulkTransform
 
     public static T ResolveClashPrioritiseCli<T>(Box<T>? csvValue, OptionValueContainer<T> cliValue) where T : notnull
         => cliValue.Explicit || csvValue == null ? cliValue : (T)csvValue;
-
-    /*public static T ResolveClashPrioritiseCsv<T>(Box<T>? csvValue, INullableOption<T> cliOption) where T : notnull
-        => csvValue ?? cliOption.Value;
-
-    public static T ResolveClashPrioritiseCli<T>(Box<T>? csvValue, INullableOption<T> cliOption) where T : notnull
-        => cliOption.ValueSpecified || csvValue is null ? cliOption.Value : (T)csvValue;*/
 }
