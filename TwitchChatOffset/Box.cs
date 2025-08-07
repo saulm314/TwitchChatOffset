@@ -1,20 +1,20 @@
 ﻿namespace TwitchChatOffset;
 
-public readonly struct Box<T> where T : notnull
+public readonly struct Box<T>
 {
     // make constructor private to encourage consumer to use implicit operators instead
-    private Box(T? value) => _value = value;
+    private Box(T value) => _value = value;
 
     // we make this field private to discourage the consumer from using it
     // and potentially confusing it with the System.Nullable<T>.Value property
     // which would return the box, rather than the value of the box
-    private readonly T? _value;
+    private readonly T _value;
 
     // the only implicit operator we are not implementing is T?(Box<T>?)
     // this is because T? is not the nullable version of T, but rather just T itself but with additional warnings
     // as such, if T is a struct, then T? is not a nullable type, but Box<T>? is,
     // so if the Box<T>? value is null, then there's no way to convert it to the non-nullable T?
-    public static implicit operator T?(Box<T> box) => box._value;
+    public static implicit operator T(Box<T> box) => box._value;
     public static implicit operator Box<T>(T value) => new(value);
     public static implicit operator Box<T>?(T? value) => value is null ? null : new(value);
 
