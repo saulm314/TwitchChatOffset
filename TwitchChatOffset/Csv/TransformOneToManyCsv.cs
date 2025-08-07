@@ -5,6 +5,6 @@ public record TransformOneToManyCsv
     string OutputFile,
     long Start,
     long End,
-    Format PFormat,
+    Format Format,
     string OutputDir
 );

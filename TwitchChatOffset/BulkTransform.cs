@@ -14,36 +14,36 @@ public static class BulkTransform
     public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, OptionValueContainer<long> cliStart,
         OptionValueContainer<long> cliEnd, OptionValueContainer<Format> cliFormat, OptionValueContainer<string> cliOutputDir, long cliOptionPriority)
     {
-        if (nullables.inputFile == null)
+        if (nullables.InputFile == null)
         {
             PrintError("Input file must not be empty! Skipping...", 1);
             return null;
         }
-        if (nullables.outputFile == null)
+        if (nullables.OutputFile == null)
         {
             PrintError("Output file must not be empty! Skipping...", 1);
             return null;
         }
-        OptionPriority optionPriority = GetOptionPriority(nullables.optionPriority, cliOptionPriority);
+        OptionPriority optionPriority = GetOptionPriority(nullables.OptionPriority, cliOptionPriority);
         return optionPriority switch
         {
             OptionPriority.CSV => new
                 (
-                    nullables.inputFile,
-                    nullables.outputFile,
-                    ResolveClashPrioritiseCsv(nullables.start, cliStart),
-                    ResolveClashPrioritiseCsv(nullables.end, cliEnd),
-                    ResolveClashPrioritiseCsv(nullables.format, cliFormat),
-                    ResolveClashPrioritiseCsv(nullables.outputDir, cliOutputDir)
+                    nullables.InputFile,
+                    nullables.OutputFile,
+                    ResolveClashPrioritiseCsv(nullables.Start, cliStart),
+                    ResolveClashPrioritiseCsv(nullables.End, cliEnd),
+                    ResolveClashPrioritiseCsv(nullables.Format, cliFormat),
+                    ResolveClashPrioritiseCsv(nullables.OutputDir, cliOutputDir)
                 ),
             OptionPriority.CLI => new
                 (
-                    nullables.inputFile,
-                    nullables.outputFile,
-                    ResolveClashPrioritiseCli(nullables.start, cliStart),
-                    ResolveClashPrioritiseCli(nullables.end, cliEnd),
-                    ResolveClashPrioritiseCli(nullables.format, cliFormat),
-                    ResolveClashPrioritiseCli(nullables.outputDir, cliOutputDir)
+                    nullables.InputFile,
+                    nullables.OutputFile,
+                    ResolveClashPrioritiseCli(nullables.Start, cliStart),
+                    ResolveClashPrioritiseCli(nullables.End, cliEnd),
+                    ResolveClashPrioritiseCli(nullables.Format, cliFormat),
+                    ResolveClashPrioritiseCli(nullables.OutputDir, cliOutputDir)
                 ),
             _ => throw new InternalException("Internal error: unrecognised option priority")
         };
@@ -52,29 +52,29 @@ public static class BulkTransform
     public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, OptionValueContainer<long> cliStart,
         OptionValueContainer<long> cliEnd, OptionValueContainer<Format> cliFormat, OptionValueContainer<string> cliOutputDir, long cliOptionPriority)
     {
-        if (nullables.outputFile == null)
+        if (nullables.OutputFile == null)
         {
             PrintError("Output file must not be empty! Skipping...", 1);
             return null;
         }
-        OptionPriority optionPriority = GetOptionPriority(nullables.optionPriority, cliOptionPriority);
+        OptionPriority optionPriority = GetOptionPriority(nullables.OptionPriority, cliOptionPriority);
         return optionPriority switch
         {
             OptionPriority.CSV => new
                 (
-                    nullables.outputFile,
-                    ResolveClashPrioritiseCsv(nullables.start, cliStart),
-                    ResolveClashPrioritiseCsv(nullables.end, cliEnd),
-                    ResolveClashPrioritiseCsv(nullables.format, cliFormat),
-                    ResolveClashPrioritiseCsv(nullables.outputDir, cliOutputDir)
+                    nullables.OutputFile,
+                    ResolveClashPrioritiseCsv(nullables.Start, cliStart),
+                    ResolveClashPrioritiseCsv(nullables.End, cliEnd),
+                    ResolveClashPrioritiseCsv(nullables.Format, cliFormat),
+                    ResolveClashPrioritiseCsv(nullables.OutputDir, cliOutputDir)
                 ),
             OptionPriority.CLI => new
                 (
-                    nullables.outputFile,
-                    ResolveClashPrioritiseCli(nullables.start, cliStart),
-                    ResolveClashPrioritiseCli(nullables.end, cliEnd),
-                    ResolveClashPrioritiseCli(nullables.format, cliFormat),
-                    ResolveClashPrioritiseCli(nullables.outputDir, cliOutputDir)
+                    nullables.OutputFile,
+                    ResolveClashPrioritiseCli(nullables.Start, cliStart),
+                    ResolveClashPrioritiseCli(nullables.End, cliEnd),
+                    ResolveClashPrioritiseCli(nullables.Format, cliFormat),
+                    ResolveClashPrioritiseCli(nullables.OutputDir, cliOutputDir)
                 ),
             _ => throw new InternalException("Internal error: unrecognised option priority")
         };

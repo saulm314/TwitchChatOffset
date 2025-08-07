@@ -1,25 +1,24 @@
 ﻿using TwitchChatOffset.CommandLine.Options;
-using static TwitchChatOffset.CommandLine.Options.OptionAliases;
 
 namespace TwitchChatOffset.Csv;
 
 public class TransformOneToManyCsvNullables
 {
     [Aliases(["output-file", "outputFile"])]
-    public string? outputFile;
+    public string? OutputFile;
 
-    [Aliases(typeof(OptionAliases), nameof(Start))]
-    public long? start;
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.Start))]
+    public long? Start;
 
-    [Aliases(typeof(OptionAliases), nameof(End))]
-    public long? end;
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.End))]
+    public long? End;
 
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.Format))]
-    public Format? format;
+    public Format? Format;
 
-    [Aliases(typeof(OptionAliases), nameof(OutputDir))]
-    public string? outputDir;
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.OutputDir))]
+    public string? OutputDir;
 
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.OptionPriority))]
-    public long? optionPriority;
+    public long? OptionPriority;
 }
