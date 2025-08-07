@@ -11,9 +11,8 @@ namespace TwitchChatOffset;
 
 public static class BulkTransform
 {
-    public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables,
-        NullableOption<long> cliStart, NullableOption<long> cliEnd, NullableOption<Format> cliFormat, NullableOption<string> cliOutputDir,
-        long cliOptionPriority)
+    public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, OptionValueContainer<long> cliStart,
+        OptionValueContainer<long> cliEnd, OptionValueContainer<Format> cliFormat, OptionValueContainer<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.inputFile == null)
         {
@@ -50,9 +49,8 @@ public static class BulkTransform
         };
     }
 
-    public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables,
-        NullableOption<long> cliStart, NullableOption<long> cliEnd, NullableOption<Format> cliFormat, NullableOption<string> cliOutputDir,
-        long cliOptionPriority)
+    public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, OptionValueContainer<long> cliStart,
+        OptionValueContainer<long> cliEnd, OptionValueContainer<Format> cliFormat, OptionValueContainer<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.outputFile == null)
         {
@@ -102,7 +100,7 @@ public static class BulkTransform
         string output;
         try
         {
-            output = Transform.MTransform(input, start, end, format);
+            output = Transform.DoTransform(input, start, end, format);
         }
         catch (JsonException e)
         {
@@ -130,7 +128,7 @@ public static class BulkTransform
         string output;
         try
         {
-            output = Transform.MTransform(input, start, end, format);
+            output = Transform.DoTransform(input, start, end, format);
         }
         catch (JsonException e)
         {
@@ -158,9 +156,15 @@ public static class BulkTransform
     public static OptionPriority GetOptionPriority(long? csvOptionPriority, long cliOptionPriority)
         => (csvOptionPriority ?? 0) >= cliOptionPriority ? OptionPriority.CSV : OptionPriority.CLI;
 
-    public static T ResolveClashPrioritiseCsv<T>(Box<T>? csvValue, INullableOption<T> cliOption) where T : notnull
+    public static T ResolveClashPrioritiseCsv<T>(Box<T>? csvValue, OptionValueContainer<T> cliValue) where T : notnull
+        => csvValue ?? cliValue.Value;
+
+    public static T ResolveClashPrioritiseCli<T>(Box<T>? csvValue, OptionValueContainer<T> cliValue) where T : notnull
+        => cliValue.Explicit || csvValue == null ? cliValue : (T)csvValue;
+
+    /*public static T ResolveClashPrioritiseCsv<T>(Box<T>? csvValue, INullableOption<T> cliOption) where T : notnull
         => csvValue ?? cliOption.Value;
 
     public static T ResolveClashPrioritiseCli<T>(Box<T>? csvValue, INullableOption<T> cliOption) where T : notnull
-        => cliOption.ValueSpecified || csvValue is null ? cliOption.Value : (T)csvValue;
+        => cliOption.ValueSpecified || csvValue is null ? cliOption.Value : (T)csvValue;*/
 }

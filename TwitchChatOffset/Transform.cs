@@ -8,14 +8,14 @@ namespace TwitchChatOffset;
 
 public static class Transform
 {
-    public static string MTransform(string inputString, long start, long end, Format format)
+    public static string DoTransform(string inputString, long start, long end, Format format)
     {
         JObject json = JsonUtils.Deserialize(inputString);
         ApplyOffset(json, start, end);
         return Serialize(json, format);
     }
 
-    public static string MTransform(JToken inputJson, long start, long end, Format format)
+    public static string DoTransform(JToken inputJson, long start, long end, Format format)
     {
         JToken json = inputJson.DeepClone();
         ApplyOffset(json, start, end);

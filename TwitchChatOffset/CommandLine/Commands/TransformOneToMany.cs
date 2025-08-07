@@ -1,5 +1,4 @@
-﻿using TwitchChatOffset.CommandLine.Arguments;
-using TwitchChatOffset.CommandLine.Options;
+﻿using TwitchChatOffset.CommandLine.Options;
 using TwitchChatOffset.Csv;
 using TwitchChatOffset.Json;
 using System.CommandLine;
@@ -12,43 +11,34 @@ namespace TwitchChatOffset.CommandLine.Commands;
 
 public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
 {
-    public override Command PCommand { get; } = new("transform-one-to-many", "Transform a JSON Twitch file into many new files");
+    public override Command Command { get; } = new("transform-one-to-many", "Transform a JSON Twitch file into many new files");
 
     private readonly Tokens tokens = new();
 
     protected override void AddTokens()
     {
-        PCommand.Add(tokens.InputArgument);
-        PCommand.Add(tokens.CsvArgument);
-        PCommand.Add(tokens.StartOption);
-        PCommand.Add(tokens.EndOption);
-        PCommand.Add(tokens.FormatOption);
-        PCommand.Add(tokens.OutputDirOption);
-        PCommand.Add(tokens.OptionPriorityOption);
-        PCommand.Add(tokens.QuietOption);
+        Command.Add(tokens.InputArgument);
+        Command.Add(tokens.CsvArgument);
+        Command.Add(tokens.EndOption);
+        Command.Add(tokens.StartOption);
+        Command.Add(tokens.FormatOption);
+        Command.Add(tokens.OutputDirOption);
+        Command.Add(tokens.OptionPriorityOption);
+        Command.Add(tokens.QuietOption);
     }
 
-    protected override Data GetBoundValue(BindingContext bindingContext)
+    protected override Data GetBoundValue(BindingContext b)
     {
-        T Arg<T>(TCOArgumentBase<T> argument) => argument.GetValue(bindingContext);
-        T Opt<T>(TCOOptionBase<T> option) => option.GetValue(bindingContext);
-
-        NullableOption<T> NullOpt<T>(NullableOption<T> option) where T : notnull
-        {
-            _ = Opt(option);
-            return option;
-        }
-
         return new
         (
-            Arg(tokens.InputArgument),
-            Arg(tokens.CsvArgument),
-            NullOpt(tokens.StartOption),
-            NullOpt(tokens.EndOption),
-            NullOpt(tokens.FormatOption),
-            NullOpt(tokens.OutputDirOption),
-            Opt(tokens.OptionPriorityOption),
-            Opt(tokens.QuietOption)
+            Arg(b, tokens.InputArgument),
+            Arg(b, tokens.CsvArgument),
+            Opt(b, tokens.StartOption),
+            Opt(b, tokens.EndOption),
+            Opt(b, tokens.FormatOption),
+            Opt(b, tokens.OutputDirOption),
+            Opt(b, tokens.OptionPriorityOption),
+            Opt(b, tokens.QuietOption)
         );
     }
 
@@ -56,18 +46,17 @@ public class TransformOneToMany : CommandBinder<TransformOneToMany.Data>
     (
         string InputPath,
         string CsvPath,
-        NullableOption<long> Start,
-        NullableOption<long> End,
-        NullableOption<Format> PFormat,
-        NullableOption<string> OutputDir,
-        long OptionPriority,
-        bool Quiet
+        OptionValueContainer<long> Start,
+        OptionValueContainer<long> End,
+        OptionValueContainer<Format> PFormat,
+        OptionValueContainer<string> OutputDir,
+        OptionValueContainer<long> OptionPriority,
+        OptionValueContainer<bool> Quiet
     );
 
     protected override void Handle(Data data)
     {
-        (string inputPath, string csvPath, NullableOption<long> cliStart, NullableOption<long> cliEnd, NullableOption<Format> cliFormat,
-            NullableOption<string> cliOutputDir, long cliOptionPriority, bool quiet) = data;
+        var (inputPath, csvPath, cliStart, cliEnd, cliFormat, cliOutputDir, cliOptionPriority, quiet) = data;
         string input = File.ReadAllText(inputPath);
         JToken parent = JsonUtils.Deserialize(input);
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);

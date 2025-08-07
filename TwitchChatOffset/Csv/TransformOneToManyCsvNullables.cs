@@ -14,12 +14,12 @@ public class TransformOneToManyCsvNullables
     [Aliases(typeof(OptionAliases), nameof(End))]
     public long? end;
 
-    [Aliases(typeof(OptionAliases), nameof(PFormat))]
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.Format))]
     public Format? format;
 
     [Aliases(typeof(OptionAliases), nameof(OutputDir))]
     public string? outputDir;
 
-    [Aliases(typeof(OptionAliases), nameof(OptionPriority))]
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.OptionPriority))]
     public long? optionPriority;
 }
