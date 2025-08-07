@@ -21,7 +21,7 @@ public class TransformTests
     [InlineData("\n")]
     [InlineData("\t")]
     [InlineData("  \t\n\r  ")]
-    public void MTransform_EmptyOrWhitespaceJsonString_ThrowsJsonContentExceptionEmpty(string inputString)
+    public void DoTransform_EmptyOrWhitespaceJsonString_ThrowsJsonContentExceptionEmpty(string inputString)
     {
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
@@ -35,13 +35,13 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void MTransform() => Transform.MTransform(inputString, start, end, format);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, format);
 
-                    JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(MTransform);
+                    JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(DoTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
 
                     #pragma warning disable CS0162
-                    continue; Transform.MTransform(inputString, start, end, format);
+                    continue; Transform.DoTransform(inputString, start, end, format);
                     #pragma warning restore CS0162
                 }
             }
@@ -54,7 +54,7 @@ public class TransformTests
     [InlineData("{(}")]
     [InlineData("()")]
     [InlineData("(")]
-    public void MTransform_InvalidJsonString_ThrowsJsonException(string inputString)
+    public void DoTransform_InvalidJsonString_ThrowsJsonException(string inputString)
     {
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
@@ -66,12 +66,12 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void MTransform() => Transform.MTransform(inputString, start, end, format);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, format);
 
-                    Assert.ThrowsAny<JsonException>(MTransform);
+                    Assert.ThrowsAny<JsonException>(DoTransform);
 
                     #pragma warning disable CS0162
-                    continue; Transform.MTransform(inputString, start, end, format);
+                    continue; Transform.DoTransform(inputString, start, end, format);
                     #pragma warning restore CS0162
                 }
             }
