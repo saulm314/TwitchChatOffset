@@ -65,7 +65,7 @@ public static class JsonUtils
     {
         JToken? subtoken = jtoken.DN(propertyName);
         if (subtoken == null)
-            return default;
+            return null;
         return subtoken.AsN<T>();
     }
 
@@ -108,7 +108,7 @@ public static class JsonUtils
     {
         JToken? subtoken = jtoken.AtN(index);
         if (subtoken == null)
-            return default;
+            return null;
         return subtoken.AsN<T>();
     }
 
