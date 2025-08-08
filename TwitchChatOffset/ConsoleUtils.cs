@@ -1,4 +1,5 @@
-﻿using System;
+﻿global using static TwitchChatOffset.ConsoleUtils;
+using System;
 using System.Collections;
 using System.Reflection;
 

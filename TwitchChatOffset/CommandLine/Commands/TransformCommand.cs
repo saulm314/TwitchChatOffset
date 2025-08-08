@@ -1,49 +1,40 @@
-﻿using TwitchChatOffset.CommandLine.Options;
-using System.CommandLine;
-using System.CommandLine.Binding;
+﻿using System.CommandLine;
 using System.IO;
 
 namespace TwitchChatOffset.CommandLine.Commands;
 
-public class TransformCommand : CommandBinder<TransformCommand.Data>
+public static class TransformCommand
 {
-    public override Command Command { get; } = new("transform", "Transform a JSON Twitch chat file and put the new contents in a new file");
+    public static readonly Command Command = new("transform", "Transform a JSON Twitch chat file and put the new contents in a new file");
 
-    private readonly Tokens tokens = new();
+    private static readonly (Argument<string>, Argument<string>) _arguments =
+        (InputArgument, OutputArgument);
 
-    protected override void AddTokens()
+    private static readonly (Option<long>, Option<long>, Option<Format>) _options =
+        (StartOption, EndOption, FormatOption);
+
+    static TransformCommand()
     {
-        Command.Add(tokens.InputArgument);
-        Command.Add(tokens.OutputArgument);
-        Command.Add(tokens.StartOption);
-        Command.Add(tokens.EndOption);
-        Command.Add(tokens.FormatOption);
+        var (a1, a2) = _arguments;
+        var (o1, o2, o3) = _options;
+        Command.Add(a1);
+        Command.Add(a2);
+        Command.Add(o1);
+        Command.Add(o2);
+        Command.Add(o3);
+        Command.SetAction(Execute);
     }
 
-    protected override Data GetBoundValue(BindingContext b)
+    private static (string, string, long, long, Format) GetData(ParseResult p)
     {
-        return new
-        (
-            Arg(b, tokens.InputArgument),
-            Arg(b, tokens.OutputArgument),
-            Opt(b, tokens.StartOption),
-            Opt(b, tokens.EndOption),
-            Opt(b, tokens.FormatOption)
-        );
+        var (a1, a2) = _arguments;
+        var (o1, o2, o3) = _options;
+        return (p.GetValue(a1), p.GetValue(a2), p.GetValue(o1), p.GetValue(o2), p.GetValue(o3))!;
     }
 
-    public readonly record struct Data
-    (
-        string InputPath,
-        string OutputPath,
-        OptionValueContainer<long> Start,
-        OptionValueContainer<long> End,
-        OptionValueContainer<Format> Format
-    );
-
-    protected override void Handle(Data data)
+    private static void Execute(ParseResult parseResult)
     {
-        var (inputPath, outputPath, start, end, format) = data;
+        var (inputPath, outputPath, start, end, format) = GetData(parseResult);
         string input = File.ReadAllText(inputPath);
         string output = Transform.DoTransform(input, start, end, format);
         File.WriteAllText(outputPath, output);

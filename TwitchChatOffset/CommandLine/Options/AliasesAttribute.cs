@@ -19,7 +19,7 @@ public class AliasesAttribute : Attribute
         PropertyInfo property = type.GetProperty(propertyName)!;
         MethodInfo getMethod = property.GetMethod!;
         AliasesContainer container = (AliasesContainer)getMethod.Invoke(null, [])!;
-        Aliases = stripped ? container.strippedAliases : container.aliases;
+        Aliases = stripped ? container.StrippedAliases : container.Aliases;
     }
 
     public string[] Aliases { get; init; }

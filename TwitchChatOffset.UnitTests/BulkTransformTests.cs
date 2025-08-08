@@ -59,15 +59,15 @@ public class BulkTransformTests
     }
 
     [Theory]
-    [InlineData((long)5, 2, false, 5)]
-    [InlineData((long)2, 5, false, 2)]
-    [InlineData(null, 2, false, 2)]
     [InlineData((long)5, 2, true, 5)]
     [InlineData((long)2, 5, true, 2)]
     [InlineData(null, 2, true, 2)]
-    public void ResolveClashPrioritiseCsvStructTest(long? csvValue, long cliValue, bool cliValueExplicit, long expectedOutput)
+    [InlineData((long)5, 2, false, 5)]
+    [InlineData((long)2, 5, false, 2)]
+    [InlineData(null, 2, false, 2)]
+    public void ResolveClashPrioritiseCsvStructTest(long? csvValue, long cliValue, bool cliValueImplicit, long expectedOutput)
     {
-        OptionValueContainer<long> cliOption = new(cliValue, cliValueExplicit);
+        ImplicitValue<long> cliOption = new(cliValue, cliValueImplicit);
 
         long output = BulkTransform.ResolveClashPrioritiseCsv(csvValue, cliOption);
 
@@ -75,15 +75,15 @@ public class BulkTransformTests
     }
 
     [Theory]
-    [InlineData("5", "2", false, "5")]
-    [InlineData("2", "5", false, "2")]
-    [InlineData(null, "2", false, "2")]
     [InlineData("5", "2", true, "5")]
     [InlineData("2", "5", true, "2")]
     [InlineData(null, "2", true, "2")]
-    public void ResolveClashPrioritiseCsvClassTest(string? csvValue, string cliValue, bool cliValueExplicit, string expectedOutput)
+    [InlineData("5", "2", false, "5")]
+    [InlineData("2", "5", false, "2")]
+    [InlineData(null, "2", false, "2")]
+    public void ResolveClashPrioritiseCsvClassTest(string? csvValue, string cliValue, bool cliValueImplicit, string expectedOutput)
     {
-        OptionValueContainer<string> cliOption = new(cliValue, cliValueExplicit);
+        ImplicitValue<string> cliOption = new(cliValue, cliValueImplicit);
 
         string output = BulkTransform.ResolveClashPrioritiseCsv(csvValue, cliOption);
 
@@ -91,15 +91,15 @@ public class BulkTransformTests
     }
 
     [Theory]
-    [InlineData((long)5, 2, false, 5)]
-    [InlineData((long)2, 5, false, 2)]
-    [InlineData(null, 2, false, 2)]
-    [InlineData((long)5, 2, true, 2)]
-    [InlineData((long)2, 5, true, 5)]
+    [InlineData((long)5, 2, true, 5)]
+    [InlineData((long)2, 5, true, 2)]
     [InlineData(null, 2, true, 2)]
-    public void ResolveClashPrioritiseCliStructTest(long? csvValue, long cliValue, bool cliValueExplicit, long expectedOutput)
+    [InlineData((long)5, 2, false, 2)]
+    [InlineData((long)2, 5, false, 5)]
+    [InlineData(null, 2, false, 2)]
+    public void ResolveClashPrioritiseCliStructTest(long? csvValue, long cliValue, bool cliValueImplicit, long expectedOutput)
     {
-        OptionValueContainer<long> cliOption = new(cliValue, cliValueExplicit);
+        ImplicitValue<long> cliOption = new(cliValue, cliValueImplicit);
 
         long output = BulkTransform.ResolveClashPrioritiseCli(csvValue, cliOption);
 
@@ -107,15 +107,15 @@ public class BulkTransformTests
     }
 
     [Theory]
-    [InlineData("5", "2", false, "5")]
-    [InlineData("2", "5", false, "2")]
-    [InlineData(null, "2", false, "2")]
-    [InlineData("5", "2", true, "2")]
-    [InlineData("2", "5", true, "5")]
+    [InlineData("5", "2", true, "5")]
+    [InlineData("2", "5", true, "2")]
     [InlineData(null, "2", true, "2")]
-    public void ResolveClashPrioritiseCliClassTest(string? csvValue, string cliValue, bool cliValueExplicit, string expectedOutput)
+    [InlineData("5", "2", false, "2")]
+    [InlineData("2", "5", false, "5")]
+    [InlineData(null, "2", false, "2")]
+    public void ResolveClashPrioritiseCliClassTest(string? csvValue, string cliValue, bool cliValueImplicit, string expectedOutput)
     {
-        OptionValueContainer<string> cliOption = new(cliValue, cliValueExplicit);
+        ImplicitValue<string> cliOption = new(cliValue, cliValueImplicit);
 
         string output = BulkTransform.ResolveClashPrioritiseCli(csvValue, cliOption);
 

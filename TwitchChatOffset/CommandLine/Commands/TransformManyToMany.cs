@@ -1,58 +1,46 @@
 ﻿using TwitchChatOffset.CommandLine.Options;
 using TwitchChatOffset.Csv;
 using System.CommandLine;
-using System.CommandLine.Binding;
 using System.IO;
 using CSVFile;
 
 namespace TwitchChatOffset.CommandLine.Commands;
 
-public class TransformManyToMany : CommandBinder<TransformManyToMany.Data>
+public static class TransformManyToMany
 {
-    public override Command Command { get; } = new("transform-many-to-many", "Transform many Json Twitch files and generate new files for each transformation");
+    public static readonly Command Command = new("transform-many-to-many", "Transform many Json Twitch files and generate new files for each transformation");
 
-    private readonly Tokens tokens = new();
+    private static readonly Argument<string> _arguments =
+        CsvArgument;
 
-    protected override void AddTokens()
+    private static readonly (Option<long>, Option<long>, Option<Format>, Option<string>, Option<long>, Option<bool>) _options =
+        (StartOption, EndOption, FormatOption, OutputDirOption, OptionPriorityOption, QuietOption);
+
+    static TransformManyToMany()
     {
-        Command.Add(tokens.CsvArgument);
-        Command.Add(tokens.StartOption);
-        Command.Add(tokens.EndOption);
-        Command.Add(tokens.FormatOption);
-        Command.Add(tokens.OutputDirOption);
-        Command.Add(tokens.OptionPriorityOption);
-        Command.Add(tokens.QuietOption);
+        var a1 = _arguments;
+        var (o1, o2, o3, o4, o5, o6) = _options;
+        Command.Add(a1);
+        Command.Add(o1);
+        Command.Add(o2);
+        Command.Add(o3);
+        Command.Add(o4);
+        Command.Add(o5);
+        Command.Add(o6);
+        Command.SetAction(Execute);
     }
 
-    protected override Data GetBoundValue(BindingContext b)
+    private static (string, ImplicitValue<long>, ImplicitValue<long>, ImplicitValue<Format>, ImplicitValue<string>, long, bool) GetData(ParseResult p)
     {
-        return new
-        (
-            Arg(b, tokens.CsvArgument),
-            Opt(b, tokens.StartOption),
-            Opt(b, tokens.EndOption),
-            Opt(b, tokens.FormatOption),
-            Opt(b, tokens.OutputDirOption),
-            Opt(b, tokens.OptionPriorityOption),
-            Opt(b, tokens.QuietOption)
-        );
+        var a1 = _arguments;
+        var (o1, o2, o3, o4, o5, o6) = _options;
+        return (p.GetValue(a1), p.GetImplicit(o1), p.GetImplicit(o2), p.GetImplicit(o3), p.GetImplicit(o4), p.GetValue(o5), p.GetValue(o6))!;
     }
 
-    public readonly record struct Data
-    (
-        string CsvPath,
-        OptionValueContainer<long> Start,
-        OptionValueContainer<long> End,
-        OptionValueContainer<Format> Format,
-        OptionValueContainer<string> OutputDir,
-        OptionValueContainer<long> OptionPriority,
-        OptionValueContainer<bool> Quiet
-    );
-
-    protected override void Handle(Data data)
+    private static void Execute(ParseResult parseResult)
     {
-        var (csvPath, cliStart, cliEnd, cliFormat, cliOutputDir, cliOptionPriority, quiet) = data;
-        using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.csvSettings);
+        var (csvPath, cliStart, cliEnd, cliFormat, cliOutputDir, cliOptionPriority, quiet) = GetData(parseResult);
+        using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
         PrintLine("Writing files...", 0, quiet);
         foreach (TransformManyToManyCsvNullables nullableLine in CsvSerialization.Deserialize<TransformManyToManyCsvNullables>(reader))
         {

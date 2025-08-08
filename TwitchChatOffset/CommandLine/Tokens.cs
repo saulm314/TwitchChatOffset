@@ -1,58 +1,77 @@
-﻿using TwitchChatOffset.CommandLine.Options;
+﻿global using static TwitchChatOffset.CommandLine.Tokens;
 using System.CommandLine;
+using TwitchChatOffset.CommandLine.Options;
 using static TwitchChatOffset.CommandLine.Options.OptionAliases;
 
 namespace TwitchChatOffset.CommandLine;
 
-public class Tokens
-{
-    public Argument<string> InputArgument => _inputArgument ??=
-        new("input-path", "Input path (JSON file)");
+public static class Tokens
+{ 
+    public static readonly Argument<string> InputArgument = new("input-path")
+    {
+        HelpName = "Input path (JSON file)"
+    };
 
-    public Argument<string> OutputArgument => _outputArgument ??=
-        new("output-path", "Output path");
+    public static readonly Argument<string> OutputArgument = new("output-path")
+    {
+        HelpName = "Output path"
+    };
 
-    public Argument<string> CsvArgument => _csvArgument ??=
-        new("csv-path", "Path to the CSV file with data to transform");
+    public static readonly Argument<string> CsvArgument = new("csv-path")
+    {
+        HelpName = "Path to the CSV file with data to transform"
+    };
 
-    public Argument<string> SuffixArgument => _suffixArgument ??=
-        new("suffix", "Suffix to be apended to all output file names, including the extension");
+    public static readonly Argument<string> SuffixArgument = new("suffix")
+    {
+        HelpName = "Suffix to be apended to all output file names, including the extension"
+    };
     
-    public OptionContainer<long> StartOption => _startOption ??=
-        new(Start, 0, "Starting point in seconds before which to dismiss chat messages (optional)");
+    public static readonly Option<long> StartOption = new("start", Start.Aliases)
+    {
+        HelpName = "Starting point in seconds before which to dismiss chat messages (optional)",
+        DefaultValueFactory = _ => 0
+    };
 
-    public OptionContainer<long> EndOption => _endOption ??=
-        new(End, -1, "Ending point in seconds after which to dismiss chat messages, or any negative number for no ending point (optional)");
+    public static readonly Option<long> EndOption = new("end", End.Aliases)
+    {
+        HelpName = "Ending point in seconds after which to dismiss chat messages, or any negative number for no ending point (optional)",
+        DefaultValueFactory = _ => -1
+    };
 
-    public OptionContainer<Format> FormatOption => _formatOption ??=
-        new(OptionAliases.Format, default, "Format for the output file (optional)");
+    public static readonly Option<Format> FormatOption = new("format", OptionAliases.Format.Aliases)
+    {
+        HelpName = "Format for the output file (optional)",
+        DefaultValueFactory = _ => default
+    };
 
-    public OptionContainer<string> OutputDirOption => _outputDirOption ??=
-        new(OutputDir, ".", "Output directory (will create if doesn't exist) (optional)");
+    public static readonly Option<string> OutputDirOption = new("output-dir", OutputDir.Aliases)
+    {
+        HelpName = "Output directory (will create if doesn't exist) (optional)",
+        DefaultValueFactory = _ => "."
+    };
     
-    public OptionContainer<string> InputDirOption => _inputDirOption ??=
-        new(InputDir, ".", "Input directory (optional)");
+    public static readonly Option<string> InputDirOption = new("input-dir", InputDir.Aliases)
+    {
+        HelpName = "Input directory (optional)",
+        DefaultValueFactory = _ => "."
+    };
 
-    public OptionContainer<bool> QuietOption => _quietOption ??=
-        new(Quiet, false, "Do not print a message after each file is written (optional)");
+    public static readonly Option<bool> QuietOption = new("quiet", Quiet.Aliases)
+    {
+        HelpName = "Do not print a message for intermediate steps such as individual files being written (optional)",
+        DefaultValueFactory = _ => false
+    };
 
-    public OptionContainer<string> SearchPatternOption => _searchPatternOption ??=
-        new(SearchPattern, "*.json", "Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional)");
+    public static readonly Option<string> SearchPatternOption = new("search-pattern", SearchPattern.Aliases)
+    {
+        HelpName = "Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional)",
+        DefaultValueFactory = _ => "*.json"
+    };
 
-    public OptionContainer<long> OptionPriorityOption => _optionPriorityOption ??=
-        new(OptionAliases.OptionPriority, 0, "Select priority to determine which options should be used when there is a clash between the CLI options and the CSV options (can be any integer; higher priority wins; if priorities are equal, then CSV is prioritised (optional)");
-
-    private Argument<string>? _inputArgument;
-    private Argument<string>? _outputArgument;
-    private Argument<string>? _csvArgument;
-    private Argument<string>? _suffixArgument;
-
-    private OptionContainer<long>? _startOption;
-    private OptionContainer<long>? _endOption;
-    private OptionContainer<Format>? _formatOption;
-    private OptionContainer<string>? _outputDirOption;
-    private OptionContainer<string>? _inputDirOption;
-    private OptionContainer<bool>? _quietOption;
-    private OptionContainer<string>? _searchPatternOption;
-    private OptionContainer<long>? _optionPriorityOption;
+    public static readonly Option<long> OptionPriorityOption = new("option-priority", OptionAliases.OptionPriority.Aliases)
+    {
+        HelpName = "Select priority to determine which options should be used when there is a clash between the CLI options and the CSV options (can be any integer; higher priority wins; if priorities are equal, then CSV is prioritised (optional)",
+        DefaultValueFactory = _ => 0
+    };
 }

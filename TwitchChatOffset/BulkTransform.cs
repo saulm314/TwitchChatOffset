@@ -11,8 +11,8 @@ namespace TwitchChatOffset;
 
 public static class BulkTransform
 {
-    public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, OptionValueContainer<long> cliStart,
-        OptionValueContainer<long> cliEnd, OptionValueContainer<Format> cliFormat, OptionValueContainer<string> cliOutputDir, long cliOptionPriority)
+    public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, ImplicitValue<long> cliStart,
+        ImplicitValue<long> cliEnd, ImplicitValue<Format> cliFormat, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.InputFile == null)
         {
@@ -49,8 +49,8 @@ public static class BulkTransform
         };
     }
 
-    public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, OptionValueContainer<long> cliStart,
-        OptionValueContainer<long> cliEnd, OptionValueContainer<Format> cliFormat, OptionValueContainer<string> cliOutputDir, long cliOptionPriority)
+    public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, ImplicitValue<long> cliStart,
+        ImplicitValue<long> cliEnd, ImplicitValue<Format> cliFormat, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.OutputFile == null)
         {
@@ -156,9 +156,9 @@ public static class BulkTransform
     public static OptionPriority GetOptionPriority(long? csvOptionPriority, long cliOptionPriority)
         => (csvOptionPriority ?? 0) >= cliOptionPriority ? OptionPriority.CSV : OptionPriority.CLI;
 
-    public static T ResolveClashPrioritiseCsv<T>(Box<T>? csvValue, OptionValueContainer<T> cliValue) where T : notnull
+    public static T ResolveClashPrioritiseCsv<T>(Box<T>? csvValue, ImplicitValue<T> cliValue) where T : notnull
         => csvValue ?? cliValue.Value;
 
-    public static T ResolveClashPrioritiseCli<T>(Box<T>? csvValue, OptionValueContainer<T> cliValue) where T : notnull
-        => cliValue.Explicit || csvValue == null ? cliValue : (T)csvValue;
+    public static T ResolveClashPrioritiseCli<T>(Box<T>? csvValue, ImplicitValue<T> cliValue) where T : notnull
+        => !cliValue.Implicit || csvValue == null ? cliValue : (T)csvValue;
 }

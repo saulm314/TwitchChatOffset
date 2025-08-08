@@ -1,58 +1,43 @@
-﻿using TwitchChatOffset.CommandLine.Options;
-using System.CommandLine;
-using System.CommandLine.Binding;
+﻿using System.CommandLine;
 using System.IO;
 
 namespace TwitchChatOffset.CommandLine.Commands;
 
-public class TransformAll : CommandBinder<TransformAll.Data>
+public static class TransformAll
 {
-    public override Command Command { get; } = new("transform-all", "Transform all files in a directory whose name matches a search pattern");
+    public static readonly Command Command = new("transform-all", "Transform all files in a directory whose name matches a search pattern");
 
-    private readonly Tokens tokens = new();
+    private static readonly Argument<string> _arguments =
+        SuffixArgument;
 
-    protected override void AddTokens()
+    private static readonly (Option<string>, Option<string>, Option<string>, Option<Format>, Option<bool>, Option<long>, Option<long>) _options =
+        (InputDirOption, SearchPatternOption, OutputDirOption, FormatOption, QuietOption, StartOption, EndOption);
+
+    static TransformAll()
     {
-        Command.Add(tokens.SuffixArgument);
-        Command.Add(tokens.InputDirOption);
-        Command.Add(tokens.SearchPatternOption);
-        Command.Add(tokens.OutputDirOption);
-        Command.Add(tokens.FormatOption);
-        Command.Add(tokens.QuietOption);
-        Command.Add(tokens.StartOption);
-        Command.Add(tokens.EndOption);
+        var a1 = _arguments;
+        var (o1, o2, o3, o4, o5, o6, o7) = _options;
+        Command.Add(a1);
+        Command.Add(o1);
+        Command.Add(o2);
+        Command.Add(o3);
+        Command.Add(o4);
+        Command.Add(o5);
+        Command.Add(o6);
+        Command.Add(o7);
+        Command.SetAction(Execute);
     }
 
-    protected override Data GetBoundValue(BindingContext b)
+    private static (string, string, string, string, Format, bool, long, long) GetData(ParseResult p)
     {
-        return new
-        (
-            Arg(b, tokens.SuffixArgument),
-            Opt(b, tokens.InputDirOption),
-            Opt(b, tokens.SearchPatternOption),
-            Opt(b, tokens.OutputDirOption),
-            Opt(b, tokens.FormatOption),
-            Opt(b, tokens.QuietOption),
-            Opt(b, tokens.StartOption),
-            Opt(b, tokens.EndOption)
-        );
+        var a1 = _arguments;
+        var (o1, o2, o3, o4, o5, o6, o7) = _options;
+        return (p.GetValue(a1), p.GetValue(o1), p.GetValue(o2), p.GetValue(o3), p.GetValue(o4), p.GetValue(o5), p.GetValue(o6), p.GetValue(o7))!;
     }
 
-    public readonly record struct Data
-    (
-        string Suffix,
-        OptionValueContainer<string> InputDir,
-        OptionValueContainer<string> SearchPattern,
-        OptionValueContainer<string> OutputDir,
-        OptionValueContainer<Format> Format,
-        OptionValueContainer<bool> Quiet,
-        OptionValueContainer<long> Start,
-        OptionValueContainer<long> End
-    );
-
-    protected override void Handle(Data data)
+    private static void Execute(ParseResult parseResult)
     {
-        var (suffix, inputDir, searchPattern, outputDir, format, quiet, start, end) = data;
+        var (suffix, inputDir, searchPattern, outputDir, format, quiet, start, end) = GetData(parseResult);
         string[] fileNames = Directory.GetFiles(inputDir, searchPattern);
         PrintEnumerable(fileNames, "Input files found:", 0, quiet);
         _ = Directory.CreateDirectory(outputDir);

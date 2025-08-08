@@ -2,7 +2,7 @@
 
 public enum Format
 {
-    Json,
-    JsonIndented,
-    Plaintext
+    json,
+    jsonindented,
+    plaintext
 }

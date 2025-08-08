@@ -4,7 +4,7 @@ namespace TwitchChatOffset.Csv;
 
 public static class CsvUtils
 {
-    public static readonly CSVSettings csvSettings = new()
+    public static readonly CSVSettings CsvSettings = new()
     {
         FieldDelimiter = ','
     };

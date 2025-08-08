@@ -8,7 +8,7 @@ public class TransformTests
 {
     private static long[] AllStartsEnds => [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
     private static long[] AllNegativeEnds => [-1, -10, -100, -1000, long.MinValue];
-    private static Format[] AllFormats => [Format.Json, Format.JsonIndented, Format.Plaintext];
+    private static Format[] AllFormats => [Format.json, Format.jsonindented, Format.plaintext];
 
     private const string ContentOffsetSecondsTemplate = "\"content_offset_seconds\":0";
     private const string CommenterTemplate = "\"commenter\":{\"display_name\":\"JohnSmith\"}";

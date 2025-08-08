@@ -51,9 +51,9 @@ public static class Transform
     {
         return format switch
         {
-            Format.Json => SerializeToJson(json),
-            Format.JsonIndented => SerializeToJsonIndented(json),
-            Format.Plaintext => SerializeToPlaintext(json),
+            Format.json => SerializeToJson(json),
+            Format.jsonindented => SerializeToJsonIndented(json),
+            Format.plaintext => SerializeToPlaintext(json),
             _ => throw new InternalException("Internal error: unrecognised format type")
         };
     }

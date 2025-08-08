@@ -4,13 +4,13 @@ public readonly struct AliasesContainer
 {
     public AliasesContainer(string[] aliases)
     {
-        this.aliases = aliases;
-        strippedAliases = new string[aliases.Length];
-        aliases.CopyTo(strippedAliases, 0);
-        for (int i = 0; i < strippedAliases.Length; i++)
-            strippedAliases[i] = strippedAliases[i].TrimStart('-');
+        Aliases = aliases;
+        StrippedAliases = new string[aliases.Length];
+        aliases.CopyTo(StrippedAliases, 0);
+        for (int i = 0; i < StrippedAliases.Length; i++)
+            StrippedAliases[i] = StrippedAliases[i].TrimStart('-');
     }
 
-    public readonly string[] aliases;
-    public readonly string[] strippedAliases;
+    public readonly string[] Aliases;
+    public readonly string[] StrippedAliases;
 }
