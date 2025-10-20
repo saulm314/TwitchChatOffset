@@ -1,4 +1,5 @@
 ﻿// MIT License: https://gist.github.com/saulm314/91f0d83ce1a931b5086169e17b6e4eb0
+// Wrap: https://gist.github.com/saulm314/bf4c6cd9e4a9b045b52ad123a80a5c39
 
 using System;
 using Newtonsoft.Json;
@@ -25,7 +26,7 @@ public static class JsonUtils
         return value;
     }
 
-    public static Box<T>? AsN<T>(this JToken jtoken) where T : notnull
+    public static Wrap<T>? AsN<T>(this JToken jtoken) where T : notnull
     {
         if (typeof(T).IsAssignableTo(typeof(JToken)))
         {
@@ -63,7 +64,7 @@ public static class JsonUtils
 
     public static T D<T>(this JToken jtoken, string propertyName) where T : notnull => jtoken.D(propertyName).As<T>();
 
-    public static Box<T>? DN<T>(this JToken jtoken, string propertyName) where T : notnull
+    public static Wrap<T>? DN<T>(this JToken jtoken, string propertyName) where T : notnull
     {
         JToken? subtoken = jtoken.DN(propertyName);
         if (subtoken == null)
@@ -81,7 +82,7 @@ public static class JsonUtils
         return subtoken != null;
     }
 
-    public static bool ContainsProperty<T>(this JToken jtoken, string propertyName, out Box<T>? subtoken) where T : notnull
+    public static bool ContainsProperty<T>(this JToken jtoken, string propertyName, out Wrap<T>? subtoken) where T : notnull
     {
         subtoken = jtoken.DN<T>(propertyName);
         return subtoken != null;
@@ -106,7 +107,7 @@ public static class JsonUtils
 
     public static T At<T>(this JToken jtoken, int index) where T : notnull => jtoken.At(index).As<T>();
 
-    public static Box<T>? AtN<T>(this JToken jtoken, int index) where T : notnull
+    public static Wrap<T>? AtN<T>(this JToken jtoken, int index) where T : notnull
     {
         JToken? subtoken = jtoken.AtN(index);
         if (subtoken == null)
@@ -209,7 +210,7 @@ public static class JsonUtils
 
     public static T DeepClone<T>(this JToken jtoken) where T : notnull => jtoken.DeepClone().As<T>();
 
-    public static Box<T>? DeepCloneN<T>(this JToken jtoken) where T : notnull => jtoken.DeepClone().AsN<T>();
+    public static Wrap<T>? DeepCloneN<T>(this JToken jtoken) where T : notnull => jtoken.DeepClone().AsN<T>();
 
     public static JToken ToJToken(object? obj)
     {

@@ -156,9 +156,9 @@ public static class BulkTransform
     public static OptionPriority GetOptionPriority(long? csvOptionPriority, long cliOptionPriority)
         => (csvOptionPriority ?? 0) >= cliOptionPriority ? OptionPriority.CSV : OptionPriority.CLI;
 
-    public static T ResolveClashPrioritiseCsv<T>(Box<T>? csvValue, ImplicitValue<T> cliValue) where T : notnull
-        => csvValue ?? cliValue.Value;
+    public static T ResolveClashPrioritiseCsv<T>(Wrap<T>? csvValue, ImplicitValue<T> cliValue) where T : notnull
+        => csvValue == null ? cliValue : csvValue.Value.Value;
 
-    public static T ResolveClashPrioritiseCli<T>(Box<T>? csvValue, ImplicitValue<T> cliValue) where T : notnull
-        => !cliValue.Implicit || csvValue == null ? cliValue : (T)csvValue;
+    public static T ResolveClashPrioritiseCli<T>(Wrap<T>? csvValue, ImplicitValue<T> cliValue) where T : notnull
+        => !cliValue.Implicit || csvValue == null ? cliValue : csvValue.Value.Value;
 }
