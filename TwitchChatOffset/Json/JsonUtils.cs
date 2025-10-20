@@ -1,4 +1,6 @@
-﻿using System;
+﻿// MIT License: https://gist.github.com/saulm314/91f0d83ce1a931b5086169e17b6e4eb0
+
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
