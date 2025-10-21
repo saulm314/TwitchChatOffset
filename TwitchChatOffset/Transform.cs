@@ -1,5 +1,6 @@
 ﻿using TwitchChatOffset.Json;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -79,16 +80,16 @@ public static class Transform
     {
         YttDocument ytt = new();
         JArray comments = json.D("comments").As<JArray>();
+        Dictionary<string, Color> userColors = [];
         foreach (JToken comment in comments)
         {
             long offset = comment.D("content_offset_seconds").As<long>();
             TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
             DateTime dateTime = SubtitleDocument.TimeBase + timeSpan;
-            DateTime dateTimeEnd = dateTime.AddSeconds(2);
+            DateTime dateTimeEnd = dateTime.AddSeconds(100);
             string displayName = comment.D("commenter").D("display_name").As<string>();
             JToken message = comment.D("message");
-            string userColorStr = message.D("user_color").AsN<string>()?.Value ?? "black";
-            Color userColor = ColorTranslator.FromHtml(userColorStr);
+            Color userColor = GetUserColor(userColors, displayName, message);
             Section displayNameSection = new($"{displayName}: ")
             {
                 ForeColor = userColor
@@ -125,5 +126,26 @@ public static class Transform
             builder.Append('\n');
         }
         return builder.ToString();
+    }
+
+    private static Color GetUserColor(Dictionary<string, Color> userColors, string user, JToken message)
+    {
+        Color color;
+        if (userColors.TryGetValue(user, out color))
+            return color;
+        string? userColorStr = message.D("user_color").AsN<string>()?.Value;
+        if (userColorStr == null)
+        {
+            Random random = new();
+            int r = random.Next(256);
+            int g = random.Next(256);
+            int b = random.Next(256);
+            color = Color.FromArgb(r, g, b);
+            userColors.Add(user, color);
+            return color;
+        }
+        color = ColorTranslator.FromHtml(userColorStr);
+        userColors.Add(user, color);
+        return color;
     }
 }
