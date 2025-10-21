@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using TwitchChatOffset.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
-using TwitchChatOffset.Json;
+using Newtonsoft.Json.Linq;
 using YTSubConverter.Shared;
 using YTSubConverter.Shared.Formats;
 
