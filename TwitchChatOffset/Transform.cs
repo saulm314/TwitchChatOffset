@@ -3,12 +3,10 @@ using TwitchChatOffset.Ytt;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using YTSubConverter.Shared;
-using YTSubConverter.Shared.Formats;
 
 namespace TwitchChatOffset;
 
@@ -84,58 +82,7 @@ public static class Transform
 
     public static string SerializeToYtt(JToken json, AnchorPoint yttPosition, long yttMaxMessages)
     {
-        if (yttMaxMessages < 1)
-        {
-            PrintWarning("Warning: ytt-max-messages is less than 1 which is not supported; treating it as 1 instead");
-            yttMaxMessages = 1;
-        }
-        TwitchChatYttDocument ytt = new();
-        JArray comments = json.D("comments").As<JArray>();
-        Dictionary<string, Color> userColors = [];
-        Queue<Line> visibleLines = new((int)yttMaxMessages);
-        foreach (JToken comment in comments)
-        {
-            long offset = comment.D("content_offset_seconds").As<long>();
-            TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
-            DateTime dateTime = SubtitleDocument.TimeBase + timeSpan;
-            DateTime dateTimeEnd = dateTime.AddSeconds(5);
-
-            JToken message = comment.D("message");
-            string displayName = comment.D("commenter").D("display_name").As<string>();
-            string messageStr = message.D("body").As<string>();
-            GetWrappedMessage(displayName, messageStr, out string wrappedDisplayName, out string wrappedMessage);
-
-            Color userColor = GetUserColor(userColors, displayName, message);
-
-            Section displayNameSection = new(wrappedDisplayName)
-            {
-                ForeColor = userColor
-            };
-            Section messageSection = new(wrappedMessage)
-            {
-                ForeColor = Color.White
-            };
-            Line line = new(dateTime, dateTimeEnd, [displayNameSection, messageSection])
-            {
-                AnchorPoint = yttPosition
-            };
-
-            if (visibleLines.Count < yttMaxMessages)
-            {
-                visibleLines.Enqueue(line);
-            }
-            else
-            {
-                Line dqLine = visibleLines.Dequeue();
-                dqLine.End = dqLine.End >= line.Start ? line.Start : dqLine.End;
-                ytt.Lines.Add(dqLine);
-            }
-        }
-        while (visibleLines.Count > 0)
-            ytt.Lines.Add(visibleLines.Dequeue());
-        StringWriter stringWriter = new();
-        ytt.Save(stringWriter);
-        return stringWriter.ToString();
+        return YttSerialization.Serialize(json, yttPosition, yttMaxMessages);
     }
 
     public static string SerializeToPlaintext(JToken json)
@@ -157,64 +104,5 @@ public static class Transform
             builder.Append('\n');
         }
         return builder.ToString();
-    }
-
-    private static Color GetUserColor(Dictionary<string, Color> userColors, string user, JToken message)
-    {
-        if (userColors.TryGetValue(user, out Color color))
-            return color;
-        string? userColorStr = message.D("user_color").AsN<string>()?.Value;
-        if (userColorStr == null)
-        {
-            Random random = new();
-            int r = random.Next(256);
-            int g = random.Next(256);
-            int b = random.Next(256);
-            color = Color.FromArgb(r, g, b);
-            userColors.Add(user, color);
-            return color;
-        }
-        color = ColorTranslator.FromHtml(userColorStr);
-        userColors.Add(user, color);
-        return color;
-    }
-
-    private const int WrapCharLimit = 40;
-    private static void GetWrappedMessage(string displayName, string message, out string wrappedDisplayName, out string wrappedMessage)
-    {
-        string total = displayName + ": " + message;
-        string wrappedTotal = GetWrappedText(total.AsSpan());
-        int colonIndex = wrappedTotal.IndexOf(':');
-        wrappedDisplayName = wrappedTotal[..(colonIndex + 2)];
-        wrappedMessage = wrappedTotal[(colonIndex + 2)..];
-    }
-
-    private static string GetWrappedText(ReadOnlySpan<char> text)
-    {
-        StringBuilder builder = new();
-        int index = 0;
-        while (text.Length - index > WrapCharLimit)
-        {
-            int whiteSpaceIndex = FindLastIndex(text, index, WrapCharLimit, char.IsWhiteSpace);
-            if (whiteSpaceIndex == -1)
-            {
-                builder.Append(text[index..(index += WrapCharLimit)]);
-                builder.Append('\n');
-                continue;
-            }
-            builder.Append(text[index..whiteSpaceIndex]);
-            builder.Append('\n');
-            index = whiteSpaceIndex + 1;
-        }
-        builder.Append(text[index..]);
-        return builder.ToString();
-    }
-
-    private static int FindLastIndex<T>(ReadOnlySpan<T> span, int startIndex, int count, Predicate<T> match)
-    {
-        for (int i = startIndex + count - 1; i >= startIndex; i--)
-            if (match(span[i]))
-                return i;
-        return -1;
     }
 }
