@@ -1,8 +1,11 @@
 ﻿using TwitchChatOffset.Json;
 using System;
+using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using YTSubConverter.Shared;
+using YTSubConverter.Shared.Formats;
 
 namespace TwitchChatOffset;
 
@@ -53,6 +56,7 @@ public static class Transform
         {
             Format.json => SerializeToJson(json),
             Format.jsonindented => SerializeToJsonIndented(json),
+            Format.ytt => SerializeToYtt(json),
             Format.plaintext => SerializeToPlaintext(json),
             _ => throw new InternalException("Internal error: unrecognised format type")
         };
@@ -68,6 +72,27 @@ public static class Transform
     public static string SerializeToJsonIndented(JToken json)
     {
         return JsonConvert.SerializeObject(json, Formatting.Indented);
+    }
+
+    public static string SerializeToYtt(JToken json)
+    {
+        YttDocument ytt = new();
+        JArray comments = json.D("comments").As<JArray>();
+        foreach (JToken comment in comments)
+        {
+            long offset = comment.D("content_offset_seconds").As<long>();
+            TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
+            DateTime dateTime = SubtitleDocument.TimeBase + timeSpan;
+            DateTime dateTimeEnd = dateTime.AddSeconds(2);
+            string displayName = comment.D("commenter").D("display_name").As<string>();
+            string message = comment.D("message").D("body").As<string>();
+            string displayedMessage = $"{displayName}: {message}";
+            Line line = new(dateTime, dateTimeEnd, displayedMessage);
+            ytt.Lines.Add(line);
+        }
+        StringWriter stringWriter = new();
+        ytt.Save(stringWriter);
+        return stringWriter.ToString();
     }
 
     public static string SerializeToPlaintext(JToken json)

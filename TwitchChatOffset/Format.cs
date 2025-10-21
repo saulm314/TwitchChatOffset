@@ -4,5 +4,6 @@ public enum Format
 {
     json,
     jsonindented,
+    ytt,
     plaintext
 }

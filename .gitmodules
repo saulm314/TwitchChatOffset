@@ -1,0 +1,3 @@
+[submodule "libs/YTSubConverter"]
+	path = libs/YTSubConverter
+	url = https://github.com/saulm314/YTSubConverter.git

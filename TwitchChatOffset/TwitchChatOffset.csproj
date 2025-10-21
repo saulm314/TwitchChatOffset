@@ -8,9 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-rc.2.25502.107"/>
-    <PackageReference Include="CSVFile" Version="3.2.1"/>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-rc.2.25502.107" />
+    <PackageReference Include="CSVFile" Version="3.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\libs\YTSubConverter\YTSubConverter.Shared\YTSubConverter.Shared.csproj"/>
   </ItemGroup>
 
 </Project>
