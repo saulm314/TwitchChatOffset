@@ -13,18 +13,18 @@ namespace TwitchChatOffset;
 
 public static class Transform
 {
-    public static string DoTransform(string inputString, long start, long end, Format format)
+    public static string DoTransform(string inputString, long start, long end, Format format, AnchorPoint yttPosition)
     {
         JObject json = JsonUtils.Deserialize(inputString);
         ApplyOffset(json, start, end);
-        return Serialize(json, format);
+        return Serialize(json, format, yttPosition);
     }
 
-    public static string DoTransform(JToken inputJson, long start, long end, Format format)
+    public static string DoTransform(JToken inputJson, long start, long end, Format format, AnchorPoint yttPosition)
     {
         JToken json = inputJson.DeepClone();
         ApplyOffset(json, start, end);
-        return Serialize(json, format);
+        return Serialize(json, format, yttPosition);
     }
 
     //_______________________________________________________________________
@@ -52,13 +52,13 @@ public static class Transform
         }
     }
 
-    public static string Serialize(JToken json, Format format)
+    public static string Serialize(JToken json, Format format, AnchorPoint yttPosition)
     {
         return format switch
         {
             Format.json => SerializeToJson(json),
             Format.jsonindented => SerializeToJsonIndented(json),
-            Format.ytt => SerializeToYtt(json),
+            Format.ytt => SerializeToYtt(json, yttPosition),
             Format.plaintext => SerializeToPlaintext(json),
             _ => throw new InternalException("Internal error: unrecognised format type")
         };
@@ -76,7 +76,7 @@ public static class Transform
         return JsonConvert.SerializeObject(json, Formatting.Indented);
     }
 
-    public static string SerializeToYtt(JToken json)
+    public static string SerializeToYtt(JToken json, AnchorPoint yttPosition)
     {
         YttDocument ytt = new();
         JArray comments = json.D("comments").As<JArray>();
@@ -99,7 +99,10 @@ public static class Transform
             {
                 ForeColor = Color.White
             };
-            Line line = new(dateTime, dateTimeEnd, [displayNameSection, messageSection]);
+            Line line = new(dateTime, dateTimeEnd, [displayNameSection, messageSection])
+            {
+                AnchorPoint = yttPosition
+            };
             ytt.Lines.Add(line);
         }
         StringWriter stringWriter = new();

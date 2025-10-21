@@ -1,4 +1,6 @@
-﻿namespace TwitchChatOffset.Csv;
+﻿using YTSubConverter.Shared;
+
+namespace TwitchChatOffset.Csv;
 
 public record TransformOneToManyCsv
 (
@@ -6,5 +8,6 @@ public record TransformOneToManyCsv
     long Start,
     long End,
     Format Format,
+    AnchorPoint YttPosition,
     string OutputDir
 );

@@ -6,13 +6,15 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using YTSubConverter.Shared;
 
 namespace TwitchChatOffset;
 
 public static class BulkTransform
 {
     public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, ImplicitValue<long> cliStart,
-        ImplicitValue<long> cliEnd, ImplicitValue<Format> cliFormat, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
+        ImplicitValue<long> cliEnd, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition, ImplicitValue<string> cliOutputDir,
+        long cliOptionPriority)
     {
         if (nullables.InputFile == null)
         {
@@ -34,6 +36,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCsv(nullables.Start, cliStart),
                     ResolveClashPrioritiseCsv(nullables.End, cliEnd),
                     ResolveClashPrioritiseCsv(nullables.Format, cliFormat),
+                    ResolveClashPrioritiseCsv(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCsv(nullables.OutputDir, cliOutputDir)
                 ),
             OptionPriority.CLI => new
@@ -43,6 +46,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCli(nullables.Start, cliStart),
                     ResolveClashPrioritiseCli(nullables.End, cliEnd),
                     ResolveClashPrioritiseCli(nullables.Format, cliFormat),
+                    ResolveClashPrioritiseCli(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCli(nullables.OutputDir, cliOutputDir)
                 ),
             _ => throw new InternalException("Internal error: unrecognised option priority")
@@ -50,7 +54,8 @@ public static class BulkTransform
     }
 
     public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, ImplicitValue<long> cliStart,
-        ImplicitValue<long> cliEnd, ImplicitValue<Format> cliFormat, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
+        ImplicitValue<long> cliEnd, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition, ImplicitValue<string> cliOutputDir,
+        long cliOptionPriority)
     {
         if (nullables.OutputFile == null)
         {
@@ -66,6 +71,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCsv(nullables.Start, cliStart),
                     ResolveClashPrioritiseCsv(nullables.End, cliEnd),
                     ResolveClashPrioritiseCsv(nullables.Format, cliFormat),
+                    ResolveClashPrioritiseCsv(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCsv(nullables.OutputDir, cliOutputDir)
                 ),
             OptionPriority.CLI => new
@@ -74,6 +80,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCli(nullables.Start, cliStart),
                     ResolveClashPrioritiseCli(nullables.End, cliEnd),
                     ResolveClashPrioritiseCli(nullables.Format, cliFormat),
+                    ResolveClashPrioritiseCli(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCli(nullables.OutputDir, cliOutputDir)
                 ),
             _ => throw new InternalException("Internal error: unrecognised option priority")
@@ -95,12 +102,12 @@ public static class BulkTransform
         return outputPathBuilder.ToString();
     }
 
-    public static string? TryTransform(string inputFile, string input, long start, long end, Format format)
+    public static string? TryTransform(string inputFile, string input, long start, long end, Format format, AnchorPoint yttPosition)
     {
         string output;
         try
         {
-            output = Transform.DoTransform(input, start, end, format);
+            output = Transform.DoTransform(input, start, end, format, yttPosition);
         }
         catch (JsonException e)
         {
@@ -123,12 +130,12 @@ public static class BulkTransform
         return output;
     }
 
-    public static string? TryTransform(string inputFile, JToken input, long start, long end, Format format)
+    public static string? TryTransform(string inputFile, JToken input, long start, long end, Format format, AnchorPoint yttPosition)
     {
         string output;
         try
         {
-            output = Transform.DoTransform(input, start, end, format);
+            output = Transform.DoTransform(input, start, end, format, yttPosition);
         }
         catch (JsonException e)
         {

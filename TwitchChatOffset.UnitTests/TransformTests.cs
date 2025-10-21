@@ -35,13 +35,13 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, format);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, format, default);
 
                     JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(DoTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, format);
+                    continue; Transform.DoTransform(inputString, start, end, format, default);
                     #pragma warning restore CS0162
                 }
             }
@@ -66,12 +66,12 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, format);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, format, default);
 
                     Assert.ThrowsAny<JsonException>(DoTransform);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, format);
+                    continue; Transform.DoTransform(inputString, start, end, format, default);
                     #pragma warning restore CS0162
                 }
             }

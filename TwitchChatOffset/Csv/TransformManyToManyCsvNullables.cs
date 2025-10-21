@@ -1,4 +1,5 @@
 ﻿using TwitchChatOffset.CommandLine.Options;
+using YTSubConverter.Shared;
 
 namespace TwitchChatOffset.Csv;
 
@@ -18,6 +19,9 @@ public class TransformManyToManyCsvNullables
     
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.Format))]
     public Format? Format;
+
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttPosition))]
+    public AnchorPoint? YttPosition;
     
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.OutputDir))]
     public string? OutputDir;

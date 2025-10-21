@@ -1,6 +1,7 @@
 ﻿global using static TwitchChatOffset.CommandLine.Tokens;
 using System.CommandLine;
 using TwitchChatOffset.CommandLine.Options;
+using YTSubConverter.Shared;
 using static TwitchChatOffset.CommandLine.Options.OptionAliases;
 
 namespace TwitchChatOffset.CommandLine;
@@ -42,6 +43,12 @@ public static class Tokens
     public static readonly Option<Format> FormatOption = new("format", OptionAliases.Format.Aliases)
     {
         HelpName = "Format for the output file (optional)",
+        DefaultValueFactory = _ => default
+    };
+
+    public static readonly Option<AnchorPoint> YttPositionOption = new("ytt-position", YttPosition.Aliases)
+    {
+        HelpName = "Position on the screen for YTT subtitles (ytt only) (optional)",
         DefaultValueFactory = _ => default
     };
 
