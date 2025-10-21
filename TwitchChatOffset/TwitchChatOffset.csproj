@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\libs\YTSubConverter\YTSubConverter.Shared\YTSubConverter.Shared.csproj" />
+    <ProjectReference Include="..\libs\YTSubConverter\YTSubConverter.Shared\YTSubConverter.Shared.csproj"/>
   </ItemGroup>
 
 </Project>

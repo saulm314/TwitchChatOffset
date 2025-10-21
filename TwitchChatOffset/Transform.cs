@@ -1,8 +1,6 @@
 ﻿using TwitchChatOffset.Json;
 using TwitchChatOffset.Ytt;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
