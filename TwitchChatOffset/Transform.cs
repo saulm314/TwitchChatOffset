@@ -1,5 +1,6 @@
 ﻿using TwitchChatOffset.Json;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -85,8 +86,19 @@ public static class Transform
             DateTime dateTime = SubtitleDocument.TimeBase + timeSpan;
             DateTime dateTimeEnd = dateTime.AddSeconds(2);
             string displayName = comment.D("commenter").D("display_name").As<string>();
-            string message = comment.D("message").D("body").As<string>();
-            Line line = new(dateTime, dateTimeEnd, [new(displayName + ": "), new(message)]);
+            JToken message = comment.D("message");
+            string userColorStr = message.D("user_color").AsN<string>()?.Value ?? "black";
+            Color userColor = ColorTranslator.FromHtml(userColorStr);
+            Section displayNameSection = new($"{displayName}: ")
+            {
+                ForeColor = userColor
+            };
+            string messageStr = message.D("body").As<string>();
+            Section messageSection = new(messageStr)
+            {
+                ForeColor = Color.White
+            };
+            Line line = new(dateTime, dateTimeEnd, [displayNameSection, messageSection]);
             ytt.Lines.Add(line);
         }
         StringWriter stringWriter = new();
