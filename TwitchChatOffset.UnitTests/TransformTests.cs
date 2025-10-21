@@ -8,7 +8,7 @@ public class TransformTests
 {
     private static long[] AllStartsEnds => [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
     private static long[] AllNegativeEnds => [-1, -10, -100, -1000, long.MinValue];
-    private static Format[] AllFormats => [Format.json, Format.jsonindented, Format.plaintext];
+    private static Format[] AllFormats => [Format.json, Format.jsonindented, Format.ytt, Format.plaintext];
 
     private const string ContentOffsetSecondsTemplate = "\"content_offset_seconds\":0";
     private const string CommenterTemplate = "\"commenter\":{\"display_name\":\"JohnSmith\"}";
@@ -25,6 +25,7 @@ public class TransformTests
     {
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
+        long delay = 0;
         Format[] formats = AllFormats;
 
         JsonContentException.Empty expectedException = new();
@@ -35,13 +36,13 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, 0, format, default);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, default);
 
                     JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(DoTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, 0, format, default);
+                    continue; Transform.DoTransform(inputString, start, end, delay, format, default);
                     #pragma warning restore CS0162
                 }
             }
@@ -58,6 +59,7 @@ public class TransformTests
     {
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
+        long delay = 0;
         Format[] formats = AllFormats;
 
         foreach (long start in starts)
@@ -66,12 +68,12 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, 0, format, default);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, default);
 
                     Assert.ThrowsAny<JsonException>(DoTransform);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, 0, format, default);
+                    continue; Transform.DoTransform(inputString, start, end, delay, format, default);
                     #pragma warning restore CS0162
                 }
             }
@@ -83,15 +85,16 @@ public class TransformTests
     [InlineData("{\"comment\":{}}")]
     [InlineData("{\"comments\":[]}")]
     [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{}}]}}")]
-    public void ApplyOffset_Start0EndNegative_DoesNothing(string inputString)
+    public void ApplyOffset_Start0EndNegativeDelay0_DoesNothing(string inputString)
     {
         JToken json = JsonUtils.Deserialize(inputString);
         long start = 0;
         long[] ends = AllNegativeEnds;
+        long delay = 0;
 
         foreach (long end in ends)
         {
-            Transform.ApplyOffset(json.DeepClone(), start, end, 0);
+            Transform.ApplyOffset(json.DeepClone(), start, end, delay);
             string output = JsonConvert.SerializeObject(json);
 
             Assert.Equal(inputString, output);
@@ -109,6 +112,7 @@ public class TransformTests
         JToken json = JsonUtils.Deserialize(inputString);
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
+        long delay = 0;
 
         JsonContentException.PropertyNotFound expectedException = new(string.Empty, "comments");
 
@@ -116,16 +120,16 @@ public class TransformTests
         {
             foreach (long end in ends)
             {
-                if (start == 0 && end < 0)
+                if (start == 0 && end < 0 && delay <= 0)
                     continue;
 
-                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end, 0);
+                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end, delay);
 
                 JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
                 Assert.Equal(expectedException.Message, exception.Message);
 
                 #pragma warning disable CS0162
-                continue; Transform.ApplyOffset(json.DeepClone(), start, end, 0);
+                continue; Transform.ApplyOffset(json.DeepClone(), start, end, delay);
                 #pragma warning restore CS0162
             }
         }
@@ -140,6 +144,7 @@ public class TransformTests
         JToken json = JsonUtils.Deserialize(inputString);
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
+        long delay = 0;
 
         string expectedPathRegex = @"comments\[\d*\]";
         string expectedPropertyName = "content_offset_seconds";
@@ -148,55 +153,82 @@ public class TransformTests
         {
             foreach (long end in ends)
             {
-                if (start == 0 && end < 0)
+                if (start == 0 && end < 0 && delay <= 0)
                     continue;
 
-                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end, 0);
+                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end, delay);
 
                 JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
                 Assert.Matches(expectedPathRegex, exception.Path);
                 Assert.Equal(expectedPropertyName, exception.PropertyName);
 
                 #pragma warning disable CS0162
-                continue; Transform.ApplyOffset(json.DeepClone(), start, end, 0);
+                continue; Transform.ApplyOffset(json.DeepClone(), start, end, delay);
                 #pragma warning restore CS0162
             }
         }
     }
 
     [Theory]
-    [InlineData("{\"comments\":[]}", 0, -1, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[]}", 0, long.MinValue, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[]}", long.MaxValue, 0, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, -1, "{\"comments\":[{\"content_offset_seconds\":5}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 0, -1, "{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, 4, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, 5, "{\"comments\":[{\"content_offset_seconds\":5}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 3, -1, "{\"comments\":[{\"content_offset_seconds\":2}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 3, 5, "{\"comments\":[{\"content_offset_seconds\":2}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, -1, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, 7, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, 5, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, 4, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 4, 4, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, 6, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, -1, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, 15, "{\"comments\":[{\"content_offset_seconds\":2}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, 17, "{\"comments\":[{\"content_offset_seconds\":2},{\"content_offset_seconds\":14}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, -1, "{\"comments\":[{\"content_offset_seconds\":2},{\"content_offset_seconds\":14}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, -1, "{\"comments\":[{\"content_offset_seconds\":0},{\"content_offset_seconds\":12}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, 16, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, 17, "{\"comments\":[{\"content_offset_seconds\":0},{\"content_offset_seconds\":12}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 17, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, -1, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 16, "{\"comments\":[]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 18, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
-    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 17, 17, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
-    public void ApplyOffset_ValidInput(string inputString, long start, long end, string expectedOutput)
+    [InlineData("{\"comments\":[]}", 0, -1, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[]}", 0, long.MinValue, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[]}", long.MaxValue, 0, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, -1, 0, "{\"comments\":[{\"content_offset_seconds\":5}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 0, -1, 0, "{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, 4, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, 5, 0, "{\"comments\":[{\"content_offset_seconds\":5}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 3, -1, 0, "{\"comments\":[{\"content_offset_seconds\":2}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 3, 5, 0, "{\"comments\":[{\"content_offset_seconds\":2}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, -1, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, 7, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, 5, 0, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, 4, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 4, 4, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, 6, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, -1, 0, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, 15, 0, "{\"comments\":[{\"content_offset_seconds\":2}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, 17, 0, "{\"comments\":[{\"content_offset_seconds\":2},{\"content_offset_seconds\":14}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, -1, 0, "{\"comments\":[{\"content_offset_seconds\":2},{\"content_offset_seconds\":14}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, -1, 0, "{\"comments\":[{\"content_offset_seconds\":0},{\"content_offset_seconds\":12}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, 16, 0, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, 17, 0, "{\"comments\":[{\"content_offset_seconds\":0},{\"content_offset_seconds\":12}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 17, 0, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, -1, 0, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 16, 0, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 18, 0, "{\"comments\":[{\"content_offset_seconds\":11}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 17, 17, 0, "{\"comments\":[{\"content_offset_seconds\":0}]}")]
+    [InlineData("{\"comments\":[]}", 0, -1, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[]}", 0, long.MinValue, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[]}", long.MaxValue, 0, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, -1, 13, "{\"comments\":[{\"content_offset_seconds\":18}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 0, -1, 13, "{\"comments\":[{\"content_offset_seconds\":18},{\"content_offset_seconds\":30}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, 4, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 0, 5, 13, "{\"comments\":[{\"content_offset_seconds\":18}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 3, -1, 13, "{\"comments\":[{\"content_offset_seconds\":15}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 3, 5, 13, "{\"comments\":[{\"content_offset_seconds\":15}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, -1, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, 7, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, 5, 13, "{\"comments\":[{\"content_offset_seconds\":13}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, 4, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 4, 4, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 6, 6, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5}]}", 5, -1, 13, "{\"comments\":[{\"content_offset_seconds\":13}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, 15, 13, "{\"comments\":[{\"content_offset_seconds\":15}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, 17, 13, "{\"comments\":[{\"content_offset_seconds\":15},{\"content_offset_seconds\":27}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 3, -1, 13, "{\"comments\":[{\"content_offset_seconds\":15},{\"content_offset_seconds\":27}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, -1, 13, "{\"comments\":[{\"content_offset_seconds\":13},{\"content_offset_seconds\":25}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, 16, 13, "{\"comments\":[{\"content_offset_seconds\":13}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 5, 17, 13, "{\"comments\":[{\"content_offset_seconds\":13},{\"content_offset_seconds\":25}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 17, 13, "{\"comments\":[{\"content_offset_seconds\":24}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, -1, 13, "{\"comments\":[{\"content_offset_seconds\":24}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 16, 13, "{\"comments\":[]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 6, 18, 13, "{\"comments\":[{\"content_offset_seconds\":24}]}")]
+    [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 17, 17, 13, "{\"comments\":[{\"content_offset_seconds\":13}]}")]
+    public void ApplyOffset_ValidInput(string inputString, long start, long end, long delay, string expectedOutput)
     {
         JToken json = JsonUtils.Deserialize(inputString);
 
-        Transform.ApplyOffset(json, start, end, 0);
+        Transform.ApplyOffset(json, start, end, delay);
         string output = JsonConvert.SerializeObject(json);
 
         Assert.Equal(expectedOutput, output);

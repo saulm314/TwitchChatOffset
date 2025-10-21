@@ -32,15 +32,15 @@ public static class Transform
 
     public static void ApplyOffset(JToken json, long start, long end, long delay)
     {
-        if (start == 0 && end < 0 && delay == 0)
-            return;
-        if (end >= 0 && end < start)
-            PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
         if (delay < 0)
         {
             PrintWarning("Warning: delay value is less than zero which is not supported; treating it as zero instead");
             delay = 0;
         }
+        if (end >= 0 && end < start)
+            PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
+        if (start == 0 && end < 0 && delay == 0)
+            return;
         JArray comments = json.D("comments").As<JArray>();
         int i = 0;
         while (i < comments.Count)
