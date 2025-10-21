@@ -87,15 +87,18 @@ public static class Transform
             TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
             DateTime dateTime = SubtitleDocument.TimeBase + timeSpan;
             DateTime dateTimeEnd = dateTime.AddSeconds(100);
-            string displayName = comment.D("commenter").D("display_name").As<string>();
+
             JToken message = comment.D("message");
+            string displayName = comment.D("commenter").D("display_name").As<string>();
+            string messageStr = message.D("body").As<string>();
+            GetWrappedMessage(displayName, messageStr, out string wrappedDisplayName, out string wrappedMessage);
+
             Color userColor = GetUserColor(userColors, displayName, message);
-            Section displayNameSection = new($"{displayName}: ")
+            Section displayNameSection = new(wrappedDisplayName)
             {
                 ForeColor = userColor
             };
-            string messageStr = message.D("body").As<string>();
-            Section messageSection = new(messageStr)
+            Section messageSection = new(wrappedMessage)
             {
                 ForeColor = Color.White
             };
@@ -133,8 +136,7 @@ public static class Transform
 
     private static Color GetUserColor(Dictionary<string, Color> userColors, string user, JToken message)
     {
-        Color color;
-        if (userColors.TryGetValue(user, out color))
+        if (userColors.TryGetValue(user, out Color color))
             return color;
         string? userColorStr = message.D("user_color").AsN<string>()?.Value;
         if (userColorStr == null)
@@ -150,5 +152,44 @@ public static class Transform
         color = ColorTranslator.FromHtml(userColorStr);
         userColors.Add(user, color);
         return color;
+    }
+
+    private const int WrapCharLimit = 40;
+    private static void GetWrappedMessage(string displayName, string message, out string wrappedDisplayName, out string wrappedMessage)
+    {
+        string total = displayName + ": " + message;
+        string wrappedTotal = GetWrappedText(total.AsSpan());
+        int colonIndex = wrappedTotal.IndexOf(':');
+        wrappedDisplayName = wrappedTotal[..(colonIndex + 2)];
+        wrappedMessage = wrappedTotal[(colonIndex + 2)..];
+    }
+
+    private static string GetWrappedText(ReadOnlySpan<char> text)
+    {
+        StringBuilder builder = new();
+        int index = 0;
+        while (text.Length - index > WrapCharLimit)
+        {
+            int whiteSpaceIndex = FindLastIndex(text, index, WrapCharLimit, char.IsWhiteSpace);
+            if (whiteSpaceIndex == -1)
+            {
+                builder.Append(text[index..(index += WrapCharLimit)]);
+                builder.Append('\n');
+                continue;
+            }
+            builder.Append(text[index..whiteSpaceIndex]);
+            builder.Append('\n');
+            index = whiteSpaceIndex + 1;
+        }
+        builder.Append(text[index..]);
+        return builder.ToString();
+    }
+
+    private static int FindLastIndex<T>(ReadOnlySpan<T> span, int startIndex, int count, Predicate<T> match)
+    {
+        for (int i = startIndex + count - 1; i >= startIndex; i--)
+            if (match(span[i]))
+                return i;
+        return -1;
     }
 }
