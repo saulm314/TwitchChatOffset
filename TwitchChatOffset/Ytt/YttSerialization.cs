@@ -140,7 +140,7 @@ public static class YttSerialization
             lastChatMessage = chatMessage;
         }
         DateTime start = SubtitleDocument.TimeBase + lastChatMessage.Time;
-        DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? TimeSpan.FromMinutes(15));
+        DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? lastChatMessage.Time + TimeSpan.FromMinutes(15));
         Line line = new(start, end, sections)
         {
             AnchorPoint = yttPosition
