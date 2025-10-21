@@ -8,6 +8,7 @@ public record TransformManyToManyCsv
     string OutputFile,
     long Start,
     long End,
+    long Delay,
     Format Format,
     AnchorPoint YttPosition,
     string OutputDir

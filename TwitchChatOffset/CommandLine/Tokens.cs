@@ -40,6 +40,12 @@ public static class Tokens
         DefaultValueFactory = _ => -1
     };
 
+    public static readonly Option<long> DelayOption = new("delay", Delay.Aliases)
+    {
+        HelpName = "Delay in seconds to apply to all messages after cutting out unneeded messages (optional)",
+        DefaultValueFactory = _ => 0
+    };
+
     public static readonly Option<Format> FormatOption = new("format", OptionAliases.Format.Aliases)
     {
         HelpName = "Format for the output file (optional)",

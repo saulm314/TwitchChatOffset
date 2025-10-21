@@ -14,6 +14,9 @@ public class TransformOneToManyCsvNullables
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.End))]
     public long? End;
 
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.Delay))]
+    public long? Delay;
+
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.Format))]
     public Format? Format;
 

@@ -13,8 +13,8 @@ namespace TwitchChatOffset;
 public static class BulkTransform
 {
     public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, ImplicitValue<long> cliStart,
-        ImplicitValue<long> cliEnd, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition, ImplicitValue<string> cliOutputDir,
-        long cliOptionPriority)
+        ImplicitValue<long> cliEnd, ImplicitValue<long> cliDelay, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition,
+        ImplicitValue<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.InputFile == null)
         {
@@ -35,6 +35,7 @@ public static class BulkTransform
                     nullables.OutputFile,
                     ResolveClashPrioritiseCsv(nullables.Start, cliStart),
                     ResolveClashPrioritiseCsv(nullables.End, cliEnd),
+                    ResolveClashPrioritiseCsv(nullables.Delay, cliDelay),
                     ResolveClashPrioritiseCsv(nullables.Format, cliFormat),
                     ResolveClashPrioritiseCsv(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCsv(nullables.OutputDir, cliOutputDir)
@@ -45,6 +46,7 @@ public static class BulkTransform
                     nullables.OutputFile,
                     ResolveClashPrioritiseCli(nullables.Start, cliStart),
                     ResolveClashPrioritiseCli(nullables.End, cliEnd),
+                    ResolveClashPrioritiseCli(nullables.Delay, cliDelay),
                     ResolveClashPrioritiseCli(nullables.Format, cliFormat),
                     ResolveClashPrioritiseCli(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCli(nullables.OutputDir, cliOutputDir)
@@ -54,8 +56,8 @@ public static class BulkTransform
     }
 
     public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, ImplicitValue<long> cliStart,
-        ImplicitValue<long> cliEnd, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition, ImplicitValue<string> cliOutputDir,
-        long cliOptionPriority)
+        ImplicitValue<long> cliEnd, ImplicitValue<long> cliDelay, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition,
+        ImplicitValue<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.OutputFile == null)
         {
@@ -70,6 +72,7 @@ public static class BulkTransform
                     nullables.OutputFile,
                     ResolveClashPrioritiseCsv(nullables.Start, cliStart),
                     ResolveClashPrioritiseCsv(nullables.End, cliEnd),
+                    ResolveClashPrioritiseCsv(nullables.Delay, cliDelay),
                     ResolveClashPrioritiseCsv(nullables.Format, cliFormat),
                     ResolveClashPrioritiseCsv(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCsv(nullables.OutputDir, cliOutputDir)
@@ -79,6 +82,7 @@ public static class BulkTransform
                     nullables.OutputFile,
                     ResolveClashPrioritiseCli(nullables.Start, cliStart),
                     ResolveClashPrioritiseCli(nullables.End, cliEnd),
+                    ResolveClashPrioritiseCli(nullables.Delay, cliDelay),
                     ResolveClashPrioritiseCli(nullables.Format, cliFormat),
                     ResolveClashPrioritiseCli(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCli(nullables.OutputDir, cliOutputDir)
@@ -102,12 +106,12 @@ public static class BulkTransform
         return outputPathBuilder.ToString();
     }
 
-    public static string? TryTransform(string inputFile, string input, long start, long end, Format format, AnchorPoint yttPosition)
+    public static string? TryTransform(string inputFile, string input, long start, long end, long delay, Format format, AnchorPoint yttPosition)
     {
         string output;
         try
         {
-            output = Transform.DoTransform(input, start, end, format, yttPosition);
+            output = Transform.DoTransform(input, start, end, delay, format, yttPosition);
         }
         catch (JsonException e)
         {
@@ -130,12 +134,12 @@ public static class BulkTransform
         return output;
     }
 
-    public static string? TryTransform(string inputFile, JToken input, long start, long end, Format format, AnchorPoint yttPosition)
+    public static string? TryTransform(string inputFile, JToken input, long start, long end, long delay, Format format, AnchorPoint yttPosition)
     {
         string output;
         try
         {
-            output = Transform.DoTransform(input, start, end, format, yttPosition);
+            output = Transform.DoTransform(input, start, end, delay, format, yttPosition);
         }
         catch (JsonException e)
         {

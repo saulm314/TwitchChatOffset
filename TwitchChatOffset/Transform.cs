@@ -14,28 +14,33 @@ namespace TwitchChatOffset;
 
 public static class Transform
 {
-    public static string DoTransform(string inputString, long start, long end, Format format, AnchorPoint yttPosition)
+    public static string DoTransform(string inputString, long start, long end, long delay, Format format, AnchorPoint yttPosition)
     {
         JObject json = JsonUtils.Deserialize(inputString);
-        ApplyOffset(json, start, end);
+        ApplyOffset(json, start, end, delay);
         return Serialize(json, format, yttPosition);
     }
 
-    public static string DoTransform(JToken inputJson, long start, long end, Format format, AnchorPoint yttPosition)
+    public static string DoTransform(JToken inputJson, long start, long end, long delay, Format format, AnchorPoint yttPosition)
     {
         JToken json = inputJson.DeepClone();
-        ApplyOffset(json, start, end);
+        ApplyOffset(json, start, end, delay);
         return Serialize(json, format, yttPosition);
     }
 
     //_______________________________________________________________________
 
-    public static void ApplyOffset(JToken json, long start, long end)
+    public static void ApplyOffset(JToken json, long start, long end, long delay)
     {
-        if (start == 0 && end < 0)
+        if (start == 0 && end < 0 && delay == 0)
             return;
         if (end >= 0 && end < start)
             PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
+        if (delay < 0)
+        {
+            PrintWarning("Warning: delay value is less than zero which is not supported; treating it as zero instead");
+            delay = 0;
+        }
         JArray comments = json.D("comments").As<JArray>();
         int i = 0;
         while (i < comments.Count)
@@ -48,7 +53,7 @@ public static class Transform
                 comments.RemoveAt(i);
                 continue;
             }
-            offsetJValue.Set(offset - start);
+            offsetJValue.Set(offset - start + delay);
             i++;
         }
     }

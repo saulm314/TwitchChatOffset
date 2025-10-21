@@ -35,13 +35,13 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, format, default);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, 0, format, default);
 
                     JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(DoTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, format, default);
+                    continue; Transform.DoTransform(inputString, start, end, 0, format, default);
                     #pragma warning restore CS0162
                 }
             }
@@ -66,12 +66,12 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, format, default);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, 0, format, default);
 
                     Assert.ThrowsAny<JsonException>(DoTransform);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, format, default);
+                    continue; Transform.DoTransform(inputString, start, end, 0, format, default);
                     #pragma warning restore CS0162
                 }
             }
@@ -91,7 +91,7 @@ public class TransformTests
 
         foreach (long end in ends)
         {
-            Transform.ApplyOffset(json.DeepClone(), start, end);
+            Transform.ApplyOffset(json.DeepClone(), start, end, 0);
             string output = JsonConvert.SerializeObject(json);
 
             Assert.Equal(inputString, output);
@@ -119,13 +119,13 @@ public class TransformTests
                 if (start == 0 && end < 0)
                     continue;
 
-                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end);
+                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end, 0);
 
                 JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
                 Assert.Equal(expectedException.Message, exception.Message);
 
                 #pragma warning disable CS0162
-                continue; Transform.ApplyOffset(json.DeepClone(), start, end);
+                continue; Transform.ApplyOffset(json.DeepClone(), start, end, 0);
                 #pragma warning restore CS0162
             }
         }
@@ -151,14 +151,14 @@ public class TransformTests
                 if (start == 0 && end < 0)
                     continue;
 
-                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end);
+                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end, 0);
 
                 JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
                 Assert.Matches(expectedPathRegex, exception.Path);
                 Assert.Equal(expectedPropertyName, exception.PropertyName);
 
                 #pragma warning disable CS0162
-                continue; Transform.ApplyOffset(json.DeepClone(), start, end);
+                continue; Transform.ApplyOffset(json.DeepClone(), start, end, 0);
                 #pragma warning restore CS0162
             }
         }
@@ -196,7 +196,7 @@ public class TransformTests
     {
         JToken json = JsonUtils.Deserialize(inputString);
 
-        Transform.ApplyOffset(json, start, end);
+        Transform.ApplyOffset(json, start, end, 0);
         string output = JsonConvert.SerializeObject(json);
 
         Assert.Equal(expectedOutput, output);
