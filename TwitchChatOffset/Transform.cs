@@ -1,4 +1,5 @@
 ﻿using TwitchChatOffset.Json;
+using TwitchChatOffset.Ytt;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -78,7 +79,7 @@ public static class Transform
 
     public static string SerializeToYtt(JToken json, AnchorPoint yttPosition)
     {
-        YttDocument ytt = new();
+        TwitchChatYttDocument ytt = new();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
         foreach (JToken comment in comments)
