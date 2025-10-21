@@ -11,5 +11,6 @@ public record TransformManyToManyCsv
     long Delay,
     Format Format,
     AnchorPoint YttPosition,
+    long YttMaxMessages,
     string OutputDir
 );

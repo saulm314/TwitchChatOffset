@@ -14,18 +14,18 @@ namespace TwitchChatOffset;
 
 public static class Transform
 {
-    public static string DoTransform(string inputString, long start, long end, long delay, Format format, AnchorPoint yttPosition)
+    public static string DoTransform(string inputString, long start, long end, long delay, Format format, AnchorPoint yttPosition, long yttMaxMessages)
     {
         JObject json = JsonUtils.Deserialize(inputString);
         ApplyOffset(json, start, end, delay);
-        return Serialize(json, format, yttPosition);
+        return Serialize(json, format, yttPosition, yttMaxMessages);
     }
 
-    public static string DoTransform(JToken inputJson, long start, long end, long delay, Format format, AnchorPoint yttPosition)
+    public static string DoTransform(JToken inputJson, long start, long end, long delay, Format format, AnchorPoint yttPosition, long yttMaxMessages)
     {
         JToken json = inputJson.DeepClone();
         ApplyOffset(json, start, end, delay);
-        return Serialize(json, format, yttPosition);
+        return Serialize(json, format, yttPosition, yttMaxMessages);
     }
 
     //_______________________________________________________________________
@@ -58,13 +58,13 @@ public static class Transform
         }
     }
 
-    public static string Serialize(JToken json, Format format, AnchorPoint yttPosition)
+    public static string Serialize(JToken json, Format format, AnchorPoint yttPosition, long yttMaxMessages)
     {
         return format switch
         {
             Format.json => SerializeToJson(json),
             Format.jsonindented => SerializeToJsonIndented(json),
-            Format.ytt => SerializeToYtt(json, yttPosition),
+            Format.ytt => SerializeToYtt(json, yttPosition, yttMaxMessages),
             Format.plaintext => SerializeToPlaintext(json),
             _ => throw new InternalException("Internal error: unrecognised format type")
         };
@@ -82,17 +82,23 @@ public static class Transform
         return JsonConvert.SerializeObject(json, Formatting.Indented);
     }
 
-    public static string SerializeToYtt(JToken json, AnchorPoint yttPosition)
+    public static string SerializeToYtt(JToken json, AnchorPoint yttPosition, long yttMaxMessages)
     {
+        if (yttMaxMessages < 1)
+        {
+            PrintWarning("Warning: ytt-max-messages is less than 1 which is not supported; treating it as 1 instead");
+            yttMaxMessages = 1;
+        }
         TwitchChatYttDocument ytt = new();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
+        Queue<Line> visibleLines = new((int)yttMaxMessages);
         foreach (JToken comment in comments)
         {
             long offset = comment.D("content_offset_seconds").As<long>();
             TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
             DateTime dateTime = SubtitleDocument.TimeBase + timeSpan;
-            DateTime dateTimeEnd = dateTime.AddSeconds(100);
+            DateTime dateTimeEnd = dateTime.AddSeconds(5);
 
             JToken message = comment.D("message");
             string displayName = comment.D("commenter").D("display_name").As<string>();
@@ -100,6 +106,7 @@ public static class Transform
             GetWrappedMessage(displayName, messageStr, out string wrappedDisplayName, out string wrappedMessage);
 
             Color userColor = GetUserColor(userColors, displayName, message);
+
             Section displayNameSection = new(wrappedDisplayName)
             {
                 ForeColor = userColor
@@ -112,8 +119,20 @@ public static class Transform
             {
                 AnchorPoint = yttPosition
             };
-            ytt.Lines.Add(line);
+
+            if (visibleLines.Count < yttMaxMessages)
+            {
+                visibleLines.Enqueue(line);
+            }
+            else
+            {
+                Line dqLine = visibleLines.Dequeue();
+                dqLine.End = dqLine.End >= line.Start ? line.Start : dqLine.End;
+                ytt.Lines.Add(dqLine);
+            }
         }
+        while (visibleLines.Count > 0)
+            ytt.Lines.Add(visibleLines.Dequeue());
         StringWriter stringWriter = new();
         ytt.Save(stringWriter);
         return stringWriter.ToString();

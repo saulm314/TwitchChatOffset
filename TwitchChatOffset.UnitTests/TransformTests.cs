@@ -1,6 +1,7 @@
 ﻿using TwitchChatOffset.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using YTSubConverter.Shared;
 
 namespace TwitchChatOffset.UnitTests;
 
@@ -27,6 +28,8 @@ public class TransformTests
         long[] ends = AllStartsEnds;
         long delay = 0;
         Format[] formats = AllFormats;
+        AnchorPoint yttPosition = default;
+        long yttMaxMessages = 4;
 
         JsonContentException.Empty expectedException = new();
 
@@ -36,13 +39,13 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, default);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages);
 
                     JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(DoTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, delay, format, default);
+                    continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages);
                     #pragma warning restore CS0162
                 }
             }
@@ -61,6 +64,8 @@ public class TransformTests
         long[] ends = AllStartsEnds;
         long delay = 0;
         Format[] formats = AllFormats;
+        AnchorPoint yttPosition = default;
+        long yttMaxMessages = 4;
 
         foreach (long start in starts)
         {
@@ -68,12 +73,12 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, default);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages);
 
                     Assert.ThrowsAny<JsonException>(DoTransform);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, delay, format, default);
+                    continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages);
                     #pragma warning restore CS0162
                 }
             }

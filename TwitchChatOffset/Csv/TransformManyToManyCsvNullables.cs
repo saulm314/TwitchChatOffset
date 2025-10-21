@@ -26,6 +26,9 @@ public class TransformManyToManyCsvNullables
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttPosition))]
     public AnchorPoint? YttPosition;
     
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttMaxMessages))]
+    public long? YttMaxMessages;
+    
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.OutputDir))]
     public string? OutputDir;
 

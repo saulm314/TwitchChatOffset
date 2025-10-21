@@ -16,14 +16,15 @@ public static class TransformOneToMany
     private static readonly (Argument<string>, Argument<string>) _arguments =
         (InputArgument, CsvArgument);
 
-    private static readonly (Option<long>, Option<long>, Option<long>, Option<Format>, Option<AnchorPoint>, Option<string>, Option<long>, Option<bool>)
+    private static readonly (Option<long>, Option<long>, Option<long>, Option<Format>, Option<AnchorPoint>, Option<long>, Option<string>, Option<long>,
+        Option<bool>)
         _options =
-        (StartOption, EndOption, DelayOption, FormatOption, YttPositionOption, OutputDirOption, OptionPriorityOption, QuietOption);
+        (StartOption, EndOption, DelayOption, FormatOption, YttPositionOption, YttMaxMessagesOption, OutputDirOption, OptionPriorityOption, QuietOption);
 
     static TransformOneToMany()
     {
         var (a1, a2) = _arguments;
-        var (o1, o2, o3, o4, o5, o6, o7, o8) = _options;
+        var (o1, o2, o3, o4, o5, o6, o7, o8, o9) = _options;
         Command.Add(a1);
         Command.Add(o1);
         Command.Add(o2);
@@ -33,36 +34,38 @@ public static class TransformOneToMany
         Command.Add(o6);
         Command.Add(o7);
         Command.Add(o8);
+        Command.Add(o9);
         Command.SetAction(Execute);
     }
 
     private static (string, string, ImplicitValue<long>, ImplicitValue<long>, ImplicitValue<long>, ImplicitValue<Format>, ImplicitValue<AnchorPoint>,
-        ImplicitValue<string>, long, bool) GetData(ParseResult p)
+        ImplicitValue<long>, ImplicitValue<string>, long, bool) GetData(ParseResult p)
     {
         var (a1, a2) = _arguments;
-        var (o1, o2, o3, o4, o5, o6, o7, o8) = _options;
+        var (o1, o2, o3, o4, o5, o6, o7, o8, o9) = _options;
         return (p.GetValue(a1), p.GetValue(a2), p.GetImplicit(o1), p.GetImplicit(o2), p.GetImplicit(o3), p.GetImplicit(o4), p.GetImplicit(o5),
-            p.GetImplicit(o6), p.GetValue(o7), p.GetValue(o8))!;
+            p.GetImplicit(o6), p.GetImplicit(o7), p.GetValue(o8), p.GetValue(o9))!;
     }
 
     private static void Execute(ParseResult parseResult)
     {
-        var (inputPath, csvPath, cliStart, cliEnd, cliDelay, cliFormat, cliYttPosition, cliOutputDir, cliOptionPriority, quiet) = GetData(parseResult);
+        var (inputPath, csvPath, cliStart, cliEnd, cliDelay, cliFormat, cliYttPosition, cliYttMaxMessages, cliOutputDir, cliOptionPriority, quiet)
+            = GetData(parseResult);
         string input = File.ReadAllText(inputPath);
         JToken json = JsonUtils.Deserialize(input);
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
         PrintLine("Writing files...", 0, quiet);
         foreach (TransformOneToManyCsvNullables nullableLine in CsvSerialization.Deserialize<TransformOneToManyCsvNullables>(reader))
         {
-            TransformOneToManyCsv? line =
-                BulkTransform.TryGetNonNullableLine(nullableLine, cliStart, cliEnd, cliDelay, cliFormat, cliYttPosition, cliOutputDir, cliOptionPriority);
+            TransformOneToManyCsv? line = BulkTransform.TryGetNonNullableLine(nullableLine, cliStart, cliEnd, cliDelay, cliFormat, cliYttPosition,
+                cliYttMaxMessages, cliOutputDir, cliOptionPriority);
             if (line == null)
                 continue;
-            (string outputFile, long start, long end, long delay, Format format, AnchorPoint yttPosition, string outputDir) = line;
+            (string outputFile, long start, long end, long delay, Format format, AnchorPoint yttPosition, long yttMaxMessages, string outputDir) = line;
             PrintObjectMembers(line, outputFile, 1, quiet);
             _ = Directory.CreateDirectory(outputDir);
             string outputPath = BulkTransform.GetOutputPath(outputDir, outputFile);
-            string? output = BulkTransform.TryTransform(inputPath, json, start, end, delay, format, yttPosition);
+            string? output = BulkTransform.TryTransform(inputPath, json, start, end, delay, format, yttPosition, yttMaxMessages);
             if (output == null)
                 continue;
             File.WriteAllText(outputPath, output);
