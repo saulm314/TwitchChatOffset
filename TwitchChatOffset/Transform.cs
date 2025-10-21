@@ -86,8 +86,7 @@ public static class Transform
             DateTime dateTimeEnd = dateTime.AddSeconds(2);
             string displayName = comment.D("commenter").D("display_name").As<string>();
             string message = comment.D("message").D("body").As<string>();
-            string displayedMessage = $"{displayName}: {message}";
-            Line line = new(dateTime, dateTimeEnd, displayedMessage);
+            Line line = new(dateTime, dateTimeEnd, [new(displayName + ": "), new(message)]);
             ytt.Lines.Add(line);
         }
         StringWriter stringWriter = new();
