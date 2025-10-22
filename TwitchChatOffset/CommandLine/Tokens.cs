@@ -1,6 +1,7 @@
 ﻿global using static TwitchChatOffset.CommandLine.Tokens;
-using System.CommandLine;
 using TwitchChatOffset.CommandLine.Options;
+using TwitchChatOffset.Ytt;
+using System.CommandLine;
 using YTSubConverter.Shared;
 using static TwitchChatOffset.CommandLine.Options.OptionAliases;
 
@@ -55,13 +56,55 @@ public static class Tokens
     public static readonly Option<AnchorPoint> YttPositionOption = new("ytt-position", YttPosition.Aliases)
     {
         HelpName = "Position on the screen for YTT subtitles (ytt only) (optional)",
-        DefaultValueFactory = _ => default
+        DefaultValueFactory = _ => AnchorPoint.TopLeft
     };
 
     public static readonly Option<long> YttMaxMessagesOption = new("ytt-max-messages", YttMaxMessages.Aliases)
     {
         HelpName = "Maximum number of messages to display at once for YTT subtitles (ytt only) (must be at least 1) (optional)",
         DefaultValueFactory = _ => 6
+    };
+
+    public static readonly Option<long> YttMaxCharsPerLineOption = new("ytt-max-chars-per-line", YttMaxCharsPerLine.Aliases)
+    {
+        HelpName = "Maximum number of characters to display in a single line before it wraps to a new line (ytt only) (optional)",
+        DefaultValueFactory = _ => 55
+    };
+
+    public static readonly Option<double> YttScaleOption = new("ytt-scale", YttScale.Aliases)
+    {
+        HelpName = "YTT subtitle size (e.g. 0, 0.5, 1.5, etc.) (ytt only) (must be at least 0) (optional)",
+        DefaultValueFactory = _ => 0.0
+    };
+
+    public static readonly Option<Shadow> YttShadowOption = new("ytt-shadow", YttShadow.Aliases)
+    {
+        HelpName = "Shadow type (or none) for YTT subtitles (ytt only) (optional)",
+        DefaultValueFactory = _ => Shadow.Glow
+    };
+
+    public static readonly Option<long> YttBackgroundOpacityOption = new("ytt-background-opacity", YttBackgroundOpacity.Aliases)
+    {
+        HelpName = "Background opacity for YTT subtitles, ranging from 0 (fully transparent) to 255 (fully opaque) (ytt only) (optional)",
+        DefaultValueFactory = _ => 0
+    };
+
+    public static readonly Option<string> YttTextColorOption = new("ytt-text-color", YttTextColor.Aliases)
+    {
+        HelpName = "Text color for YTT subtitles, (e.g. \"white\", \"#B0B0B0\", etc.) (ytt only) (optional)",
+        DefaultValueFactory = _ => "white"
+    };
+
+    public static readonly Option<string> YttShadowColorOption = new("ytt-shadow-color", YttShadowColor.Aliases)
+    {
+        HelpName = "Shadow color for YTT subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (ytt only) (optional)",
+        DefaultValueFactory = _ => "black"
+    };
+
+    public static readonly Option<string> YttBackgroundColorOption = new("ytt-background-color", YttBackgroundColor.Aliases)
+    {
+        HelpName = "Background color for YTT subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (ytt only) (optional)",
+        DefaultValueFactory = _ => "black"
     };
 
     public static readonly Option<string> OutputDirOption = new("output-dir", OutputDir.Aliases)

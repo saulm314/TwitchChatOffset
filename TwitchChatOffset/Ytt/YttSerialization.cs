@@ -13,9 +13,8 @@ namespace TwitchChatOffset.Ytt;
 
 public static class YttSerialization
 {
-    public static string Serialize(JToken json, AnchorPoint position, int maxMessages, int maxCharsPerLine = 55, float scale = 0.0f,
-        Shadow shadow = Shadow.Glow, byte backgroundOpacity = 0, string textColor = "white", string shadowColor = "black",
-        string backgroundColor = "black")
+    public static string Serialize(JToken json, AnchorPoint position, int maxMessages, int maxCharsPerLine, float scale, Shadow shadow,
+        byte backgroundOpacity, string textColor, string shadowColor, string backgroundColor)
     {
         if (maxMessages < 1)
         {

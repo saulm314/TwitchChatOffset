@@ -1,4 +1,5 @@
 ﻿using TwitchChatOffset.CommandLine.Options;
+using TwitchChatOffset.Ytt;
 using YTSubConverter.Shared;
 
 namespace TwitchChatOffset.Csv;
@@ -28,6 +29,27 @@ public class TransformManyToManyCsvNullables
     
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttMaxMessages))]
     public long? YttMaxMessages;
+
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttMaxCharsPerLine))]
+    public long? YttMaxCharsPerLine;
+
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttScale))]
+    public double? YttScale;
+
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttShadow))]
+    public Shadow? YttShadow;
+
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttBackgroundOpacity))]
+    public long? YttBackgroundOpacity;
+
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttTextColor))]
+    public string? YttTextColor;
+
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttShadowColor))]
+    public string? YttShadowColor;
+
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttBackgroundColor))]
+    public string? YttBackgroundColor;
     
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.OutputDir))]
     public string? OutputDir;

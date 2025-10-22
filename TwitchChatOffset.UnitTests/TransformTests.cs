@@ -1,4 +1,5 @@
 ﻿using TwitchChatOffset.Json;
+using TwitchChatOffset.Ytt;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using YTSubConverter.Shared;
@@ -28,8 +29,15 @@ public class TransformTests
         long[] ends = AllStartsEnds;
         long delay = 0;
         Format[] formats = AllFormats;
-        AnchorPoint yttPosition = default;
-        long yttMaxMessages = 4;
+        AnchorPoint yttPosition = AnchorPoint.TopLeft;
+        long yttMaxMessages = 6;
+        long yttMaxCharsPerLine = 55;
+        double yttScale = 0.0;
+        Shadow yttShadow = Shadow.Glow;
+        long yttBackgroundOpacity = 0;
+        string yttTextColor = "white";
+        string yttShadowColor = "black";
+        string yttBackgroundColor = "black";
 
         JsonContentException.Empty expectedException = new();
 
@@ -39,13 +47,15 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
+                        yttScale, yttShadow, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
 
                     JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(DoTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages);
+                    continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
+                        yttScale, yttShadow, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
                     #pragma warning restore CS0162
                 }
             }
@@ -64,8 +74,15 @@ public class TransformTests
         long[] ends = AllStartsEnds;
         long delay = 0;
         Format[] formats = AllFormats;
-        AnchorPoint yttPosition = default;
-        long yttMaxMessages = 4;
+        AnchorPoint yttPosition = AnchorPoint.TopLeft;
+        long yttMaxMessages = 6;
+        long yttMaxCharsPerLine = 55;
+        double yttScale = 0.0;
+        Shadow yttShadow = Shadow.Glow;
+        long yttBackgroundOpacity = 0;
+        string yttTextColor = "white";
+        string yttShadowColor = "black";
+        string yttBackgroundColor = "black";
 
         foreach (long start in starts)
         {
@@ -73,12 +90,14 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages);
+                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
+                        yttScale, yttShadow, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
 
                     Assert.ThrowsAny<JsonException>(DoTransform);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages);
+                    continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
+                        yttScale, yttShadow, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
                     #pragma warning restore CS0162
                 }
             }

@@ -1,6 +1,7 @@
 ﻿using TwitchChatOffset.CommandLine.Options;
 using TwitchChatOffset.Csv;
 using TwitchChatOffset.Json;
+using TwitchChatOffset.Ytt;
 using System;
 using System.IO;
 using System.Text;
@@ -14,7 +15,9 @@ public static class BulkTransform
 {
     public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, ImplicitValue<long> cliStart,
         ImplicitValue<long> cliEnd, ImplicitValue<long> cliDelay, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition,
-        ImplicitValue<long> cliYttMaxMessages, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
+        ImplicitValue<long> cliYttMaxMessages, ImplicitValue<long> cliYttMaxCharsPerLine, ImplicitValue<double> cliYttScale, ImplicitValue<Shadow> cliYttShadow,
+        ImplicitValue<long> cliYttBackgroundOpacity, ImplicitValue<string> cliYttTextColor, ImplicitValue<string> cliYttShadowColor, 
+        ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.InputFile == null)
         {
@@ -39,6 +42,13 @@ public static class BulkTransform
                     ResolveClashPrioritiseCsv(nullables.Format, cliFormat),
                     ResolveClashPrioritiseCsv(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCsv(nullables.YttMaxMessages, cliYttMaxMessages),
+                    ResolveClashPrioritiseCsv(nullables.YttMaxCharsPerLine, cliYttMaxCharsPerLine),
+                    ResolveClashPrioritiseCsv(nullables.YttScale, cliYttScale),
+                    ResolveClashPrioritiseCsv(nullables.YttShadow, cliYttShadow),
+                    ResolveClashPrioritiseCsv(nullables.YttBackgroundOpacity, cliYttBackgroundOpacity),
+                    ResolveClashPrioritiseCsv(nullables.YttTextColor, cliYttTextColor),
+                    ResolveClashPrioritiseCsv(nullables.YttShadowColor, cliYttShadowColor),
+                    ResolveClashPrioritiseCsv(nullables.YttBackgroundColor, cliYttBackgroundColor),
                     ResolveClashPrioritiseCsv(nullables.OutputDir, cliOutputDir)
                 ),
             OptionPriority.CLI => new
@@ -51,6 +61,13 @@ public static class BulkTransform
                     ResolveClashPrioritiseCli(nullables.Format, cliFormat),
                     ResolveClashPrioritiseCli(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCli(nullables.YttMaxMessages, cliYttMaxMessages),
+                    ResolveClashPrioritiseCli(nullables.YttMaxCharsPerLine, cliYttMaxCharsPerLine),
+                    ResolveClashPrioritiseCli(nullables.YttScale, cliYttScale),
+                    ResolveClashPrioritiseCli(nullables.YttShadow, cliYttShadow),
+                    ResolveClashPrioritiseCli(nullables.YttBackgroundOpacity, cliYttBackgroundOpacity),
+                    ResolveClashPrioritiseCli(nullables.YttTextColor, cliYttTextColor),
+                    ResolveClashPrioritiseCli(nullables.YttShadowColor, cliYttShadowColor),
+                    ResolveClashPrioritiseCli(nullables.YttBackgroundColor, cliYttBackgroundColor),
                     ResolveClashPrioritiseCli(nullables.OutputDir, cliOutputDir)
                 ),
             _ => throw new InternalException("Internal error: unrecognised option priority")
@@ -59,7 +76,9 @@ public static class BulkTransform
 
     public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, ImplicitValue<long> cliStart,
         ImplicitValue<long> cliEnd, ImplicitValue<long> cliDelay, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition,
-        ImplicitValue<long> cliYttMaxMessages, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
+        ImplicitValue<long> cliYttMaxMessages, ImplicitValue<long> cliYttMaxCharsPerLine, ImplicitValue<double> cliYttScale, ImplicitValue<Shadow> cliYttShadow,
+        ImplicitValue<long> cliYttBackgroundOpacity, ImplicitValue<string> cliYttTextColor, ImplicitValue<string> cliYttShadowColor, 
+        ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.OutputFile == null)
         {
@@ -78,6 +97,13 @@ public static class BulkTransform
                     ResolveClashPrioritiseCsv(nullables.Format, cliFormat),
                     ResolveClashPrioritiseCsv(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCsv(nullables.YttMaxMessages, cliYttMaxMessages),
+                    ResolveClashPrioritiseCsv(nullables.YttMaxCharsPerLine, cliYttMaxCharsPerLine),
+                    ResolveClashPrioritiseCsv(nullables.YttScale, cliYttScale),
+                    ResolveClashPrioritiseCsv(nullables.YttShadow, cliYttShadow),
+                    ResolveClashPrioritiseCsv(nullables.YttBackgroundOpacity, cliYttBackgroundOpacity),
+                    ResolveClashPrioritiseCsv(nullables.YttTextColor, cliYttTextColor),
+                    ResolveClashPrioritiseCsv(nullables.YttShadowColor, cliYttShadowColor),
+                    ResolveClashPrioritiseCsv(nullables.YttBackgroundColor, cliYttBackgroundColor),
                     ResolveClashPrioritiseCsv(nullables.OutputDir, cliOutputDir)
                 ),
             OptionPriority.CLI => new
@@ -89,6 +115,13 @@ public static class BulkTransform
                     ResolveClashPrioritiseCli(nullables.Format, cliFormat),
                     ResolveClashPrioritiseCli(nullables.YttPosition, cliYttPosition),
                     ResolveClashPrioritiseCli(nullables.YttMaxMessages, cliYttMaxMessages),
+                    ResolveClashPrioritiseCli(nullables.YttMaxCharsPerLine, cliYttMaxCharsPerLine),
+                    ResolveClashPrioritiseCli(nullables.YttScale, cliYttScale),
+                    ResolveClashPrioritiseCli(nullables.YttShadow, cliYttShadow),
+                    ResolveClashPrioritiseCli(nullables.YttBackgroundOpacity, cliYttBackgroundOpacity),
+                    ResolveClashPrioritiseCli(nullables.YttTextColor, cliYttTextColor),
+                    ResolveClashPrioritiseCli(nullables.YttShadowColor, cliYttShadowColor),
+                    ResolveClashPrioritiseCli(nullables.YttBackgroundColor, cliYttBackgroundColor),
                     ResolveClashPrioritiseCli(nullables.OutputDir, cliOutputDir)
                 ),
             _ => throw new InternalException("Internal error: unrecognised option priority")
@@ -111,12 +144,14 @@ public static class BulkTransform
     }
 
     public static string? TryTransform(string inputFile, string input, long start, long end, long delay, Format format, AnchorPoint yttPosition,
-        long yttMaxMessages)
+        long yttMaxMessages, long yttMaxCharsPerLine, double yttScale, Shadow yttShadow, long yttBackgroundOpacity, string yttTextColor, string yttShadowColor,
+        string yttBackgroundColor)
     {
         string output;
         try
         {
-            output = Transform.DoTransform(input, start, end, delay, format, yttPosition, yttMaxMessages);
+            output = Transform.DoTransform(input, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine, yttScale, yttShadow,
+                yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
         }
         catch (JsonException e)
         {
@@ -140,12 +175,14 @@ public static class BulkTransform
     }
 
     public static string? TryTransform(string inputFile, JToken input, long start, long end, long delay, Format format, AnchorPoint yttPosition,
-        long yttMaxMessages)
+        long yttMaxMessages, long yttMaxCharsPerLine, double yttScale, Shadow yttShadow, long yttBackgroundOpacity, string yttTextColor, string yttShadowColor,
+        string yttBackgroundColor)
     {
         string output;
         try
         {
-            output = Transform.DoTransform(input, start, end, delay, format, yttPosition, yttMaxMessages);
+            output = Transform.DoTransform(input, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine, yttScale, yttShadow,
+                yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
         }
         catch (JsonException e)
         {
