@@ -1,5 +1,13 @@
-﻿using YTSubConverter.Shared;
+﻿using System.Drawing;
+using YTSubConverter.Shared;
 
 namespace TwitchChatOffset.Ytt;
 
-public readonly record struct SectionOptions(float Scale, ShadowType? Shadow, byte BackgroundOpacity);
+public readonly record struct SectionOptions
+(
+    float Scale,
+    ShadowType? Shadow,
+    byte BackgroundOpacity,
+    Color ShadowColor,
+    Color BackgroundColor
+);

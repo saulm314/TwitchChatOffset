@@ -7,13 +7,15 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using YTSubConverter.Shared;
 using YTSubConverter.Shared.Formats;
+using static System.Drawing.ColorTranslator;
 
 namespace TwitchChatOffset.Ytt;
 
 public static class YttSerialization
 {
     public static string Serialize(JToken json, AnchorPoint position, int maxMessages, int maxCharsPerLine = 55, float scale = 0.0f,
-        ShadowType? shadow = ShadowType.Glow, byte backgroundOpacity = 0)
+        Shadow shadow = Shadow.Glow, byte backgroundOpacity = 0, string textColor = "white", string shadowColor = "black",
+        string backgroundColor = "black")
     {
         if (maxMessages < 1)
         {
@@ -24,10 +26,10 @@ public static class YttSerialization
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
         Queue<ChatMessage> visibleMessages = new(maxMessages);
-        SectionOptions sectionOptions = new(scale, shadow, backgroundOpacity);
+        SectionOptions sectionOptions = new(scale, shadow.Convert(), backgroundOpacity, FromHtml(shadowColor), FromHtml(backgroundColor));
         foreach (JToken comment in comments)
         {
-            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, sectionOptions);
+            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, sectionOptions, FromHtml(textColor));
 
             if (visibleMessages.Count > 0)
             {
@@ -47,7 +49,8 @@ public static class YttSerialization
         return stringWriter.ToString();
     }
 
-    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, SectionOptions sectionOptions)
+    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, SectionOptions sectionOptions,
+        Color textColor)
     {
         long offset = comment.D("content_offset_seconds").As<long>();
         TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
@@ -65,7 +68,7 @@ public static class YttSerialization
         };
         Section messageSection = new(wrappedMessage)
         {
-            ForeColor = Color.White
+            ForeColor = textColor
         };
         displayNameSection.ApplyOptions(sectionOptions);
         messageSection.ApplyOptions(sectionOptions);
@@ -88,7 +91,7 @@ public static class YttSerialization
             userColors.Add(user, color);
             return color;
         }
-        color = ColorTranslator.FromHtml(userColorStr);
+        color = FromHtml(userColorStr);
         userColors.Add(user, color);
         return color;
     }
