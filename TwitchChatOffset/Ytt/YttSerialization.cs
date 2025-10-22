@@ -12,7 +12,7 @@ namespace TwitchChatOffset.Ytt;
 
 public static class YttSerialization
 {
-    public static string Serialize(JToken json, AnchorPoint yttPosition, long yttMaxMessages)
+    public static string Serialize(JToken json, AnchorPoint yttPosition, long yttMaxMessages, double yttScale = 0.0)
     {
         if (yttMaxMessages < 1)
         {
@@ -25,11 +25,11 @@ public static class YttSerialization
         Queue<ChatMessage> visibleMessages = new((int)yttMaxMessages);
         foreach (JToken comment in comments)
         {
-            ChatMessage chatMessage = GetChatMessage(comment, userColors);
+            ChatMessage chatMessage = GetChatMessage(comment, userColors, yttScale);
 
             if (visibleMessages.Count > 0)
             {
-                Line line = GetLine(visibleMessages, chatMessage, yttPosition);
+                Line line = GetLine(visibleMessages, chatMessage, yttPosition, yttScale);
                 ytt.Lines.Add(line);
             }
 
@@ -37,7 +37,7 @@ public static class YttSerialization
                 _ = visibleMessages.Dequeue();
             visibleMessages.Enqueue(chatMessage);
         }
-        Line lastLine = GetLine(visibleMessages, null, yttPosition);
+        Line lastLine = GetLine(visibleMessages, null, yttPosition, yttScale);
         ytt.Lines.Add(lastLine);
 
         StringWriter stringWriter = new();
@@ -45,7 +45,7 @@ public static class YttSerialization
         return stringWriter.ToString();
     }
 
-    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors)
+    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, double yttScale)
     {
         long offset = comment.D("content_offset_seconds").As<long>();
         TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
@@ -59,11 +59,15 @@ public static class YttSerialization
 
         Section displayNameSection = new(wrappedDisplayName)
         {
-            ForeColor = userColor
+            ForeColor = userColor,
+            Scale = (float)yttScale,
+            Offset = OffsetType.Superscript
         };
         Section messageSection = new(wrappedMessage)
         {
-            ForeColor = Color.White
+            ForeColor = Color.White,
+            Scale = (float)yttScale,
+            Offset = OffsetType.Superscript
         };
 
         return new(displayNameSection, messageSection, timeSpan);
@@ -128,7 +132,7 @@ public static class YttSerialization
         return -1;
     }
 
-    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, AnchorPoint yttPosition)
+    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, AnchorPoint yttPosition, double yttScale)
     {
         List<Section> sections = new(chatMessages.Count * 3);
         ChatMessage lastChatMessage = default;
@@ -136,7 +140,11 @@ public static class YttSerialization
         {
             sections.Add(chatMessage.Name);
             sections.Add(chatMessage.Message);
-            sections.Add(new("\n"));
+            sections.Add(new("\n")
+                {
+                    Scale = (float)yttScale,
+                    Offset = OffsetType.Superscript
+                });
             lastChatMessage = chatMessage;
         }
         DateTime start = SubtitleDocument.TimeBase + lastChatMessage.Time;
