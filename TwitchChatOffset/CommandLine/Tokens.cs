@@ -61,7 +61,7 @@ public static class Tokens
     public static readonly Option<long> YttMaxMessagesOption = new("ytt-max-messages", YttMaxMessages.Aliases)
     {
         HelpName = "Maximum number of messages to display at once for YTT subtitles (ytt only) (must be at least 1) (optional)",
-        DefaultValueFactory = _ => 4
+        DefaultValueFactory = _ => 6
     };
 
     public static readonly Option<string> OutputDirOption = new("output-dir", OutputDir.Aliases)
