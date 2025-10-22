@@ -3,3 +3,6 @@ highlight1.ytt,5,1325,3,ytt,topleft,6,55,0,glow,0,white,black,black,transformati
 highlight2.ytt,1500,2300,0,ytt,bottomcenter,6,55,1.5,none,255,#B0B0B0,black,black,transformations\ytt,-20,"if there are any fields where you are happy with the default value,"
 ,,,,,,,,,,,,,,,,leave the field blank
 ,,,,,,,,,,,,,,,,or delete the entire column
+,,,,,,,,,,,,,,,,"you can add extra columns if you want, and you can delete this column if you want"
+,,,,,,,,,,,,,,,,"just be aware that if any columns have more rows than output-file,"
+,,,,,,,,,,,,,,,,the program will complain about it but will handle it gracefully
