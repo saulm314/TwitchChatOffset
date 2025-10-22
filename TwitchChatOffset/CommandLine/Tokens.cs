@@ -26,7 +26,7 @@ public static class Tokens
 
     public static readonly Argument<string> SuffixArgument = new("suffix")
     {
-        Description = "Suffix to be apended to all output file names, including the extension"
+        Description = "Suffix to be appended to all output file names, including the extension (e.g. \".ytt\", \"-cropped.json\")"
     };
     
     public static readonly Option<long> StartOption = new("--start", Start.Aliases)
