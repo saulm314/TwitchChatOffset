@@ -12,32 +12,32 @@ namespace TwitchChatOffset.Ytt;
 
 public static class YttSerialization
 {
-    public static string Serialize(JToken json, AnchorPoint yttPosition, long yttMaxMessages, double yttScale = 0.0)
+    public static string Serialize(JToken json, AnchorPoint position, long maxMessages, int maxCharsPerLine = 55, double scale = 0.0)
     {
-        if (yttMaxMessages < 1)
+        if (maxMessages < 1)
         {
             PrintWarning("Warning: ytt-max-messages is less than 1 which is not supported; treating it as 1 instead");
-            yttMaxMessages = 1;
+            maxMessages = 1;
         }
         YttDocument ytt = new();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
-        Queue<ChatMessage> visibleMessages = new((int)yttMaxMessages);
+        Queue<ChatMessage> visibleMessages = new((int)maxMessages);
         foreach (JToken comment in comments)
         {
-            ChatMessage chatMessage = GetChatMessage(comment, userColors, yttScale);
+            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, scale);
 
             if (visibleMessages.Count > 0)
             {
-                Line line = GetLine(visibleMessages, chatMessage, yttPosition, yttScale);
+                Line line = GetLine(visibleMessages, chatMessage, position, scale);
                 ytt.Lines.Add(line);
             }
 
-            if (visibleMessages.Count >= yttMaxMessages)
+            if (visibleMessages.Count >= maxMessages)
                 _ = visibleMessages.Dequeue();
             visibleMessages.Enqueue(chatMessage);
         }
-        Line lastLine = GetLine(visibleMessages, null, yttPosition, yttScale);
+        Line lastLine = GetLine(visibleMessages, null, position, scale);
         ytt.Lines.Add(lastLine);
 
         StringWriter stringWriter = new();
@@ -45,7 +45,7 @@ public static class YttSerialization
         return stringWriter.ToString();
     }
 
-    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, double yttScale)
+    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, double scale)
     {
         long offset = comment.D("content_offset_seconds").As<long>();
         TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
@@ -53,20 +53,20 @@ public static class YttSerialization
         JToken message = comment.D("message");
         string displayName = comment.D("commenter").D("display_name").As<string>();
         string messageStr = message.D("body").As<string>();
-        GetWrappedMessage(displayName, messageStr, out string wrappedDisplayName, out string wrappedMessage);
+        GetWrappedMessage(displayName, messageStr, maxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage);
 
         Color userColor = GetUserColor(userColors, displayName, message);
 
         Section displayNameSection = new(wrappedDisplayName)
         {
             ForeColor = userColor,
-            Scale = (float)yttScale,
+            Scale = (float)scale,
             Offset = OffsetType.Superscript
         };
         Section messageSection = new(wrappedMessage)
         {
             ForeColor = Color.White,
-            Scale = (float)yttScale,
+            Scale = (float)scale,
             Offset = OffsetType.Superscript
         };
 
@@ -93,26 +93,25 @@ public static class YttSerialization
         return color;
     }
 
-    private const int WrapCharLimit = 40;
-    private static void GetWrappedMessage(string displayName, string message, out string wrappedDisplayName, out string wrappedMessage)
+    private static void GetWrappedMessage(string displayName, string message, int maxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage)
     {
         string total = displayName + ": " + message;
-        string wrappedTotal = GetWrappedText(total.AsSpan());
+        string wrappedTotal = GetWrappedText(total.AsSpan(), maxCharsPerLine);
         int colonIndex = wrappedTotal.IndexOf(':');
         wrappedDisplayName = wrappedTotal[..(colonIndex + 2)];
         wrappedMessage = wrappedTotal[(colonIndex + 2)..];
     }
 
-    private static string GetWrappedText(ReadOnlySpan<char> text)
+    private static string GetWrappedText(ReadOnlySpan<char> text, int maxCharsPerLine)
     {
         StringBuilder builder = new();
         int index = 0;
-        while (text.Length - index > WrapCharLimit)
+        while (text.Length - index > maxCharsPerLine)
         {
-            int whiteSpaceIndex = FindLastIndex(text, index, WrapCharLimit, char.IsWhiteSpace);
+            int whiteSpaceIndex = FindLastIndex(text, index, maxCharsPerLine, char.IsWhiteSpace);
             if (whiteSpaceIndex == -1)
             {
-                builder.Append(text[index..(index += WrapCharLimit)]);
+                builder.Append(text[index..(index += maxCharsPerLine)]);
                 builder.Append('\n');
                 continue;
             }
@@ -132,7 +131,7 @@ public static class YttSerialization
         return -1;
     }
 
-    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, AnchorPoint yttPosition, double yttScale)
+    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, AnchorPoint position, double yttScale)
     {
         List<Section> sections = new(chatMessages.Count * 3);
         ChatMessage lastChatMessage = default;
@@ -151,7 +150,7 @@ public static class YttSerialization
         DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? TimeSpan.FromHours(12)); // 12 hours is the max YouTube video length
         Line line = new(start, end, sections)
         {
-            AnchorPoint = yttPosition
+            AnchorPoint = position
         };
         return line;
     }
