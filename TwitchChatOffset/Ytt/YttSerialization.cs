@@ -12,7 +12,8 @@ namespace TwitchChatOffset.Ytt;
 
 public static class YttSerialization
 {
-    public static string Serialize(JToken json, AnchorPoint position, long maxMessages, int maxCharsPerLine = 55, double scale = 0.0)
+    public static string Serialize(JToken json, AnchorPoint position, long maxMessages, int maxCharsPerLine = 55, double scale = 0.0,
+        ShadowType? shadow = ShadowType.Glow)
     {
         if (maxMessages < 1)
         {
@@ -25,7 +26,7 @@ public static class YttSerialization
         Queue<ChatMessage> visibleMessages = new((int)maxMessages);
         foreach (JToken comment in comments)
         {
-            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, scale);
+            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, scale, shadow);
 
             if (visibleMessages.Count > 0)
             {
@@ -45,7 +46,7 @@ public static class YttSerialization
         return stringWriter.ToString();
     }
 
-    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, double scale)
+    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, double scale, ShadowType? shadow)
     {
         long offset = comment.D("content_offset_seconds").As<long>();
         TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
@@ -69,6 +70,11 @@ public static class YttSerialization
             Scale = (float)scale,
             Offset = OffsetType.Superscript
         };
+        if (shadow != null)
+        {
+            displayNameSection.ShadowColors[(ShadowType)shadow] = Color.Black;
+            messageSection.ShadowColors[(ShadowType)shadow] = Color.Black;
+        }
 
         return new(displayNameSection, messageSection, timeSpan);
     }
