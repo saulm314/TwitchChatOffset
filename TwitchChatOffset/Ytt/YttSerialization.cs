@@ -12,8 +12,8 @@ namespace TwitchChatOffset.Ytt;
 
 public static class YttSerialization
 {
-    public static string Serialize(JToken json, AnchorPoint position, long maxMessages, int maxCharsPerLine = 55, double scale = 0.0,
-        ShadowType? shadow = ShadowType.Glow)
+    public static string Serialize(JToken json, AnchorPoint position, int maxMessages, int maxCharsPerLine = 55, float scale = 0.0f,
+        ShadowType? shadow = ShadowType.Glow, byte backgroundOpacity = 0)
     {
         if (maxMessages < 1)
         {
@@ -23,14 +23,15 @@ public static class YttSerialization
         YttDocument ytt = new();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
-        Queue<ChatMessage> visibleMessages = new((int)maxMessages);
+        Queue<ChatMessage> visibleMessages = new(maxMessages);
+        SectionOptions sectionOptions = new(scale, shadow, backgroundOpacity);
         foreach (JToken comment in comments)
         {
-            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, scale, shadow);
+            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, sectionOptions);
 
             if (visibleMessages.Count > 0)
             {
-                Line line = GetLine(visibleMessages, chatMessage, position, scale);
+                Line line = GetLine(visibleMessages, chatMessage, position, sectionOptions);
                 ytt.Lines.Add(line);
             }
 
@@ -38,7 +39,7 @@ public static class YttSerialization
                 _ = visibleMessages.Dequeue();
             visibleMessages.Enqueue(chatMessage);
         }
-        Line lastLine = GetLine(visibleMessages, null, position, scale);
+        Line lastLine = GetLine(visibleMessages, null, position, sectionOptions);
         ytt.Lines.Add(lastLine);
 
         StringWriter stringWriter = new();
@@ -46,7 +47,7 @@ public static class YttSerialization
         return stringWriter.ToString();
     }
 
-    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, double scale, ShadowType? shadow)
+    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, SectionOptions sectionOptions)
     {
         long offset = comment.D("content_offset_seconds").As<long>();
         TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
@@ -60,21 +61,14 @@ public static class YttSerialization
 
         Section displayNameSection = new(wrappedDisplayName)
         {
-            ForeColor = userColor,
-            Scale = (float)scale,
-            Offset = OffsetType.Superscript
+            ForeColor = userColor
         };
         Section messageSection = new(wrappedMessage)
         {
-            ForeColor = Color.White,
-            Scale = (float)scale,
-            Offset = OffsetType.Superscript
+            ForeColor = Color.White
         };
-        if (shadow != null)
-        {
-            displayNameSection.ShadowColors[(ShadowType)shadow] = Color.Black;
-            messageSection.ShadowColors[(ShadowType)shadow] = Color.Black;
-        }
+        displayNameSection.ApplyOptions(sectionOptions);
+        messageSection.ApplyOptions(sectionOptions);
 
         return new(displayNameSection, messageSection, timeSpan);
     }
@@ -137,7 +131,7 @@ public static class YttSerialization
         return -1;
     }
 
-    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, AnchorPoint position, double yttScale)
+    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, AnchorPoint position, SectionOptions sectionOptions)
     {
         List<Section> sections = new(chatMessages.Count * 3);
         ChatMessage lastChatMessage = default;
@@ -145,11 +139,9 @@ public static class YttSerialization
         {
             sections.Add(chatMessage.Name);
             sections.Add(chatMessage.Message);
-            sections.Add(new("\n")
-                {
-                    Scale = (float)yttScale,
-                    Offset = OffsetType.Superscript
-                });
+            Section newlineSection = new("\n");
+            newlineSection.ApplyOptions(sectionOptions);
+            sections.Add(newlineSection);
             lastChatMessage = chatMessage;
         }
         DateTime start = SubtitleDocument.TimeBase + lastChatMessage.Time;

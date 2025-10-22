@@ -80,7 +80,7 @@ public static class Transform
 
     public static string SerializeToYtt(JToken json, AnchorPoint yttPosition, long yttMaxMessages)
     {
-        return YttSerialization.Serialize(json, yttPosition, yttMaxMessages);
+        return YttSerialization.Serialize(json, yttPosition, (int)yttMaxMessages);
     }
 
     public static string SerializeToPlaintext(JToken json)
