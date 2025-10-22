@@ -16,7 +16,7 @@ public static class OptionAliases
     public static AliasesContainer YttShadowColor { get; } = new(["--ytt-shadow-color"]);
     public static AliasesContainer YttBackgroundColor { get; } = new(["--ytt-background-color", "--ytt-bg-color"]);
     public static AliasesContainer InputDir { get; } = new(["--input-directory", "--input", "-i"]);
-    public static AliasesContainer OutputDir { get; } = new(["--output-directory", "--output", "-o"]);
+    public static AliasesContainer OutputDir { get; } = new(["--output-directory", "--output-dir", "--output", "-o"]);
     public static AliasesContainer Quiet { get; } = new(["--quiet", "-q"]);
     public static AliasesContainer SearchPattern { get; } = new(["--search-pattern", "--pattern"]);
     public static AliasesContainer OptionPriority { get; } = new(["--option-priority", "--priority"]);

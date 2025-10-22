@@ -107,7 +107,7 @@ public static class Tokens
         DefaultValueFactory = _ => "black"
     };
 
-    public static readonly Option<string> OutputDirOption = new("--output-dir", OutputDir.Aliases)
+    public static readonly Option<string> OutputDirOption = new("--output-directory", OutputDir.Aliases)
     {
         Description = "Output directory (will create if doesn't exist) (optional)",
         DefaultValueFactory = _ => "."
