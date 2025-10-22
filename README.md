@@ -106,7 +106,7 @@ The special value means that if the CSV option priority is equal to or greater t
 ### Examples
 Aim: transform all files in `transform-many-to-many.csv`, such that if for any file no `ytt-position` is specified, default it to bottom-right.
 ```
-TwitchChatOffset transform-many-to-many transfor-many-to-many.csv --ytt-position bottomright
+TwitchChatOffset transform-many-to-many transform-many-to-many.csv --ytt-position bottomright
 ```
 ## Transform One To Many
 Using a JSON Twitch chat file and a CSV file with a list of transformations, apply all the listed transformations and create an output file for each. For the CSV file, use the template provided [here](templates/transform-one-to-many-template.csv).
