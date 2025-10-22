@@ -28,6 +28,7 @@ public static class TransformOneToMany
         var (a1, a2) = _arguments;
         var (o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16) = _options;
         Command.Add(a1);
+        Command.Add(a2);
         Command.Add(o1);
         Command.Add(o2);
         Command.Add(o3);
