@@ -68,7 +68,7 @@ public static class Tokens
     public static readonly Option<long> YttMaxCharsPerLineOption = new("--ytt-max-chars-per-line", YttMaxCharsPerLine.Aliases)
     {
         Description = "Maximum number of characters to display in a single line before it wraps to a new line (ytt only) (optional)",
-        DefaultValueFactory = _ => 55
+        DefaultValueFactory = _ => 40
     };
 
     public static readonly Option<double> YttScaleOption = new("--ytt-scale", YttScale.Aliases)
