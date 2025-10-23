@@ -85,7 +85,7 @@ public static class Tokens
 
     public static readonly Option<long> YttBackgroundOpacityOption = new("--ytt-background-opacity", YttBackgroundOpacity.Aliases)
     {
-        Description = "Background opacity for YTT subtitles, ranging from 0 (fully transparent) to 255 (fully opaque) (ytt only) (optional)",
+        Description = "Background opacity for YTT subtitles, ranging from 0 (fully transparent) to 254 (fully opaque) (ytt only) (optional)",
         DefaultValueFactory = _ => 0
     };
 

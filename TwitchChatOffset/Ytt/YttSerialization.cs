@@ -21,6 +21,11 @@ public static class YttSerialization
             PrintWarning("Warning: ytt-max-messages is less than 1 which is not supported; treating it as 1 instead");
             maxMessages = 1;
         }
+        if (backgroundOpacity == 255)
+        {
+            PrintWarning("Warning: ytt-background-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
+            backgroundOpacity = 254;
+        }
         YttDocument ytt = new();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
