@@ -155,7 +155,8 @@ public static class YttSerialization
         DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? TimeSpan.FromHours(12)); // 12 hours is the max YouTube video length
         Line line = new(start, end, sections)
         {
-            AnchorPoint = position
+            AnchorPoint = position,
+            AndroidDarkTextHackAllowed = false
         };
         return line;
     }
