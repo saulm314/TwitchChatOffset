@@ -62,7 +62,7 @@ public static class Tokens
     public static readonly Option<long> YttMaxMessagesOption = new("--ytt-max-messages", YttMaxMessages.Aliases)
     {
         Description = "Maximum number of messages to display at once for YTT subtitles (ytt only) (must be at least 1) (optional)",
-        DefaultValueFactory = _ => 6
+        DefaultValueFactory = _ => 4
     };
 
     public static readonly Option<long> YttMaxCharsPerLineOption = new("--ytt-max-chars-per-line", YttMaxCharsPerLine.Aliases)
