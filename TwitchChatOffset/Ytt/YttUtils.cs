@@ -7,9 +7,10 @@ public static class YttUtils
 {
     public static void ApplyOptions(this Section section, SectionOptions sectionOptions)
     {
-        var (scale, shadow, backgroundOpacity, shadowColor, backgroundColor) = sectionOptions;
+        var (scale, shadow, backgroundOpacity, textColor, shadowColor, backgroundColor) = sectionOptions;
         section.Scale = scale;
         section.Offset = OffsetType.Superscript;
+        section.ForeColor = textColor;
         section.BackColor = Color.FromArgb(backgroundOpacity, backgroundColor);
         if (shadow != null)
             section.ShadowColors[(ShadowType)shadow] = shadowColor;

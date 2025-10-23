@@ -35,10 +35,10 @@ public static class YttSerialization
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
         Queue<ChatMessage> visibleMessages = new(maxMessages);
-        SectionOptions sectionOptions = new(scale, shadow.Convert(), backgroundOpacity, FromHtml(shadowColor), FromHtml(backgroundColor));
+        SectionOptions sectionOptions = new(scale, shadow.Convert(), backgroundOpacity, FromHtml(textColor), FromHtml(shadowColor), FromHtml(backgroundColor));
         foreach (JToken comment in comments)
         {
-            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, sectionOptions, FromHtml(textColor));
+            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, sectionOptions);
 
             if (visibleMessages.Count > 0)
             {
@@ -58,8 +58,7 @@ public static class YttSerialization
         return stringWriter.ToString();
     }
 
-    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, SectionOptions sectionOptions,
-        Color textColor)
+    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, SectionOptions sectionOptions)
     {
         long offset = comment.D("content_offset_seconds").As<long>();
         TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
@@ -71,16 +70,12 @@ public static class YttSerialization
 
         Color userColor = GetUserColor(userColors, displayName, message);
 
-        Section displayNameSection = new(wrappedDisplayName)
-        {
-            ForeColor = userColor
-        };
-        Section messageSection = new(wrappedMessage)
-        {
-            ForeColor = textColor
-        };
+        Section displayNameSection = new(wrappedDisplayName);
+        Section messageSection = new(wrappedMessage);
         displayNameSection.ApplyOptions(sectionOptions);
         messageSection.ApplyOptions(sectionOptions);
+        displayNameSection.ForeColor = userColor;
+        SetWhiteShadowIfDarkName(displayNameSection, sectionOptions);
 
         return new(displayNameSection, messageSection, timeSpan);
     }
@@ -103,6 +98,18 @@ public static class YttSerialization
         color = FromHtml(userColorStr);
         userColors.Add(user, color);
         return color;
+    }
+
+    private static void SetWhiteShadowIfDarkName(Section displayNameSection, SectionOptions sectionOptions)
+    {
+        if (sectionOptions.Shadow == null)
+            return;
+        (int r, int g, int b) = (displayNameSection.ForeColor.R, displayNameSection.ForeColor.G, displayNameSection.ForeColor.B);
+        int rgbSum = r + g + b;
+        if (rgbSum >= 128 * 3)
+            return;
+        Console.WriteLine($"{displayNameSection.Text} {rgbSum}");
+        displayNameSection.ShadowColors[(ShadowType)sectionOptions.Shadow] = Color.White;
     }
 
     private static void GetWrappedMessage(string displayName, string message, int maxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage)

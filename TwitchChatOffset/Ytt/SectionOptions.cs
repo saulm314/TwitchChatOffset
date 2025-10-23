@@ -8,6 +8,7 @@ public readonly record struct SectionOptions
     float Scale,
     ShadowType? Shadow,
     byte BackgroundOpacity,
+    Color TextColor,
     Color ShadowColor,
     Color BackgroundColor
 );
