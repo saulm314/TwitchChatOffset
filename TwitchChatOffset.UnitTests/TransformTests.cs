@@ -34,6 +34,7 @@ public class TransformTests
         long yttMaxCharsPerLine = 55;
         double yttScale = 0.0;
         Shadow yttShadow = Shadow.Glow;
+        long yttWindowOpacity = 0;
         long yttBackgroundOpacity = 0;
         string yttTextColor = "white";
         string yttShadowColor = "black";
@@ -48,14 +49,14 @@ public class TransformTests
                 foreach (Format format in formats)
                 {
                     void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
-                        yttScale, yttShadow, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                        yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
 
                     JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(DoTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
 
                     #pragma warning disable CS0162
                     continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
-                        yttScale, yttShadow, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                        yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
                     #pragma warning restore CS0162
                 }
             }
@@ -79,6 +80,7 @@ public class TransformTests
         long yttMaxCharsPerLine = 55;
         double yttScale = 0.0;
         Shadow yttShadow = Shadow.Glow;
+        long yttWindowOpacity = 0;
         long yttBackgroundOpacity = 0;
         string yttTextColor = "white";
         string yttShadowColor = "black";
@@ -91,13 +93,13 @@ public class TransformTests
                 foreach (Format format in formats)
                 {
                     void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
-                        yttScale, yttShadow, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                        yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
 
                     Assert.ThrowsAny<JsonException>(DoTransform);
 
                     #pragma warning disable CS0162
                     continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
-                        yttScale, yttShadow, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                        yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
                     #pragma warning restore CS0162
                 }
             }

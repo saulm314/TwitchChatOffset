@@ -83,9 +83,15 @@ public static class Tokens
         DefaultValueFactory = _ => Shadow.Glow
     };
 
+    public static readonly Option<long> YttWindowOpacityOption = new("--ytt-window-opacity", YttWindowOpacity.Aliases)
+    {
+        Description = "Window opacity for YTT subtitles (the text box containing the subtitles), ranging from 0 (fully transparent) to 254 (fully opaque) (ytt only) (optional)",
+        DefaultValueFactory = _ => 0
+    };
+
     public static readonly Option<long> YttBackgroundOpacityOption = new("--ytt-background-opacity", YttBackgroundOpacity.Aliases)
     {
-        Description = "Background opacity for YTT subtitles, ranging from 0 (fully transparent) to 254 (fully opaque) (ytt only) (optional)",
+        Description = "Background opacity for YTT subtitles (the text only, not the entire text box), ranging from 0 (fully transparent) to 254 (fully opaque) (ytt only) (optional)",
         DefaultValueFactory = _ => 0
     };
 

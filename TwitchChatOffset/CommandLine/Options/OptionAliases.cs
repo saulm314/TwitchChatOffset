@@ -11,6 +11,7 @@ public static class OptionAliases
     public static AliasesContainer YttMaxCharsPerLine { get; } = new(["--ytt-max-chars-per-line", "--ytt-max-chars"]);
     public static AliasesContainer YttScale { get; } = new(["--ytt-scale"]);
     public static AliasesContainer YttShadow { get; } = new(["--ytt-shadow"]);
+    public static AliasesContainer YttWindowOpacity { get; } = new(["--ytt-window-opacity"]);
     public static AliasesContainer YttBackgroundOpacity { get; } = new(["--ytt-background-opacity", "--ytt-bg-opacity"]);
     public static AliasesContainer YttTextColor { get; } = new(["--ytt-text-color"]);
     public static AliasesContainer YttShadowColor { get; } = new(["--ytt-shadow-color"]);

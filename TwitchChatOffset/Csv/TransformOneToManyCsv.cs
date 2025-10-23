@@ -15,9 +15,10 @@ public record TransformOneToManyCsv
     long YttMaxCharsPerLine,
     double YttScale,
     Shadow YttShadow,
-    long BackgroundOpacity,
-    string TextColor,
-    string ShadowColor,
-    string BackgroundColor,
+    long YttWindowOpacity,
+    long YttBackgroundOpacity,
+    string YttTextColor,
+    string YttShadowColor,
+    string YttBackgroundColor,
     string OutputDir
 );

@@ -39,6 +39,9 @@ public class TransformManyToManyCsvNullables
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttShadow))]
     public Shadow? YttShadow;
 
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttWindowOpacity))]
+    public long? YttWindowOpacity;
+
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttBackgroundOpacity))]
     public long? YttBackgroundOpacity;
 

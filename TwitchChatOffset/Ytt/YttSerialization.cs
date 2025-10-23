@@ -13,13 +13,18 @@ namespace TwitchChatOffset.Ytt;
 
 public static class YttSerialization
 {
-    public static string Serialize(JToken json, AnchorPoint position, int maxMessages, int maxCharsPerLine, float scale, Shadow shadow,
+    public static string Serialize(JToken json, AnchorPoint position, int maxMessages, int maxCharsPerLine, float scale, Shadow shadow, byte windowOpacity,
         byte backgroundOpacity, string textColor, string shadowColor, string backgroundColor)
     {
         if (maxMessages < 1)
         {
             PrintWarning("Warning: ytt-max-messages is less than 1 which is not supported; treating it as 1 instead");
             maxMessages = 1;
+        }
+        if (windowOpacity == 255)
+        {
+            PrintWarning("Warning: ytt-window-opacity is 255 which for some reason may get overridden in the YouTube player, treatingit as 254 instead");
+            windowOpacity = 254;
         }
         if (backgroundOpacity == 255)
         {
@@ -37,7 +42,7 @@ public static class YttSerialization
 
             if (visibleMessages.Count > 0)
             {
-                Line line = GetLine(visibleMessages, chatMessage, position, sectionOptions);
+                Line line = GetLine(visibleMessages, chatMessage, position, sectionOptions, windowOpacity);
                 ytt.Lines.Add(line);
             }
 
@@ -45,7 +50,7 @@ public static class YttSerialization
                 _ = visibleMessages.Dequeue();
             visibleMessages.Enqueue(chatMessage);
         }
-        Line lastLine = GetLine(visibleMessages, null, position, sectionOptions);
+        Line lastLine = GetLine(visibleMessages, null, position, sectionOptions, windowOpacity);
         ytt.Lines.Add(lastLine);
 
         StringWriter stringWriter = new();
@@ -138,7 +143,8 @@ public static class YttSerialization
         return -1;
     }
 
-    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, AnchorPoint position, SectionOptions sectionOptions)
+    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, AnchorPoint position, SectionOptions sectionOptions,
+        byte windowOpacity)
     {
         List<Section> sections = new(chatMessages.Count * 3);
         ChatMessage lastChatMessage = default;
@@ -156,7 +162,8 @@ public static class YttSerialization
         Line line = new(start, end, sections)
         {
             AnchorPoint = position,
-            AndroidDarkTextHackAllowed = false
+            AndroidDarkTextHackAllowed = false,
+            WindowOpacity = windowOpacity
         };
         return line;
     }

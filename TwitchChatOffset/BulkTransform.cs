@@ -16,8 +16,8 @@ public static class BulkTransform
     public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, ImplicitValue<long> cliStart,
         ImplicitValue<long> cliEnd, ImplicitValue<long> cliDelay, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition,
         ImplicitValue<long> cliYttMaxMessages, ImplicitValue<long> cliYttMaxCharsPerLine, ImplicitValue<double> cliYttScale, ImplicitValue<Shadow> cliYttShadow,
-        ImplicitValue<long> cliYttBackgroundOpacity, ImplicitValue<string> cliYttTextColor, ImplicitValue<string> cliYttShadowColor, 
-        ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
+        ImplicitValue<long> cliYttWindowOpacity, ImplicitValue<long> cliYttBackgroundOpacity, ImplicitValue<string> cliYttTextColor,
+        ImplicitValue<string> cliYttShadowColor, ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.InputFile == null)
         {
@@ -45,6 +45,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCsv(nullables.YttMaxCharsPerLine, cliYttMaxCharsPerLine),
                     ResolveClashPrioritiseCsv(nullables.YttScale, cliYttScale),
                     ResolveClashPrioritiseCsv(nullables.YttShadow, cliYttShadow),
+                    ResolveClashPrioritiseCsv(nullables.YttWindowOpacity, cliYttWindowOpacity),
                     ResolveClashPrioritiseCsv(nullables.YttBackgroundOpacity, cliYttBackgroundOpacity),
                     ResolveClashPrioritiseCsv(nullables.YttTextColor, cliYttTextColor),
                     ResolveClashPrioritiseCsv(nullables.YttShadowColor, cliYttShadowColor),
@@ -64,6 +65,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCli(nullables.YttMaxCharsPerLine, cliYttMaxCharsPerLine),
                     ResolveClashPrioritiseCli(nullables.YttScale, cliYttScale),
                     ResolveClashPrioritiseCli(nullables.YttShadow, cliYttShadow),
+                    ResolveClashPrioritiseCli(nullables.YttWindowOpacity, cliYttWindowOpacity),
                     ResolveClashPrioritiseCli(nullables.YttBackgroundOpacity, cliYttBackgroundOpacity),
                     ResolveClashPrioritiseCli(nullables.YttTextColor, cliYttTextColor),
                     ResolveClashPrioritiseCli(nullables.YttShadowColor, cliYttShadowColor),
@@ -77,8 +79,8 @@ public static class BulkTransform
     public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, ImplicitValue<long> cliStart,
         ImplicitValue<long> cliEnd, ImplicitValue<long> cliDelay, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition,
         ImplicitValue<long> cliYttMaxMessages, ImplicitValue<long> cliYttMaxCharsPerLine, ImplicitValue<double> cliYttScale, ImplicitValue<Shadow> cliYttShadow,
-        ImplicitValue<long> cliYttBackgroundOpacity, ImplicitValue<string> cliYttTextColor, ImplicitValue<string> cliYttShadowColor, 
-        ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
+        ImplicitValue<long> cliYttWindowOpacity, ImplicitValue<long> cliYttBackgroundOpacity, ImplicitValue<string> cliYttTextColor,
+        ImplicitValue<string> cliYttShadowColor, ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.OutputFile == null)
         {
@@ -100,6 +102,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCsv(nullables.YttMaxCharsPerLine, cliYttMaxCharsPerLine),
                     ResolveClashPrioritiseCsv(nullables.YttScale, cliYttScale),
                     ResolveClashPrioritiseCsv(nullables.YttShadow, cliYttShadow),
+                    ResolveClashPrioritiseCsv(nullables.YttWindowOpacity, cliYttWindowOpacity),
                     ResolveClashPrioritiseCsv(nullables.YttBackgroundOpacity, cliYttBackgroundOpacity),
                     ResolveClashPrioritiseCsv(nullables.YttTextColor, cliYttTextColor),
                     ResolveClashPrioritiseCsv(nullables.YttShadowColor, cliYttShadowColor),
@@ -118,6 +121,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCli(nullables.YttMaxCharsPerLine, cliYttMaxCharsPerLine),
                     ResolveClashPrioritiseCli(nullables.YttScale, cliYttScale),
                     ResolveClashPrioritiseCli(nullables.YttShadow, cliYttShadow),
+                    ResolveClashPrioritiseCli(nullables.YttWindowOpacity, cliYttWindowOpacity),
                     ResolveClashPrioritiseCli(nullables.YttBackgroundOpacity, cliYttBackgroundOpacity),
                     ResolveClashPrioritiseCli(nullables.YttTextColor, cliYttTextColor),
                     ResolveClashPrioritiseCli(nullables.YttShadowColor, cliYttShadowColor),
@@ -144,14 +148,14 @@ public static class BulkTransform
     }
 
     public static string? TryTransform(string inputFile, string input, long start, long end, long delay, Format format, AnchorPoint yttPosition,
-        long yttMaxMessages, long yttMaxCharsPerLine, double yttScale, Shadow yttShadow, long yttBackgroundOpacity, string yttTextColor, string yttShadowColor,
-        string yttBackgroundColor)
+        long yttMaxMessages, long yttMaxCharsPerLine, double yttScale, Shadow yttShadow, long yttWindowOpacity, long yttBackgroundOpacity, string yttTextColor,
+        string yttShadowColor, string yttBackgroundColor)
     {
         string output;
         try
         {
             output = Transform.DoTransform(input, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine, yttScale, yttShadow,
-                yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
         }
         catch (JsonException e)
         {
@@ -175,14 +179,14 @@ public static class BulkTransform
     }
 
     public static string? TryTransform(string inputFile, JToken input, long start, long end, long delay, Format format, AnchorPoint yttPosition,
-        long yttMaxMessages, long yttMaxCharsPerLine, double yttScale, Shadow yttShadow, long yttBackgroundOpacity, string yttTextColor, string yttShadowColor,
-        string yttBackgroundColor)
+        long yttMaxMessages, long yttMaxCharsPerLine, double yttScale, Shadow yttShadow, long yttWindowOpacity, long yttBackgroundOpacity, string yttTextColor,
+        string yttShadowColor, string yttBackgroundColor)
     {
         string output;
         try
         {
             output = Transform.DoTransform(input, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine, yttScale, yttShadow,
-                yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
         }
         catch (JsonException e)
         {
