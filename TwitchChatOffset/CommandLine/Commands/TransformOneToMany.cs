@@ -82,7 +82,7 @@ public static class TransformOneToMany
                 string yttShadowColor, string yttBackgroundColor, string outputDir) = line;
             PrintObjectMembers(line, outputFile, 1, quiet);
             _ = Directory.CreateDirectory(outputDir);
-            string outputPath = BulkTransform.GetOutputPath(outputDir, outputFile);
+            string outputPath = BulkTransform.GetCombinedPath(outputDir, outputFile);
             string? output = BulkTransform.TryTransform(inputPath, json, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine, yttScale,
                 yttShadow, yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
             if (output == null)

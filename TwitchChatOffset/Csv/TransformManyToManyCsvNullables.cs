@@ -54,6 +54,9 @@ public class TransformManyToManyCsvNullables
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.YttBackgroundColor))]
     public string? YttBackgroundColor;
     
+    [Aliases(typeof(OptionAliases), nameof(OptionAliases.InputDir))]
+    public string? InputDir;
+
     [Aliases(typeof(OptionAliases), nameof(OptionAliases.OutputDir))]
     public string? OutputDir;
 

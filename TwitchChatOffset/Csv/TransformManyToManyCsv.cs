@@ -21,5 +21,6 @@ public record TransformManyToManyCsv
     string YttTextColor,
     string YttShadowColor,
     string YttBackgroundColor,
+    string InputDir,
     string OutputDir
 );

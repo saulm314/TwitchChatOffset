@@ -7,9 +7,9 @@ public class BulkTransformTests
     [Theory]
     [InlineData(".", "transformedChat.json", @".\transformedChat.json")]
     [InlineData(@".\", "transformedChat.json", @".\transformedChat.json")]
-    public void GetOutputPath1Test(string outputDir, string outputFile, string expectedOutput)
+    public void GetCombiedPathTest(string outputDir, string outputFile, string expectedOutput)
     {
-        string output = BulkTransform.GetOutputPath(outputDir, outputFile);
+        string output = BulkTransform.GetCombinedPath(outputDir, outputFile);
 
         Assert.Equal(expectedOutput, output);
     }
@@ -27,7 +27,7 @@ public class BulkTransformTests
     [InlineData("chat", @"transformed\", ".json", @"transformed\chat.json")]
     [InlineData("chat", @"transformed\", ".txt", @"transformed\chat.txt")]
     [InlineData("chat", @"transformed\", "", @"transformed\chat")]
-    public void GetOutputPath2Test(string inputFileName, string outputDir, string outputSuffix, string expectedOutput)
+    public void GetOutputPathTest(string inputFileName, string outputDir, string outputSuffix, string expectedOutput)
     {
         string output = BulkTransform.GetOutputPath(inputFileName, outputDir, outputSuffix);
 

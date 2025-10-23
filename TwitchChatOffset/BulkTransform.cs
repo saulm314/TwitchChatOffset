@@ -17,7 +17,8 @@ public static class BulkTransform
         ImplicitValue<long> cliEnd, ImplicitValue<long> cliDelay, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition,
         ImplicitValue<long> cliYttMaxMessages, ImplicitValue<long> cliYttMaxCharsPerLine, ImplicitValue<double> cliYttScale, ImplicitValue<Shadow> cliYttShadow,
         ImplicitValue<long> cliYttWindowOpacity, ImplicitValue<long> cliYttBackgroundOpacity, ImplicitValue<string> cliYttTextColor,
-        ImplicitValue<string> cliYttShadowColor, ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
+        ImplicitValue<string> cliYttShadowColor, ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliInputDir,
+        ImplicitValue<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.InputFile == null)
         {
@@ -50,6 +51,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCsv(nullables.YttTextColor, cliYttTextColor),
                     ResolveClashPrioritiseCsv(nullables.YttShadowColor, cliYttShadowColor),
                     ResolveClashPrioritiseCsv(nullables.YttBackgroundColor, cliYttBackgroundColor),
+                    ResolveClashPrioritiseCsv(nullables.InputDir, cliInputDir),
                     ResolveClashPrioritiseCsv(nullables.OutputDir, cliOutputDir)
                 ),
             OptionPriority.CLI => new
@@ -70,6 +72,7 @@ public static class BulkTransform
                     ResolveClashPrioritiseCli(nullables.YttTextColor, cliYttTextColor),
                     ResolveClashPrioritiseCli(nullables.YttShadowColor, cliYttShadowColor),
                     ResolveClashPrioritiseCli(nullables.YttBackgroundColor, cliYttBackgroundColor),
+                    ResolveClashPrioritiseCli(nullables.InputDir, cliInputDir),
                     ResolveClashPrioritiseCli(nullables.OutputDir, cliOutputDir)
                 ),
             _ => throw new InternalException("Internal error: unrecognised option priority")
@@ -132,8 +135,8 @@ public static class BulkTransform
         };
     }
 
-    public static string GetOutputPath(string outputDir, string outputFile)
-        => outputDir.EndsWith('\\') ? outputDir + outputFile : outputDir + '\\' + outputFile;
+    public static string GetCombinedPath(string directory, string fileName)
+        => directory.EndsWith('\\') ? directory + fileName : directory + '\\' + fileName;
 
     public static string GetOutputPath(string inputFileName, string outputDir, string outputSuffix)
     {
