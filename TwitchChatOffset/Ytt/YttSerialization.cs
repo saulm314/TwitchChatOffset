@@ -50,8 +50,11 @@ public static class YttSerialization
                 _ = visibleMessages.Dequeue();
             visibleMessages.Enqueue(chatMessage);
         }
-        Line lastLine = GetLine(visibleMessages, null, position, sectionOptions, windowOpacity);
-        ytt.Lines.Add(lastLine);
+        if (comments.Count > 0)
+        {
+            Line lastLine = GetLine(visibleMessages, null, position, sectionOptions, windowOpacity);
+            ytt.Lines.Add(lastLine);
+        }
 
         StringWriter stringWriter = new();
         ytt.Save(stringWriter);
