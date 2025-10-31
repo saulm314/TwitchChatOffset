@@ -162,6 +162,7 @@ public static class YttSerialization
         }
         DateTime start = SubtitleDocument.TimeBase + lastChatMessage.Time;
         DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? TimeSpan.FromHours(12)); // 12 hours is the max YouTube video length
+        // if any line has the same start and end value, YTSubConverter appears to automatically get rid of that line when saving the YTT file
         Line line = new(start, end, sections)
         {
             AnchorPoint = position,
