@@ -1,13 +1,14 @@
-﻿using System.Drawing;
+﻿using TwitchChatOffset.Options.Groups;
+using System.Drawing;
 using YTSubConverter.Shared;
 
 namespace TwitchChatOffset.Ytt;
 
 public static class YttUtils
 {
-    public static void ApplyOptions(this Section section, SectionOptions sectionOptions)
+    public static void ApplyOptions(this Section section, SubtitleSectionOptions options)
     {
-        var (scale, shadow, backgroundOpacity, shadowColor, backgroundColor) = sectionOptions;
+        var (scale, shadow, backgroundOpacity, shadowColor, backgroundColor) = options;
         section.Scale = scale;
         section.Offset = OffsetType.Superscript;
         section.BackColor = Color.FromArgb(backgroundOpacity, backgroundColor);

@@ -1,39 +1,34 @@
 ﻿using TwitchChatOffset.Json;
+using TwitchChatOffset.Options.Groups;
 using TwitchChatOffset.Ytt;
 using System;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using YTSubConverter.Shared;
 
 namespace TwitchChatOffset;
 
 public static class Transform
 {
-    public static string DoTransform(string inputString, long start, long end, long delay, Format format, AnchorPoint yttPosition, long yttMaxMessages,
-        long yttMaxCharsPerLine, double yttScale, Shadow yttShadow, long yttWindowOpacity, long yttBackgroundOpacity, string yttTextColor,
-        string yttShadowColor, string yttBackgroundColor)
+    public static string DoTransform(string inputString, TransformOptions options)
     {
         JObject json = JsonUtils.Deserialize(inputString);
-        ApplyOffset(json, start, end, delay);
-        return Serialize(json, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine, yttScale, yttShadow, yttWindowOpacity,
-            yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+        ApplyOffset(json, options);
+        return Serialize(json, options);
     }
 
-    public static string DoTransform(JToken inputJson, long start, long end, long delay, Format format, AnchorPoint yttPosition, long yttMaxMessages,
-        long yttMaxCharsPerLine, double yttScale, Shadow yttShadow, long yttWindowOpacity, long yttBackgroundOpacity, string yttTextColor,
-        string yttShadowColor, string yttBackgroundColor)
+    public static string DoTransform(JToken inputJson, TransformOptions options)
     {
         JToken json = inputJson.DeepClone();
-        ApplyOffset(json, start, end, delay);
-        return Serialize(json, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine, yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity,
-            yttTextColor, yttShadowColor, yttBackgroundColor);
+        ApplyOffset(json, options);
+        return Serialize(json, options);
     }
 
     //_______________________________________________________________________
 
-    public static void ApplyOffset(JToken json, long start, long end, long delay)
+    public static void ApplyOffset(JToken json, TransformOptions options)
     {
+        (long start, long end, long delay) = options;
         if (delay < 0)
         {
             PrintWarning("Warning: delay value is less than zero which is not supported; treating it as zero instead");
@@ -60,16 +55,14 @@ public static class Transform
         }
     }
 
-    public static string Serialize(JToken json, Format format, AnchorPoint yttPosition, long yttMaxMessages, long yttMaxCharsPerLine, double yttScale,
-        Shadow yttShadow, long yttWindowOpacity, long yttBackgroundOpacity, string yttTextColor, string yttShadowColor, string yttBackgroundColor)
+    public static string Serialize(JToken json, TransformOptions options)
     {
-        return format switch
+        return options.Format.Value switch
         {
-            Format.json => SerializeToJson(json),
-            Format.jsonindented => SerializeToJsonIndented(json),
-            Format.ytt => SerializeToYtt(json, yttPosition, yttMaxMessages, yttMaxCharsPerLine, yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity,
-            yttTextColor, yttShadowColor, yttBackgroundColor),
-            Format.plaintext => SerializeToPlaintext(json),
+            Format.Json => SerializeToJson(json),
+            Format.JsonIndented => SerializeToJsonIndented(json),
+            Format.Ytt => SerializeToYtt(json, options.SubtitleOptions),
+            Format.Plaintext => SerializeToPlaintext(json),
             _ => throw new InternalException("Internal error: unrecognised format type")
         };
     }
@@ -86,11 +79,9 @@ public static class Transform
         return JsonConvert.SerializeObject(json, Formatting.Indented);
     }
 
-    public static string SerializeToYtt(JToken json, AnchorPoint yttPosition, long yttMaxMessages, long yttMaxCharsPerLine, double yttScale, Shadow yttShadow,
-        long yttWindowOpacity, long yttBackgroundOpacity, string yttTextColor, string yttShadowColor, string yttBackgroundColor)
+    public static string SerializeToYtt(JToken json, SubtitleOptions options)
     {
-        return YttSerialization.Serialize(json, yttPosition, (int)yttMaxMessages, (int)yttMaxCharsPerLine, (float)yttScale, yttShadow, (byte)yttWindowOpacity,
-            (byte)yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+        return YttSerialization.Serialize(json, options);
     }
 
     public static string SerializeToPlaintext(JToken json)

@@ -1,0 +1,52 @@
+﻿using TwitchChatOffset.Csv;
+using TwitchChatOffset.Options;
+using TwitchChatOffset.Options.Groups;
+using System.CommandLine;
+using System.IO;
+using CSVFile;
+using static TwitchChatOffset.CommandLine.Arguments;
+
+namespace TwitchChatOffset.CommandLine;
+
+public static class TransformManyToManyCommand
+{
+    public static readonly Command Command = new("transform-many-to-many", "Transform many Json Twitch files and generate new files for each transformation");
+
+    static TransformManyToManyCommand()
+    {
+        Command.Add(CsvArgument);
+        IOptionGroup.AddCliOptions<TransformManyToManyCliOptions>(Command);
+        Command.SetAction(Execute);
+    }
+
+    private static void Execute(ParseResult parseResult)
+    {
+        string csvPath = parseResult.GetValue(CsvArgument)!;
+        TransformManyToManyCliOptions cliOptions = IOptionGroup.ParseOptions<TransformManyToManyCliOptions>(parseResult);
+        using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
+        PrintLine("Writing files...", 0, cliOptions.Quiet);
+        foreach (TransformManyToManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformManyToManyCsvOptions>(reader))
+        {
+            if (!csvOptions.InputFile.Explicit)
+            {
+                PrintError("Input file must not be empty! Skipping...", 1);
+                continue;
+            }
+            if (!csvOptions.OutputFile.Explicit)
+            {
+                PrintError("Output file must not be empty! Skipping...", 1);
+                continue;
+            }
+            TransformManyToManyCommonOptions commonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
+            PrintLine(csvOptions.OutputFile, 1, cliOptions.Quiet);
+            _ = Directory.CreateDirectory(commonOptions.OutputDir);
+            string outputPath = BulkTransform.GetCombinedPath(commonOptions.OutputDir, csvOptions.OutputFile);
+            string inputPath = BulkTransform.GetCombinedPath(commonOptions.InputDir, csvOptions.InputFile);
+            string input = File.ReadAllText(inputPath);
+            string? output = BulkTransform.TryTransform(inputPath, input, commonOptions.TransformOptions);
+            if (output == null)
+                continue;
+            File.WriteAllText(outputPath, output);
+        }
+    }
+}

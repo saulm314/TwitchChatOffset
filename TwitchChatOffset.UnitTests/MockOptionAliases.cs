@@ -1,11 +1,11 @@
-﻿using TwitchChatOffset.CommandLine.Options;
+﻿using TwitchChatOffset.Options;
 
 namespace TwitchChatOffset.UnitTests;
 
 public static class MockOptionAliases
 {
     public static AliasesContainer LongObjectStripped { get; } = new(["--long-object-stripped", "--long-stripped"]);
-    public static AliasesContainer LongObjectUnstripped { get; } = new(["--long-object-unstripped", "--long-unstripped"]);
+    public static AliasesContainer LongObjectStripped2 { get; } = new(["--long-object-stripped2", "--long-stripped2"]);
     public static AliasesContainer LongObjectNonNullable { get; } = new(["--long-object-non-nullable", "--long-non-nullable"]);
     public static AliasesContainer BoolObject { get; } = new(["--bool-object", "--bool"]);
     public static AliasesContainer CharObject { get; } = new(["--char-object", "--char"]);

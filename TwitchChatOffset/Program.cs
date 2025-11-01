@@ -1,8 +1,8 @@
-﻿using TwitchChatOffset.CommandLine.Commands;
+﻿using TwitchChatOffset.CommandLine;
 
 namespace TwitchChatOffset;
 
 public class Program
 {
-    public static int Main(string[] args) => Root.Command.Parse(args).Invoke();
+    public static int Main(string[] args) => RootCommand.Command.Parse(args).Invoke();
 }

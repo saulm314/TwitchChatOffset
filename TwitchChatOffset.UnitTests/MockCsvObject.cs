@@ -1,4 +1,4 @@
-﻿using TwitchChatOffset.CommandLine.Options;
+﻿using TwitchChatOffset.Options;
 using static TwitchChatOffset.UnitTests.MockOptionAliases;
 
 namespace TwitchChatOffset.UnitTests;
@@ -7,23 +7,26 @@ public class MockCsvObject
 (
     long? _longObjectDefault,
     long? _longObjectStripped,
-    long? _longObjectUnstripped,
+    long? _longObjectStripped2,
     long _longObjectNonNullable,
     bool? _boolObject,
     char? _charObject,
     double? _doubleObject,
     MockEnum? _mockEnumObject,
     string? _stringObject
-)
+) : IOptionGroup
 {
+    public static FieldData[] FieldDatas => _fieldDatas ??= IOptionGroup.GetFieldDatas(typeof(MockCsvObject));
+    private static FieldData[]? _fieldDatas;
+
     [Aliases(["long-object-default", "longObjectDefault"])]
     public long? longObjectDefault = _longObjectDefault;
 
     [Aliases(typeof(MockOptionAliases), nameof(LongObjectStripped))]
     public long? longObjectStripped = _longObjectStripped;
 
-    [Aliases(typeof(MockOptionAliases), nameof(LongObjectUnstripped), false)]
-    public long? longObjectUnstripped = _longObjectUnstripped;
+    [Aliases(typeof(MockOptionAliases), nameof(LongObjectStripped2))]
+    public long? longObjectStripped2 = _longObjectStripped2;
 
     [Aliases(typeof(MockOptionAliases), nameof(LongObjectNonNullable))]
     public long longObjectNonNullable = _longObjectNonNullable;
@@ -60,7 +63,7 @@ public class MockCsvObject
     (
         longObjectDefault,
         longObjectStripped,
-        longObjectUnstripped,
+        longObjectStripped2,
         longObjectNonNullable,
         boolObject,
         charObject,

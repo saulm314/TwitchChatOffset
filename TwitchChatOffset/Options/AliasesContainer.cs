@@ -1,4 +1,4 @@
-﻿namespace TwitchChatOffset.CommandLine.Options;
+﻿namespace TwitchChatOffset.Options;
 
 public readonly struct AliasesContainer
 {
@@ -6,9 +6,8 @@ public readonly struct AliasesContainer
     {
         Aliases = aliases;
         StrippedAliases = new string[aliases.Length];
-        aliases.CopyTo(StrippedAliases, 0);
         for (int i = 0; i < StrippedAliases.Length; i++)
-            StrippedAliases[i] = StrippedAliases[i].TrimStart('-');
+            StrippedAliases[i] = aliases[i].TrimStart('-');
     }
 
     public readonly string[] Aliases;

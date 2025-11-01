@@ -1,4 +1,5 @@
 ﻿using TwitchChatOffset.Json;
+using TwitchChatOffset.Options.Groups;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -13,46 +14,44 @@ namespace TwitchChatOffset.Ytt;
 
 public static class YttSerialization
 {
-    public static string Serialize(JToken json, AnchorPoint position, int maxMessages, int maxCharsPerLine, float scale, Shadow shadow, byte windowOpacity,
-        byte backgroundOpacity, string textColor, string shadowColor, string backgroundColor)
+    public static string Serialize(JToken json, SubtitleOptions options)
     {
-        if (maxMessages < 1)
+        if (options.MaxMessages < 1)
         {
             PrintWarning("Warning: ytt-max-messages is less than 1 which is not supported; treating it as 1 instead");
-            maxMessages = 1;
+            options.MaxMessages.Value = 1;
         }
-        if (windowOpacity == 255)
+        if (options.WindowOpacity == 255)
         {
             PrintWarning("Warning: ytt-window-opacity is 255 which for some reason may get overridden in the YouTube player, treatingit as 254 instead");
-            windowOpacity = 254;
+            options.WindowOpacity.Value = 254;
         }
-        if (backgroundOpacity == 255)
+        if (options.SectionOptions.BackgroundOpacity == 255)
         {
             PrintWarning("Warning: ytt-background-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
-            backgroundOpacity = 254;
+            options.SectionOptions.BackgroundOpacity.Value = 254;
         }
         YttDocument ytt = new();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
-        Queue<ChatMessage> visibleMessages = new(maxMessages);
-        SectionOptions sectionOptions = new(scale, shadow.Convert(), backgroundOpacity, FromHtml(shadowColor), FromHtml(backgroundColor));
+        Queue<ChatMessage> visibleMessages = new((int)options.MaxMessages);
         foreach (JToken comment in comments)
         {
-            ChatMessage chatMessage = GetChatMessage(comment, userColors, maxCharsPerLine, sectionOptions, FromHtml(textColor));
+            ChatMessage chatMessage = GetChatMessage(comment, userColors, options);
 
             if (visibleMessages.Count > 0)
             {
-                Line line = GetLine(visibleMessages, chatMessage, position, sectionOptions, windowOpacity);
+                Line line = GetLine(visibleMessages, chatMessage, options);
                 ytt.Lines.Add(line);
             }
 
-            if (visibleMessages.Count >= maxMessages)
+            if (visibleMessages.Count >= options.MaxMessages)
                 _ = visibleMessages.Dequeue();
             visibleMessages.Enqueue(chatMessage);
         }
         if (comments.Count > 0)
         {
-            Line lastLine = GetLine(visibleMessages, null, position, sectionOptions, windowOpacity);
+            Line lastLine = GetLine(visibleMessages, null, options);
             ytt.Lines.Add(lastLine);
         }
 
@@ -61,8 +60,7 @@ public static class YttSerialization
         return stringWriter.ToString();
     }
 
-    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, int maxCharsPerLine, SectionOptions sectionOptions,
-        Color textColor)
+    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, SubtitleOptions options)
     {
         long offset = comment.D("content_offset_seconds").As<long>();
         TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
@@ -70,7 +68,7 @@ public static class YttSerialization
         JToken message = comment.D("message");
         string displayName = comment.D("commenter").D("display_name").As<string>();
         string messageStr = message.D("body").As<string>();
-        GetWrappedMessage(displayName, messageStr, maxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage);
+        GetWrappedMessage(displayName, messageStr, (int)options.MaxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage);
 
         Color userColor = GetUserColor(userColors, displayName, message);
 
@@ -80,10 +78,10 @@ public static class YttSerialization
         };
         Section messageSection = new(wrappedMessage)
         {
-            ForeColor = textColor
+            ForeColor = FromHtml(options.TextColor)
         };
-        displayNameSection.ApplyOptions(sectionOptions);
-        messageSection.ApplyOptions(sectionOptions);
+        displayNameSection.ApplyOptions(options.SectionOptions);
+        messageSection.ApplyOptions(options.SectionOptions);
 
         return new(displayNameSection, messageSection, timeSpan);
     }
@@ -146,8 +144,7 @@ public static class YttSerialization
         return -1;
     }
 
-    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, AnchorPoint position, SectionOptions sectionOptions,
-        byte windowOpacity)
+    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, SubtitleOptions options)
     {
         List<Section> sections = new(chatMessages.Count * 3);
         ChatMessage lastChatMessage = default;
@@ -156,7 +153,7 @@ public static class YttSerialization
             sections.Add(chatMessage.Name);
             sections.Add(chatMessage.Message);
             Section newlineSection = new("\n");
-            newlineSection.ApplyOptions(sectionOptions);
+            newlineSection.ApplyOptions(options.SectionOptions);
             sections.Add(newlineSection);
             lastChatMessage = chatMessage;
         }
@@ -165,9 +162,9 @@ public static class YttSerialization
         // if any line has the same start and end value, YTSubConverter appears to automatically get rid of that line when saving the YTT file
         Line line = new(start, end, sections)
         {
-            AnchorPoint = position,
+            AnchorPoint = options.Position,
             AndroidDarkTextHackAllowed = false,
-            WindowOpacity = windowOpacity
+            WindowOpacity = (byte)options.WindowOpacity
         };
         return line;
     }

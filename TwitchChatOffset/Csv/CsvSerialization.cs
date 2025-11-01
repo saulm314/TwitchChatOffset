@@ -1,8 +1,7 @@
-﻿using TwitchChatOffset.CommandLine.Options;
+﻿using TwitchChatOffset.Options;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Reflection;
 using CSVFile;
 
@@ -10,15 +9,15 @@ namespace TwitchChatOffset.Csv;
 
 public static class CsvSerialization
 {
-    // deserialize CSV content into fields in type T that have an AliasesAttribute
-    // type T may not have any duplicate aliases (across multiple fields or in the same field), or an internal exception will be thrown
-    // if no data for a field is found, then it is left with its default value
-    public static IEnumerable<T> Deserialize<T>(CSVReader reader) where T : new()
+    // deserialize CSV content into fields in a class TOptionGroup that implements IOptionGroup
+    // type TOptionGroup may not have any duplicate aliases (across multiple fields or in the same field), or an internal exception will be thrown
+    // if no data for a field is found, then it is left with its default value and explicit is set to false, else explicit is set to true
+    public static IEnumerable<TOptionGroup> Deserialize<TOptionGroup>(CSVReader reader) where TOptionGroup : class, IOptionGroup, new()
     {
-        Dictionary<string, FieldData> dataMap = GetDataMap<T>(reader.Headers);
+        Dictionary<string, FieldData> dataMap = GetDataMap<TOptionGroup>(reader.Headers);
         foreach (string[] line in reader.Lines())
         {
-            T data = new();
+            TOptionGroup data = new();
             int fieldCount = int.Min(line.Length, reader.Headers.Length);
             for (int i = 0; i < fieldCount; i++)
                 WriteField(data, line[i], reader.Headers[i], dataMap);
@@ -38,19 +37,20 @@ public static class CsvSerialization
             .Invoke(null, [reader])!;
     }
 
-    private static IEnumerable<T> DeserializeDummy<T>(CSVReader reader) where T : new() => Deserialize<T>(reader);
+    private static IEnumerable<TOptionGroup> DeserializeDummy<TOptionGroup>(CSVReader reader) where TOptionGroup : class, IOptionGroup, new()
+        => Deserialize<TOptionGroup>(reader);
 
-    private static Dictionary<string, FieldData> GetDataMap<T>(string[] headers)
+    private static Dictionary<string, FieldData> GetDataMap<TOptionGroup>(string[] headers) where TOptionGroup : class, IOptionGroup, new()
     {
         Dictionary<string, FieldData> dataMap = [];
         HashSet<FieldData> addedFields = [];
-        FieldData[] fieldDatas = [..GetFieldDatas<T>()];
-        ThrowIfDuplicateAliases<T>(fieldDatas);
+        FieldData[] fieldDatas = TOptionGroup.FieldDatas;
+        ThrowIfDuplicateAliases<TOptionGroup>(fieldDatas);
         foreach (string header in headers)
         {
             foreach (FieldData fieldData in fieldDatas)
             {
-                foreach (string alias in fieldData.Attribute.Aliases)
+                foreach (string alias in fieldData.Attribute.AliasesContainer.StrippedAliases)
                 {
                     if (alias == header)
                     {
@@ -67,36 +67,24 @@ public static class CsvSerialization
         return dataMap;
     }
 
-    private static IEnumerable<FieldData> GetFieldDatas<T>()
-    {
-        FieldInfo[] fields = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-        foreach (FieldInfo field in fields)
-        {
-            AliasesAttribute? attribute = field.GetCustomAttribute<AliasesAttribute>();
-            if (attribute == null)
-                continue;
-            FieldData fieldData = new(field, attribute);
-            yield return fieldData;
-        }
-    }
-
-    private static void ThrowIfDuplicateAliases<T>(FieldData[] fieldDatas)
+    private static void ThrowIfDuplicateAliases<TOptionGroup>(FieldData[] fieldDatas) where TOptionGroup : class, IOptionGroup, new()
     {
         HashSet<string> aliases = [];
         foreach (FieldData fieldData in fieldDatas)
         {
-            foreach (string alias in fieldData.Attribute.Aliases)
+            foreach (string alias in fieldData.Attribute.AliasesContainer.StrippedAliases)
             {
                 if (aliases.Contains(alias))
-                    throw new CsvSerializationInternalException.DuplicateAlias<T>(alias);
+                    throw new CsvSerializationInternalException.DuplicateAlias<TOptionGroup>(alias);
                 aliases.Add(alias);
             }
         }
     }
 
-    private static void WriteField<T>(T data, string field, string header, Dictionary<string, FieldData> dataMap)
+    private static void WriteField<TOptionGroup>(TOptionGroup data, string field, string header, Dictionary<string, FieldData> dataMap)
+        where TOptionGroup : class, IOptionGroup, new()
     {
-        if (!dataMap.TryGetValue(header, out FieldData fieldData))
+        if (!dataMap.TryGetValue(header, out FieldData? fieldData))
             return;
         if (field == string.Empty)
             return;
@@ -104,21 +92,19 @@ public static class CsvSerialization
         // we do not bother with a fieldData.converter.IsValid(field) call, for two reasons:
         // 1. this method is case sensitive, meaning it does not accept an enum if the case doesn't match exactly
         // 2. this method just does a try catch anyway, also catching all types of exception
-        object? value;
+        object rawValue;
         try
         {
-            value = fieldData.Converter.ConvertFromString(field);
+            rawValue = fieldData.Converter.ConvertFromString(field)!;
         }
         catch
         {
-            PrintWarning($"Cannot convert \"{field}\" to type {fieldData.Field.FieldType.FullName}; treating as an empty field...", 1);
+            PrintWarning($"Cannot convert \"{field}\" to type {fieldData.FieldPath[^1].FieldType.FullName}; treating as an empty field...", 1);
             return;
         }
-        fieldData.Field.SetValue(data, value);
-    }
-
-    private readonly record struct FieldData(FieldInfo Field, AliasesAttribute Attribute)
-    {
-        public readonly TypeConverter Converter = TypeDescriptor.GetConverter(Field.FieldType);
+        Type plicitType = FieldData.PlicitTypeDefinition.MakeGenericType(fieldData.FieldPath[^1].FieldType);
+        ConstructorInfo plicitConstructor = plicitType.GetConstructor([fieldData.FieldPath[^1].FieldType, typeof(bool)])!;
+        object plicit = plicitConstructor.Invoke([rawValue, true]);
+        IOptionGroup.WriteField(data, fieldData, plicit);
     }
 }

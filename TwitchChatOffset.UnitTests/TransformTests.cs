@@ -1,4 +1,5 @@
-﻿using TwitchChatOffset.Json;
+﻿using TwitchChatOffset.Options.Groups;
+using TwitchChatOffset.Json;
 using TwitchChatOffset.Ytt;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -10,7 +11,23 @@ public class TransformTests
 {
     private static long[] AllStartsEnds => [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
     private static long[] AllNegativeEnds => [-1, -10, -100, -1000, long.MinValue];
-    private static Format[] AllFormats => [Format.json, Format.jsonindented, Format.ytt, Format.plaintext];
+    private static Format[] AllFormats => [Format.Json, Format.JsonIndented, Format.Ytt, Format.Plaintext];
+    private static SubtitleOptions DefaultSubtitleOptions => new()
+    {
+        Position = new(AnchorPoint.TopLeft, true),
+        MaxMessages = new(4, true),
+        MaxCharsPerLine = new(40, true),
+        WindowOpacity = new(0, true),
+        TextColor = new("white", true),
+        SectionOptions = new()
+        {
+            Scale = new(0.0, true),
+            Shadow = new(Shadow.Glow, true),
+            BackgroundOpacity = new(0, true),
+            ShadowColor = new("black", true),
+            BackgroundColor = new("black", true)
+        }
+    };
 
     private const string ContentOffsetSecondsTemplate = "\"content_offset_seconds\":0";
     private const string CommenterTemplate = "\"commenter\":{\"display_name\":\"JohnSmith\"}";
@@ -27,18 +44,7 @@ public class TransformTests
     {
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
-        long delay = 0;
         Format[] formats = AllFormats;
-        AnchorPoint yttPosition = AnchorPoint.TopLeft;
-        long yttMaxMessages = 6;
-        long yttMaxCharsPerLine = 55;
-        double yttScale = 0.0;
-        Shadow yttShadow = Shadow.Glow;
-        long yttWindowOpacity = 0;
-        long yttBackgroundOpacity = 0;
-        string yttTextColor = "white";
-        string yttShadowColor = "black";
-        string yttBackgroundColor = "black";
 
         JsonContentException.Empty expectedException = new();
 
@@ -48,15 +54,20 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
-                        yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                    TransformOptions options = new()
+                    {
+                        Start = new(start, true),
+                        End = new(end, true),
+                        Format = new(format, true),
+                        SubtitleOptions = DefaultSubtitleOptions
+                    };
+                    void DoTransform() => Transform.DoTransform(inputString, options);
 
                     JsonContentException.Empty exception = Assert.Throws<JsonContentException.Empty>(DoTransform);
                     Assert.Equal(expectedException.Message, exception.Message);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
-                        yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                    continue; Transform.DoTransform(inputString, options);
                     #pragma warning restore CS0162
                 }
             }
@@ -73,18 +84,7 @@ public class TransformTests
     {
         long[] starts = AllStartsEnds;
         long[] ends = AllStartsEnds;
-        long delay = 0;
         Format[] formats = AllFormats;
-        AnchorPoint yttPosition = AnchorPoint.TopLeft;
-        long yttMaxMessages = 6;
-        long yttMaxCharsPerLine = 55;
-        double yttScale = 0.0;
-        Shadow yttShadow = Shadow.Glow;
-        long yttWindowOpacity = 0;
-        long yttBackgroundOpacity = 0;
-        string yttTextColor = "white";
-        string yttShadowColor = "black";
-        string yttBackgroundColor = "black";
 
         foreach (long start in starts)
         {
@@ -92,14 +92,19 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    void DoTransform() => Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
-                        yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                    TransformOptions options = new()
+                    {
+                        Start = new(start, true),
+                        End = new(end, true),
+                        Format = new(format, true),
+                        SubtitleOptions = DefaultSubtitleOptions
+                    };
+                    void DoTransform() => Transform.DoTransform(inputString, options);
 
                     Assert.ThrowsAny<JsonException>(DoTransform);
 
                     #pragma warning disable CS0162
-                    continue; Transform.DoTransform(inputString, start, end, delay, format, yttPosition, yttMaxMessages, yttMaxCharsPerLine,
-                        yttScale, yttShadow, yttWindowOpacity, yttBackgroundOpacity, yttTextColor, yttShadowColor, yttBackgroundColor);
+                    continue; Transform.DoTransform(inputString, options);
                     #pragma warning restore CS0162
                 }
             }
@@ -120,7 +125,14 @@ public class TransformTests
 
         foreach (long end in ends)
         {
-            Transform.ApplyOffset(json.DeepClone(), start, end, delay);
+            TransformOptions options = new()
+            {
+                Start = new(start, true),
+                End = new(end, true),
+                Delay = new(delay, true),
+                SubtitleOptions = DefaultSubtitleOptions
+            };
+            Transform.ApplyOffset(json.DeepClone(), options);
             string output = JsonConvert.SerializeObject(json);
 
             Assert.Equal(inputString, output);
@@ -149,13 +161,19 @@ public class TransformTests
                 if (start == 0 && end < 0 && delay <= 0)
                     continue;
 
-                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end, delay);
+                TransformOptions options = new()
+                {
+                    Start = new(start, true),
+                    End = new(end, true),
+                    SubtitleOptions = DefaultSubtitleOptions
+                };
+                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), options);
 
                 JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
                 Assert.Equal(expectedException.Message, exception.Message);
 
                 #pragma warning disable CS0162
-                continue; Transform.ApplyOffset(json.DeepClone(), start, end, delay);
+                continue; Transform.ApplyOffset(json.DeepClone(), options);
                 #pragma warning restore CS0162
             }
         }
@@ -182,14 +200,20 @@ public class TransformTests
                 if (start == 0 && end < 0 && delay <= 0)
                     continue;
 
-                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), start, end, delay);
+                TransformOptions options = new()
+                {
+                    Start = new(start, true),
+                    End = new(end, true),
+                    SubtitleOptions = DefaultSubtitleOptions
+                };
+                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), options);
 
                 JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
                 Assert.Matches(expectedPathRegex, exception.Path);
                 Assert.Equal(expectedPropertyName, exception.PropertyName);
 
                 #pragma warning disable CS0162
-                continue; Transform.ApplyOffset(json.DeepClone(), start, end, delay);
+                continue; Transform.ApplyOffset(json.DeepClone(), options);
                 #pragma warning restore CS0162
             }
         }
@@ -254,7 +278,14 @@ public class TransformTests
     {
         JToken json = JsonUtils.Deserialize(inputString);
 
-        Transform.ApplyOffset(json, start, end, delay);
+        TransformOptions options = new()
+        {
+            Start = new(start, true),
+            End = new(end, true),
+            Delay = new(delay, true),
+            SubtitleOptions = DefaultSubtitleOptions
+        };
+        Transform.ApplyOffset(json, options);
         string output = JsonConvert.SerializeObject(json);
 
         Assert.Equal(expectedOutput, output);
