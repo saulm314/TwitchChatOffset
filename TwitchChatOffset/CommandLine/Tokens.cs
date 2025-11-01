@@ -1,4 +1,4 @@
-﻿global using static TwitchChatOffset.CommandLine.Tokens;
+﻿//global using static TwitchChatOffset.CommandLine.Tokens;
 using TwitchChatOffset.CommandLine.Options;
 using TwitchChatOffset.Ytt;
 using System.CommandLine;
@@ -9,7 +9,7 @@ namespace TwitchChatOffset.CommandLine;
 
 public static class Tokens
 { 
-    public static readonly Argument<string> InputArgument = new("input-path")
+    /*public static readonly Argument<string> InputArgument = new("input-path")
     {
         Description = "Input path (JSON file)"
     };
@@ -27,7 +27,7 @@ public static class Tokens
     public static readonly Argument<string> SuffixArgument = new("suffix")
     {
         Description = "Suffix to be appended to all output file names, including the extension (e.g. \".ytt\", \"-cropped.json\")"
-    };
+    };*/
     
     public static readonly Option<long> StartOption = new("--start", Start.Aliases)
     {

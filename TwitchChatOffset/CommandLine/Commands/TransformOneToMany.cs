@@ -50,9 +50,9 @@ public static class TransformOneToMany
         Command.SetAction(Execute);
     }
 
-    private static (string, string, ImplicitValue<long>, ImplicitValue<long>, ImplicitValue<long>, ImplicitValue<Format>, ImplicitValue<AnchorPoint>,
-        ImplicitValue<long>, ImplicitValue<long>, ImplicitValue<double>, ImplicitValue<Shadow>, ImplicitValue<long>, ImplicitValue<long>, ImplicitValue<string>,
-        ImplicitValue<string>, ImplicitValue<string>, ImplicitValue<string>, long, bool) GetData(ParseResult p)
+    private static (string, string, Plicit<long>, Plicit<long>, Plicit<long>, Plicit<Format>, Plicit<AnchorPoint>,
+        Plicit<long>, Plicit<long>, Plicit<double>, Plicit<Shadow>, Plicit<long>, Plicit<long>, Plicit<string>,
+        Plicit<string>, Plicit<string>, Plicit<string>, long, bool) GetData(ParseResult p)
     {
         var (a1, a2) = _arguments;
         var (o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17) = _options;

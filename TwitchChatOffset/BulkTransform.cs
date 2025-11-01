@@ -13,12 +13,12 @@ namespace TwitchChatOffset;
 
 public static class BulkTransform
 {
-    public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, ImplicitValue<long> cliStart,
-        ImplicitValue<long> cliEnd, ImplicitValue<long> cliDelay, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition,
-        ImplicitValue<long> cliYttMaxMessages, ImplicitValue<long> cliYttMaxCharsPerLine, ImplicitValue<double> cliYttScale, ImplicitValue<Shadow> cliYttShadow,
-        ImplicitValue<long> cliYttWindowOpacity, ImplicitValue<long> cliYttBackgroundOpacity, ImplicitValue<string> cliYttTextColor,
-        ImplicitValue<string> cliYttShadowColor, ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliInputDir,
-        ImplicitValue<string> cliOutputDir, long cliOptionPriority)
+    public static TransformManyToManyCsv? TryGetNonNullableLine(TransformManyToManyCsvNullables nullables, Plicit<long> cliStart,
+        Plicit<long> cliEnd, Plicit<long> cliDelay, Plicit<Format> cliFormat, Plicit<AnchorPoint> cliYttPosition,
+        Plicit<long> cliYttMaxMessages, Plicit<long> cliYttMaxCharsPerLine, Plicit<double> cliYttScale, Plicit<Shadow> cliYttShadow,
+        Plicit<long> cliYttWindowOpacity, Plicit<long> cliYttBackgroundOpacity, Plicit<string> cliYttTextColor,
+        Plicit<string> cliYttShadowColor, Plicit<string> cliYttBackgroundColor, Plicit<string> cliInputDir,
+        Plicit<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.InputFile == null)
         {
@@ -79,11 +79,11 @@ public static class BulkTransform
         };
     }
 
-    public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, ImplicitValue<long> cliStart,
-        ImplicitValue<long> cliEnd, ImplicitValue<long> cliDelay, ImplicitValue<Format> cliFormat, ImplicitValue<AnchorPoint> cliYttPosition,
-        ImplicitValue<long> cliYttMaxMessages, ImplicitValue<long> cliYttMaxCharsPerLine, ImplicitValue<double> cliYttScale, ImplicitValue<Shadow> cliYttShadow,
-        ImplicitValue<long> cliYttWindowOpacity, ImplicitValue<long> cliYttBackgroundOpacity, ImplicitValue<string> cliYttTextColor,
-        ImplicitValue<string> cliYttShadowColor, ImplicitValue<string> cliYttBackgroundColor, ImplicitValue<string> cliOutputDir, long cliOptionPriority)
+    public static TransformOneToManyCsv? TryGetNonNullableLine(TransformOneToManyCsvNullables nullables, Plicit<long> cliStart,
+        Plicit<long> cliEnd, Plicit<long> cliDelay, Plicit<Format> cliFormat, Plicit<AnchorPoint> cliYttPosition,
+        Plicit<long> cliYttMaxMessages, Plicit<long> cliYttMaxCharsPerLine, Plicit<double> cliYttScale, Plicit<Shadow> cliYttShadow,
+        Plicit<long> cliYttWindowOpacity, Plicit<long> cliYttBackgroundOpacity, Plicit<string> cliYttTextColor,
+        Plicit<string> cliYttShadowColor, Plicit<string> cliYttBackgroundColor, Plicit<string> cliOutputDir, long cliOptionPriority)
     {
         if (nullables.OutputFile == null)
         {
@@ -217,9 +217,9 @@ public static class BulkTransform
     public static OptionPriority GetOptionPriority(long? csvOptionPriority, long cliOptionPriority)
         => (csvOptionPriority ?? 0) >= cliOptionPriority ? OptionPriority.CSV : OptionPriority.CLI;
 
-    public static T ResolveClashPrioritiseCsv<T>(Wrap<T>? csvValue, ImplicitValue<T> cliValue) where T : notnull
+    public static T ResolveClashPrioritiseCsv<T>(Wrap<T>? csvValue, Plicit<T> cliValue) where T : notnull
         => csvValue == null ? cliValue : csvValue.Value.Value;
 
-    public static T ResolveClashPrioritiseCli<T>(Wrap<T>? csvValue, ImplicitValue<T> cliValue) where T : notnull
+    public static T ResolveClashPrioritiseCli<T>(Wrap<T>? csvValue, Plicit<T> cliValue) where T : notnull
         => !cliValue.Implicit || csvValue == null ? cliValue : csvValue.Value.Value;
 }

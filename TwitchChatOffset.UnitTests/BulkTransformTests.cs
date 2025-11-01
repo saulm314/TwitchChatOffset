@@ -67,7 +67,7 @@ public class BulkTransformTests
     [InlineData(null, 2, false, 2)]
     public void ResolveClashPrioritiseCsvStructTest(long? csvValue, long cliValue, bool cliValueImplicit, long expectedOutput)
     {
-        ImplicitValue<long> cliOption = new(cliValue, cliValueImplicit);
+        Plicit<long> cliOption = new(cliValue, cliValueImplicit);
 
         long output = BulkTransform.ResolveClashPrioritiseCsv(csvValue, cliOption);
 
@@ -83,7 +83,7 @@ public class BulkTransformTests
     [InlineData(null, "2", false, "2")]
     public void ResolveClashPrioritiseCsvClassTest(string? csvValue, string cliValue, bool cliValueImplicit, string expectedOutput)
     {
-        ImplicitValue<string> cliOption = new(cliValue, cliValueImplicit);
+        Plicit<string> cliOption = new(cliValue, cliValueImplicit);
 
         string output = BulkTransform.ResolveClashPrioritiseCsv(csvValue, cliOption);
 
@@ -99,7 +99,7 @@ public class BulkTransformTests
     [InlineData(null, 2, false, 2)]
     public void ResolveClashPrioritiseCliStructTest(long? csvValue, long cliValue, bool cliValueImplicit, long expectedOutput)
     {
-        ImplicitValue<long> cliOption = new(cliValue, cliValueImplicit);
+        Plicit<long> cliOption = new(cliValue, cliValueImplicit);
 
         long output = BulkTransform.ResolveClashPrioritiseCli(csvValue, cliOption);
 
@@ -115,7 +115,7 @@ public class BulkTransformTests
     [InlineData(null, "2", false, "2")]
     public void ResolveClashPrioritiseCliClassTest(string? csvValue, string cliValue, bool cliValueImplicit, string expectedOutput)
     {
-        ImplicitValue<string> cliOption = new(cliValue, cliValueImplicit);
+        Plicit<string> cliOption = new(cliValue, cliValueImplicit);
 
         string output = BulkTransform.ResolveClashPrioritiseCli(csvValue, cliOption);
 
