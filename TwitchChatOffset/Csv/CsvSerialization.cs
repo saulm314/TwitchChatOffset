@@ -104,7 +104,7 @@ public static class CsvSerialization
         }
         Type plicitType = FieldData.PlicitTypeDefinition.MakeGenericType(fieldData.FieldPath[^1].FieldType);
         ConstructorInfo plicitConstructor = plicitType.GetConstructor([fieldData.FieldPath[^1].FieldType, typeof(bool)])!;
-        object plicit = plicitConstructor.Invoke([rawValue, true]);
-        IOptionGroup.WriteField(data, fieldData, plicit);
+        IPlicit plicit = (IPlicit)plicitConstructor.Invoke([rawValue, true]);
+        data.WriteField(fieldData, plicit);
     }
 }

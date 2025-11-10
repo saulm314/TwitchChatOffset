@@ -14,7 +14,7 @@ public static class TransformCommand
     {
         Command.Add(InputArgument);
         Command.Add(OutputArgument);
-        IOptionGroup.AddCliOptions<TransformOptions>(Command);
+        Command.AddOptions<TransformOptions>();
         Command.SetAction(Execute);
     }
 
@@ -22,7 +22,7 @@ public static class TransformCommand
     {
         string inputPath = parseResult.GetValue(InputArgument)!;
         string outputPath = parseResult.GetValue(OutputArgument)!;
-        TransformOptions options = IOptionGroup.ParseOptions<TransformOptions>(parseResult);
+        TransformOptions options = parseResult.ParseOptions<TransformOptions>();
         string input = File.ReadAllText(inputPath);
         string output = Transform.DoTransform(input, options);
         File.WriteAllText(outputPath, output);

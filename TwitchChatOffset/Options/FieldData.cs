@@ -22,14 +22,14 @@ public class FieldData
     public readonly AliasesAttribute Attribute;
     public readonly TypeConverter Converter;
 
-    public object GetValue(ParseResult parseResult)
+    public IPlicit GetValue(ParseResult parseResult)
     {
         CliOptionAttribute attribute = (CliOptionAttribute)Attribute;
         object rawValue = _parseResultGetValueMethod!.Invoke(parseResult, [attribute.Option])!;
         bool @explicit = !parseResult.GetResult(attribute.Option)!.Implicit;
         Type plicitType = PlicitTypeDefinition.MakeGenericType(attribute.Option.ValueType);
         ConstructorInfo plicitConstructor = plicitType.GetConstructor([attribute.Option.ValueType, typeof(bool)])!;
-        object plicit = plicitConstructor.Invoke([rawValue, @explicit]);
+        IPlicit plicit = (IPlicit)plicitConstructor.Invoke([rawValue, @explicit]);
         return plicit;
     }
     

@@ -7,42 +7,6 @@ namespace TwitchChatOffset.Options;
 
 public interface IOptionGroup
 {
-    public static void AddCliOptions<TOptionGroup>(Command command) where TOptionGroup : class, IOptionGroup
-    {
-        foreach (FieldData fieldData in TOptionGroup.FieldDatas)
-        {
-            CliOptionAttribute attribute = (CliOptionAttribute)fieldData.Attribute;
-            command.Add(attribute.Option);
-        }
-    }
-
-    public static TOptionGroup ParseOptions<TOptionGroup>(ParseResult parseResult) where TOptionGroup : class, IOptionGroup, new()
-    {
-        TOptionGroup options = new();
-        foreach (FieldData fieldData in TOptionGroup.FieldDatas)
-        {
-            object value = fieldData.GetValue(parseResult);
-            WriteField(options, fieldData, value);
-        }
-        return options;
-    }
-
-    public static void WriteField<TOptionGroup>(TOptionGroup obj, FieldData fieldData, object value) where TOptionGroup : class, IOptionGroup, new()
-    {
-        object o = obj;
-        for (int i = 0; i < fieldData.FieldPath.Length - 1; i++)
-            o = fieldData.FieldPath[i].GetValue(o)!;
-        fieldData.FieldPath[^1].SetValue(o, value);
-    }
-
-    public static object ReadField<TOptionGroup>(TOptionGroup obj, FieldData fieldData) where TOptionGroup : class, IOptionGroup, new()
-    {
-        object o = obj;
-        foreach (FieldInfo field in fieldData.FieldPath)
-            o = field.GetValue(o)!;
-        return o;
-    }
-
     static abstract FieldData[] FieldDatas { get; }
 
     protected static FieldData[] GetFieldDatas(Type type)

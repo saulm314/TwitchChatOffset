@@ -13,14 +13,14 @@ public static class TransformAllCommand
     static TransformAllCommand()
     {
         Command.Add(SuffixArgument);
-        IOptionGroup.AddCliOptions<TransformAllOptions>(Command);
+        Command.AddOptions<TransformAllOptions>();
         Command.SetAction(Execute);
     }
 
     private static void Execute(ParseResult parseResult)
     {
         string suffix = parseResult.GetValue(SuffixArgument)!;
-        TransformAllOptions options = IOptionGroup.ParseOptions<TransformAllOptions>(parseResult);
+        TransformAllOptions options = parseResult.ParseOptions<TransformAllOptions>();
         string[] fileNames = Directory.GetFiles(options.InputDir, options.SearchPattern);
         PrintEnumerable(fileNames, "Input files found:", 0, options.Quiet);
         _ = Directory.CreateDirectory(options.OutputDir);

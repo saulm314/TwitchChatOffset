@@ -22,16 +22,16 @@ public static class BulkTransform
         FieldData[] fieldDatas = TConflictingOptionGroup.FieldDatas;
         foreach (FieldData fieldData in fieldDatas)
         {
-            IPlicit csvPlicit = (IPlicit)IOptionGroup.ReadField(csvOptions, fieldData);
-            IPlicit cliPlicit = (IPlicit)IOptionGroup.ReadField(cliOptions, fieldData);
-            object winner = (csvPlicit.Explicit, cliPlicit.Explicit) switch
+            IPlicit csvPlicit = csvOptions.ReadField(fieldData);
+            IPlicit cliPlicit = cliOptions.ReadField(fieldData);
+            IPlicit winner = (csvPlicit.Explicit, cliPlicit.Explicit) switch
             {
                 (false, false) => cliPlicit,
                 (true, false) => csvPlicit,
                 (false, true) => cliPlicit,
                 (true, true) => csvPriority ? csvPlicit : cliPlicit
             };
-            IOptionGroup.WriteField(options, fieldData, winner);
+            options.WriteField(fieldData, winner);
         }
         return options;
     }

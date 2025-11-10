@@ -15,14 +15,14 @@ public static class TransformManyToManyCommand
     static TransformManyToManyCommand()
     {
         Command.Add(CsvArgument);
-        IOptionGroup.AddCliOptions<TransformManyToManyCliOptions>(Command);
+        Command.AddOptions<TransformManyToManyCliOptions>();
         Command.SetAction(Execute);
     }
 
     private static void Execute(ParseResult parseResult)
     {
         string csvPath = parseResult.GetValue(CsvArgument)!;
-        TransformManyToManyCliOptions cliOptions = IOptionGroup.ParseOptions<TransformManyToManyCliOptions>(parseResult);
+        TransformManyToManyCliOptions cliOptions = parseResult.ParseOptions<TransformManyToManyCliOptions>();
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         foreach (TransformManyToManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformManyToManyCsvOptions>(reader))

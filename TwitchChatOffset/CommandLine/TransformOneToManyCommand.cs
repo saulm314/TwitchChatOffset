@@ -18,7 +18,7 @@ public static class TransformOneToManyCommand
     {
         Command.Add(InputArgument);
         Command.Add(CsvArgument);
-        IOptionGroup.AddCliOptions<TransformOneToManyCliOptions>(Command);
+        Command.AddOptions<TransformOneToManyCliOptions>();
         Command.SetAction(Execute);
     }
 
@@ -26,7 +26,7 @@ public static class TransformOneToManyCommand
     {
         string inputPath = parseResult.GetValue(InputArgument)!;
         string csvPath = parseResult.GetValue(CsvArgument)!;
-        TransformOneToManyCliOptions cliOptions = IOptionGroup.ParseOptions<TransformOneToManyCliOptions>(parseResult);
+        TransformOneToManyCliOptions cliOptions = parseResult.ParseOptions<TransformOneToManyCliOptions>();
         string input = File.ReadAllText(inputPath);
         JToken json = JsonUtils.Deserialize(input);
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
