@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="libs/YTSubConverter/YTSubConverter.Shared/YTSubConverter.Shared.csproj" />
+  <Project Path="TwitchChatOffset.UnitTests/TwitchChatOffset.UnitTests.csproj" />
+  <Project Path="TwitchChatOffset/TwitchChatOffset.csproj" />
+</Solution>
