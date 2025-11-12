@@ -1,36 +1,25 @@
-﻿using TwitchChatOffset.Csv;
-using TwitchChatOffset.Json;
+﻿using TwitchChatOffset.Json;
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
-using TwitchChatOffset.Ytt;
 using System;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using YTSubConverter.Shared;
 
 namespace TwitchChatOffset;
 
 public static class BulkTransform
 {
-    public static TConflictingOptionGroup ResolveConflicts<TConflictingOptionGroup>(TConflictingOptionGroup csvOptions, TConflictingOptionGroup cliOptions)
-        where TConflictingOptionGroup : class, IConflictingOptionGroup, new()
+    public static TOptionGroup ResolveConflicts<TOptionGroup>(TOptionGroup csvOptions, TOptionGroup cliOptions) where TOptionGroup : class, IOptionGroup, new()
     {
-        TConflictingOptionGroup options = new();
-        bool csvPriority = csvOptions.OptionPriority >= cliOptions.OptionPriority;
-        FieldData[] fieldDatas = TConflictingOptionGroup.FieldDatas;
+        TOptionGroup options = new();
+        FieldData[] fieldDatas = TOptionGroup.FieldDatas;
         foreach (FieldData fieldData in fieldDatas)
         {
             IPlicit csvPlicit = csvOptions.ReadField(fieldData);
             IPlicit cliPlicit = cliOptions.ReadField(fieldData);
-            IPlicit winner = (csvPlicit.Explicit, cliPlicit.Explicit) switch
-            {
-                (false, false) => cliPlicit,
-                (true, false) => csvPlicit,
-                (false, true) => cliPlicit,
-                (true, true) => csvPriority ? csvPlicit : cliPlicit
-            };
+            IPlicit winner = csvPlicit.Explicit ? csvPlicit : cliPlicit;
             options.WriteField(fieldData, winner);
         }
         return options;

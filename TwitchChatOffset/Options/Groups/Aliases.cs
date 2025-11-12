@@ -23,5 +23,4 @@ public static class Aliases
     public static AliasesContainer OutputDir { get; } = new(["--output-directory", "--output-dir", "--output", "-o"]);
     public static AliasesContainer Quiet { get; } = new(["--quiet", "-q"]);
     public static AliasesContainer SearchPattern { get; } = new(["--search-pattern", "--pattern"]);
-    public static AliasesContainer OptionPriority { get; } = new(["--option-priority", "--priority"]);
 }

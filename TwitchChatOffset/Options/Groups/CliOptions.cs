@@ -77,8 +77,4 @@ public static class CliOptions
     public static CliOptionContainer SearchPattern { get; } = New("--search-pattern", Aliases.SearchPattern,
         "Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional)",
         _ => "*.json");
-
-    public static CliOptionContainer OptionPriority { get; } = New<long>("--option-priority", Aliases.OptionPriority,
-        "Select priority to determine which options should be used when there is a clash between the CLI options and the CSV options (can be any integer; higher priority wins; if priorities are equal, then CSV is prioritised (optional)",
-        _ => 0);
 }
