@@ -13,12 +13,12 @@ public class CliOptionAttribute : AliasesAttribute
 
     public readonly Option Option;
 
-    private CliOptionAttribute(CliOptionContainer optionContainer) : base(optionContainer.AliasesContainer) => Option = optionContainer.Option;
+    private CliOptionAttribute(ICliOptionContainer optionContainer) : base(optionContainer.AliasesContainer) => Option = optionContainer.Option;
 
-    private static CliOptionContainer GetCliOptionContainer(string propertyName)
+    private static ICliOptionContainer GetCliOptionContainer(string propertyName)
     {
         PropertyInfo property = typeof(CliOptions).GetProperty(propertyName)!;
         MethodInfo getMethod = property.GetMethod!;
-        return (CliOptionContainer)getMethod.Invoke(null, [])!;
+        return (ICliOptionContainer)getMethod.Invoke(null, [])!;
     }
 }

@@ -4,15 +4,17 @@ using System.CommandLine.Parsing;
 
 namespace TwitchChatOffset.Options;
 
-public readonly record struct CliOptionContainer(Option Option, AliasesContainer AliasesContainer)
+public readonly record struct CliOptionContainer<T>(Option<T> Option, AliasesContainer AliasesContainer) : ICliOptionContainer
 {
-    public static CliOptionContainer New<T>(string name, AliasesContainer aliasesContainer, string description, Func<ArgumentResult, T> defaultValueFactory)
-    {
-        Option<T> option = new(name, aliasesContainer.Aliases)
+    public CliOptionContainer(string name, AliasesContainer aliasesContainer, string description, Func<ArgumentResult, T> defaultValueFactory)
+        : this(MakeOption(name, aliasesContainer, description, defaultValueFactory), aliasesContainer) { }
+
+    Option ICliOptionContainer.Option => Option;
+
+    private static Option<T> MakeOption(string name, AliasesContainer aliasesContainer, string description, Func<ArgumentResult, T> defaultValueFactory)
+        => new(name, aliasesContainer.Aliases)
         {
             Description = description,
             DefaultValueFactory = defaultValueFactory
         };
-        return new(option, aliasesContainer);
-    }
 }
