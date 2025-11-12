@@ -3,7 +3,7 @@ using static TwitchChatOffset.Options.Groups.CliOptions;
 
 namespace TwitchChatOffset.Options.Groups;
 
-public class SubtitleOptions : IOptionGroup
+public record SubtitleOptions : IOptionGroup
 {
     public static FieldData[] FieldDatas => _fieldDatas ??= IOptionGroup.GetFieldDatas(typeof(SubtitleOptions));
     private static FieldData[]? _fieldDatas;

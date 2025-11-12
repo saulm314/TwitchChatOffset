@@ -1,6 +1,6 @@
 ﻿namespace TwitchChatOffset.Options.Groups;
 
-public class TransformManyToManyCommonOptions : IConflictingOptionGroup
+public record TransformManyToManyCommonOptions : IConflictingOptionGroup
 {
     public static FieldData[] FieldDatas => _fieldDatas ??= IOptionGroup.GetFieldDatas(typeof(TransformManyToManyCommonOptions));
     private static FieldData[]? _fieldDatas;

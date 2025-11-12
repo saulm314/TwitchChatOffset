@@ -6,7 +6,7 @@ using static System.Drawing.ColorTranslator;
 
 namespace TwitchChatOffset.Options.Groups;
 
-public class SubtitleSectionOptions : IOptionGroup
+public record SubtitleSectionOptions : IOptionGroup
 {
     public static FieldData[] FieldDatas => _fieldDatas ??= IOptionGroup.GetFieldDatas(typeof(SubtitleSectionOptions));
     private static FieldData[]? _fieldDatas;
