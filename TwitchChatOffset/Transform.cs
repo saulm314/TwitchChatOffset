@@ -57,7 +57,7 @@ public static class Transform
         int endIndex = end >= 0 ? GetIndex(allComments, endTemplate) : allComments.Length;
         for (int i = startIndex; i < endIndex && i < allComments.Length; i++)
         {
-            JToken comment = allComments[i];
+            JToken comment = allComments[i].DeepClone();
             JValue offsetJValue = comment.D("content_offset_seconds").As<JValue>();
             long offset = offsetJValue.As<long>();
             offsetJValue.Set(offset - start + delay);
