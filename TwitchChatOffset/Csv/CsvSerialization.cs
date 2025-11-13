@@ -31,12 +31,13 @@ public static class CsvSerialization
     {
         return
             (IEnumerable)
-            typeof(CsvSerialization)
-            .GetMethod(nameof(DeserializeDummy), BindingFlags.NonPublic | BindingFlags.Static)!
+            _deserializeDummyMethod
             .MakeGenericMethod(type)
             .Invoke(null, [reader])!;
     }
 
+    private static readonly MethodInfo _deserializeDummyMethod =
+        typeof(CsvSerialization).GetMethod(nameof(DeserializeDummy), BindingFlags.NonPublic | BindingFlags.Static)!;
     private static IEnumerable<TOptionGroup> DeserializeDummy<TOptionGroup>(CSVReader reader) where TOptionGroup : class, IOptionGroup, new()
         => Deserialize<TOptionGroup>(reader);
 
