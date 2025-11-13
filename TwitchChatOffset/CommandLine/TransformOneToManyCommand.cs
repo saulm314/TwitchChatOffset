@@ -49,7 +49,7 @@ public static class TransformOneToManyCommand
                 response = ResponseUtils.GetMultiResponseInputOutputWarning(outputPath);
                 if (response == MultiResponse.Cancel)
                     return;
-                if (response == MultiResponse.No)
+                if (response == MultiResponse.No || response == MultiResponse.NoToAll)
                     continue;
                 // response = MultiResponse.Yes or null
             }

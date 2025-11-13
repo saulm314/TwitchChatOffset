@@ -19,15 +19,14 @@ public static class TransformAllCommand
     private static void Execute(ParseResult parseResult)
     {
         TransformAllOptions options = parseResult.ParseOptions<TransformAllOptions>();
-        string[] fileNames = Directory.GetFiles(options.InputDir, options.SearchPattern);
-        PrintEnumerable(fileNames, "Input files found:", 0, options.Quiet);
+        string[] inputPaths = Directory.GetFiles(options.InputDir, options.SearchPattern);
+        PrintEnumerable(inputPaths, "Input files found:", 0, options.Quiet);
         _ = Directory.CreateDirectory(options.OutputDir);
         MultiResponse? response = null;
         PrintLine("Writing files...", 0, options.Quiet);
-        foreach (string fileName in fileNames)
+        foreach (string inputPath in inputPaths)
         {
-            string inputPath = BulkTransform.GetCombinedPath(options.InputDir, fileName);
-            string outputPath = BulkTransform.GetOutputPath(fileName, options.OutputDir, options.Suffix);
+            string outputPath = BulkTransform.GetOutputPath(inputPath, options.OutputDir, options.Suffix);
             if (inputPath == outputPath && response != MultiResponse.YesToAll)
             {
                 if (response == MultiResponse.NoToAll)
@@ -35,13 +34,13 @@ public static class TransformAllCommand
                 response = ResponseUtils.GetMultiResponseInputOutputWarning(outputPath);
                 if (response == MultiResponse.Cancel)
                     return;
-                if (response == MultiResponse.No)
+                if (response == MultiResponse.No || response == MultiResponse.NoToAll)
                     continue;
                 // response = MultiResponse.Yes or null
             }
             PrintLine(outputPath, 1, options.Quiet);
-            string input = File.ReadAllText(fileName);
-            string? output = BulkTransform.TryTransform(fileName, input, options.TransformOptions);
+            string input = File.ReadAllText(inputPath);
+            string? output = BulkTransform.TryTransform(inputPath, input, options.TransformOptions);
             if (output == null)
                 continue;
             File.WriteAllText(outputPath, output);
