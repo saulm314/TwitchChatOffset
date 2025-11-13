@@ -35,7 +35,7 @@ public static class TransformManyCommand
             commonOptionsList.Add(BulkTransform.ResolveConflicts(commonOptions, cliOptions.CommonOptions));
 
         PrintLine("Sorting CSV data...", 0, cliOptions.Quiet);
-        commonOptionsList.Sort(new TransformManyCommonOptionsComparer());
+        commonOptionsList.Sort(TransformManyCommonOptionsComparer.Instance);
 
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         TransformManyData data = new();

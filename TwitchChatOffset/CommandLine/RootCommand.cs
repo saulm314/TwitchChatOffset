@@ -6,8 +6,6 @@ public static class RootCommand
     {
         Command.Add(TransformCommand.Command);
         Command.Add(TransformManyCommand.Command);
-        Command.Add(TransformManyToManyCommand.Command);
-        Command.Add(TransformOneToManyCommand.Command);
         Command.Add(TransformAllCommand.Command);
     }
 

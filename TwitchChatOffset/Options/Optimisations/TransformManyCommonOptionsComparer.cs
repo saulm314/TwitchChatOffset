@@ -6,6 +6,8 @@ namespace TwitchChatOffset.Options.Optimisations;
 
 public class TransformManyCommonOptionsComparer : Comparer<TransformManyCommonOptions>
 {
+    public static readonly TransformManyCommonOptionsComparer Instance = new();
+
     public override int Compare(TransformManyCommonOptions? x, TransformManyCommonOptions? y) => (int)Compare_(x, y);
 
     private static long Compare_(TransformManyCommonOptions? x, TransformManyCommonOptions? y)
