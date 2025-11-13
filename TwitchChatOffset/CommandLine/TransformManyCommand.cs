@@ -42,7 +42,8 @@ public static class TransformManyCommand
         foreach (TransformManyCommonOptions commonOptions in commonOptionsList)
         {
             TransformManyOptimisation optimisation = BulkTransform.GetOptimisation(data.CommonOptions, commonOptions);
-            data.CommonOptions = commonOptions;
+            if (optimisation == TransformManyOptimisation.Same)
+                continue;
             if (!IOUtils.ValidateInputFileNameNotEmpty(commonOptions.InputFile) || !IOUtils.ValidateOutputFileNameNotEmpty(commonOptions.OutputFile))
                 continue;
             string outputFileName =
@@ -60,10 +61,16 @@ public static class TransformManyCommand
                 continue;
             PrintLine(outputPath, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
-            string input = File.ReadAllText(inputPath);
-            data.OriginalComments = Transform.GetSortedOriginalCommentsAndEmptyJson(input, out data.EmptyJson);
-            data.FilledJson = Transform.ApplyOffset(data.OriginalComments, data.EmptyJson, commonOptions.TransformOptions);
-            data.Output = Transform.Serialize(data.FilledJson, commonOptions.TransformOptions);
+            if (optimisation < TransformManyOptimisation.SameInputFile)
+            {
+                string input = File.ReadAllText(inputPath);
+                data.OriginalComments = Transform.GetSortedOriginalCommentsAndEmptyJson(input, out data.EmptyJson);
+            }
+            if (optimisation < TransformManyOptimisation.SameOffset)
+                data.FilledJson = Transform.ApplyOffset(data.OriginalComments!, data.EmptyJson!, commonOptions.TransformOptions);
+            if (optimisation < TransformManyOptimisation.SameFormatSameSubtitleOptions)
+                data.Output = Transform.Serialize(data.FilledJson!, commonOptions.TransformOptions);
+            data.CommonOptions = commonOptions;
             File.WriteAllText(outputPath, data.Output);
         }
     }
