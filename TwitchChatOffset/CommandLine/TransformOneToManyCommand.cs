@@ -41,7 +41,11 @@ public static class TransformOneToManyCommand
                 continue;
             }
             TransformOneToManyCommonOptions commonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
-            string outputPath = BulkTransform.GetCombinedPath(commonOptions.OutputDir, csvOptions.OutputFile);
+            string outputFileName =
+                commonOptions.Suffix == "/auto" ?
+                csvOptions.OutputFile :
+                Path.GetFileNameWithoutExtension(csvOptions.OutputFile) + commonOptions.Suffix;
+            string outputPath = Path.Combine(commonOptions.OutputDir, outputFileName);
             if (inputPath == outputPath && response != MultiResponse.YesToAll)
             {
                 if (response == MultiResponse.NoToAll)

@@ -40,8 +40,12 @@ public static class TransformManyToManyCommand
                 continue;
             }
             TransformManyToManyCommonOptions commonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
-            string inputPath = BulkTransform.GetCombinedPath(commonOptions.InputDir, csvOptions.InputFile);
-            string outputPath = BulkTransform.GetCombinedPath(commonOptions.OutputDir, csvOptions.OutputFile);
+            string outputFileName =
+                commonOptions.Suffix == "/auto" ?
+                csvOptions.OutputFile :
+                Path.GetFileNameWithoutExtension(csvOptions.OutputFile) + commonOptions.Suffix;
+            string inputPath = Path.Combine(commonOptions.InputDir, csvOptions.InputFile);
+            string outputPath = Path.Combine(commonOptions.OutputDir, outputFileName);
             if (inputPath == outputPath && response != MultiResponse.YesToAll)
             {
                 if (response == MultiResponse.NoToAll)

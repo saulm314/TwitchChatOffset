@@ -25,21 +25,6 @@ public static class BulkTransform
         return options;
     }
 
-    public static string GetCombinedPath(string directory, string fileName)
-        => directory.EndsWith('\\') ? directory + fileName : directory + '\\' + fileName;
-
-    public static string GetOutputPath(string inputFileName, string outputDir, string outputSuffix)
-    {
-        string inputFileNameBody = Path.GetFileNameWithoutExtension(inputFileName);
-        StringBuilder outputPathBuilder = new();
-        outputPathBuilder.Append(outputDir);
-        if (!outputDir.EndsWith('\\'))
-            outputPathBuilder.Append('\\');
-        outputPathBuilder.Append(inputFileNameBody);
-        outputPathBuilder.Append(outputSuffix);
-        return outputPathBuilder.ToString();
-    }
-
     public static string? TryTransform(string inputFile, string input, TransformOptions options)
     {
         string output;

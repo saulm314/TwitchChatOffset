@@ -26,7 +26,8 @@ public static class TransformAllCommand
         PrintLine("Writing files...", 0, options.Quiet);
         foreach (string inputPath in inputPaths)
         {
-            string outputPath = BulkTransform.GetOutputPath(inputPath, options.OutputDir, options.Suffix);
+            string outputFileName = options.Suffix == "/auto" ? Path.GetFileName(inputPath) : Path.GetFileNameWithoutExtension(inputPath) + options.Suffix;
+            string outputPath = Path.Combine(options.OutputDir, outputFileName);
             if (inputPath == outputPath && response != MultiResponse.YesToAll)
             {
                 if (response == MultiResponse.NoToAll)
