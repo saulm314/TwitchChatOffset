@@ -16,6 +16,9 @@ public record TransformAllOptions : IOptionGroup
     [CliOption(nameof(CliOptions.OutputDir))]
     public Plicit<string> OutputDir;
 
+    [CliOption(nameof(CliOptions.Suffix))]
+    public Plicit<string> Suffix;
+
     [CliOption(nameof(CliOptions.Quiet))]
     public Plicit<bool> Quiet;
 }

@@ -69,6 +69,10 @@ public static class CliOptions
         "Input directory (optional)",
         _ => ".");
 
+    public static CliOptionContainer<string> Suffix { get; } = new("--suffix", Aliases.Suffix,
+        "Suffix override for output file, e.g. \".json\", \".ytt\", \"-transformed.json\", etc. (optional)",
+        _ => "/auto");
+
     public static CliOptionContainer<bool> Quiet { get; } = new("--quiet", Aliases.Quiet,
         "Do not print a message for intermediate steps such as individual files being written (optional)",
         _ => false);

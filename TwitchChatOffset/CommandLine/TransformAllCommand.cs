@@ -2,7 +2,6 @@
 using TwitchChatOffset.Options.Groups;
 using System.CommandLine;
 using System.IO;
-using static TwitchChatOffset.CommandLine.Arguments;
 
 namespace TwitchChatOffset.CommandLine;
 
@@ -12,14 +11,12 @@ public static class TransformAllCommand
 
     static TransformAllCommand()
     {
-        Command.Add(SuffixArgument);
         Command.AddOptions<TransformAllOptions>();
         Command.SetAction(Execute);
     }
 
     private static void Execute(ParseResult parseResult)
     {
-        string suffix = parseResult.GetValue(SuffixArgument)!;
         TransformAllOptions options = parseResult.ParseOptions<TransformAllOptions>();
         string[] fileNames = Directory.GetFiles(options.InputDir, options.SearchPattern);
         PrintEnumerable(fileNames, "Input files found:", 0, options.Quiet);
@@ -27,7 +24,7 @@ public static class TransformAllCommand
         PrintLine("Writing files...", 0, options.Quiet);
         foreach (string fileName in fileNames)
         {
-            string outputPath = BulkTransform.GetOutputPath(fileName, options.OutputDir, suffix);
+            string outputPath = BulkTransform.GetOutputPath(fileName, options.OutputDir, options.Suffix);
             PrintLine(outputPath, 1, options.Quiet);
             string input = File.ReadAllText(fileName);
             string? output = BulkTransform.TryTransform(fileName, input, options.TransformOptions);

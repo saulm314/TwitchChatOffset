@@ -12,4 +12,7 @@ public record TransformManyToManyCommonOptions : IOptionGroup
 
     [CliOption(nameof(CliOptions.OutputDir))]
     public Plicit<string> OutputDir;
+
+    [CliOption(nameof(CliOptions.Suffix))]
+    public Plicit<string> Suffix;
 }

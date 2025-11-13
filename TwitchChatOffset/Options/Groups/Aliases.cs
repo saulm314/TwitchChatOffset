@@ -21,6 +21,7 @@ public static class Aliases
         "--subtitle-bg-color", "--sub-bg-color", "--ytt-bg-color"]);
     public static AliasesContainer InputDir { get; } = new(["--input-directory", "--input", "-i"]);
     public static AliasesContainer OutputDir { get; } = new(["--output-directory", "--output-dir", "--output", "-o"]);
+    public static AliasesContainer Suffix { get; } = new(["--suffix"]);
     public static AliasesContainer Quiet { get; } = new(["--quiet", "-q"]);
     public static AliasesContainer SearchPattern { get; } = new(["--search-pattern", "--pattern"]);
 }
