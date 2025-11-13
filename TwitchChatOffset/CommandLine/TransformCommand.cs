@@ -1,4 +1,5 @@
-﻿using TwitchChatOffset.Options;
+﻿using TwitchChatOffset.ConsoleUtils;
+using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
 using System.CommandLine;
 using System.IO;
@@ -23,6 +24,13 @@ public static class TransformCommand
         string inputPath = parseResult.GetValue(InputArgument)!;
         string outputPath = parseResult.GetValue(OutputArgument)!;
         TransformOptions options = parseResult.ParseOptions<TransformOptions>();
+        if (inputPath == outputPath)
+        {
+            Response response = ResponseUtils.GetResponseInputOutputWarning(outputPath);
+            if (response == Response.No)
+                return;
+            // response = Response.Yes
+        }
         string input = File.ReadAllText(inputPath);
         string output = Transform.DoTransform(input, options);
         File.WriteAllText(outputPath, output);

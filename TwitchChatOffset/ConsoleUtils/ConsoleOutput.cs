@@ -1,11 +1,10 @@
-﻿global using static TwitchChatOffset.ConsoleUtils;
-using System;
+﻿using System;
 using System.Collections;
 using System.Reflection;
 
-namespace TwitchChatOffset;
+namespace TwitchChatOffset.ConsoleUtils;
 
-public static class ConsoleUtils
+public static class ConsoleOutput
 {
     public static void PrintLine(object? message, byte indent = 0, bool quiet = false)
     {

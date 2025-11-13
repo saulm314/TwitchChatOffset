@@ -1,4 +1,5 @@
-﻿using TwitchChatOffset.Csv;
+﻿using TwitchChatOffset.ConsoleUtils;
+using TwitchChatOffset.Csv;
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
 using System.CommandLine;
@@ -24,6 +25,7 @@ public static class TransformManyToManyCommand
         string csvPath = parseResult.GetValue(CsvArgument)!;
         TransformManyToManyCliOptions cliOptions = parseResult.ParseOptions<TransformManyToManyCliOptions>();
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
+        MultiResponse? response = null;
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         foreach (TransformManyToManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformManyToManyCsvOptions>(reader))
         {
@@ -38,10 +40,21 @@ public static class TransformManyToManyCommand
                 continue;
             }
             TransformManyToManyCommonOptions commonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
-            PrintLine(csvOptions.OutputFile, 1, cliOptions.Quiet);
-            _ = Directory.CreateDirectory(commonOptions.OutputDir);
-            string outputPath = BulkTransform.GetCombinedPath(commonOptions.OutputDir, csvOptions.OutputFile);
             string inputPath = BulkTransform.GetCombinedPath(commonOptions.InputDir, csvOptions.InputFile);
+            string outputPath = BulkTransform.GetCombinedPath(commonOptions.OutputDir, csvOptions.OutputFile);
+            if (inputPath == outputPath && response != MultiResponse.YesToAll)
+            {
+                if (response == MultiResponse.NoToAll)
+                    continue;
+                response = ResponseUtils.GetMultiResponseInputOutputWarning(outputPath);
+                if (response == MultiResponse.Cancel)
+                    return;
+                if (response == MultiResponse.No)
+                    continue;
+                // response = MultiResponse.Yes or null
+            }
+            PrintLine(outputPath, 1, cliOptions.Quiet);
+            _ = Directory.CreateDirectory(commonOptions.OutputDir);
             string input = File.ReadAllText(inputPath);
             string? output = BulkTransform.TryTransform(inputPath, input, commonOptions.TransformOptions);
             if (output == null)

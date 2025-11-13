@@ -1,4 +1,5 @@
-﻿using TwitchChatOffset.Csv;
+﻿using TwitchChatOffset.ConsoleUtils;
+using TwitchChatOffset.Csv;
 using TwitchChatOffset.Json;
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
@@ -30,6 +31,7 @@ public static class TransformOneToManyCommand
         string input = File.ReadAllText(inputPath);
         JToken json = JsonUtils.Deserialize(input);
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
+        MultiResponse? response = null;
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         foreach (TransformOneToManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformOneToManyCsvOptions>(reader))
         {
@@ -39,9 +41,20 @@ public static class TransformOneToManyCommand
                 continue;
             }
             TransformOneToManyCommonOptions commonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
+            string outputPath = BulkTransform.GetCombinedPath(commonOptions.OutputDir, csvOptions.OutputFile);
+            if (inputPath == outputPath && response != MultiResponse.YesToAll)
+            {
+                if (response == MultiResponse.NoToAll)
+                    continue;
+                response = ResponseUtils.GetMultiResponseInputOutputWarning(outputPath);
+                if (response == MultiResponse.Cancel)
+                    return;
+                if (response == MultiResponse.No)
+                    continue;
+                // response = MultiResponse.Yes or null
+            }
             PrintLine(csvOptions.OutputFile, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
-            string outputPath = BulkTransform.GetCombinedPath(commonOptions.OutputDir, csvOptions.OutputFile);
             string? output = BulkTransform.TryTransform(inputPath, json, commonOptions.TransformOptions);
             if (output == null)
                 continue;
