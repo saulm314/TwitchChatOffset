@@ -26,6 +26,68 @@ public static class Transform
 
     //_______________________________________________________________________
 
+    public static JToken[] GetSortedOriginalCommentsAndEmptyJson(string input, out JToken emptyJson)
+    {
+        emptyJson = JsonUtils.Deserialize(input);
+        JArray originalComments = emptyJson.D("comments").As<JArray>();
+        JToken[] sortedComments = [..originalComments];
+        sortedComments.Sort(new CommentComparer());
+        emptyJson.Set("comments", new JArray());
+        return sortedComments;
+    }
+
+    public static JToken ApplyOffset(JToken[] allComments, JToken emptyJson, TransformCommonOptions options)
+    {
+        JToken filledJson = emptyJson.DeepClone();
+        (long start, long end, long delay) = options;
+        if (delay < 0)
+        {
+            PrintWarning("Warning: delay value is less than zero which is not supported; treating it as zero instead");
+            delay = options.Delay.Value = 0;
+        }
+        if (end >= 0 && end < start)
+        {
+            PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
+            return filledJson;
+        }
+        JArray selectedComments = filledJson.D("comments").As<JArray>();
+        JToken startTemplate = GetTemplate(start);
+        JToken endTemplate = GetTemplate(end);
+        int startIndex = GetIndex(allComments, startTemplate);
+        int endIndex = end >= 0 ? GetIndex(allComments, endTemplate) : allComments.Length;
+        for (int i = startIndex; i < endIndex && i < allComments.Length; i++)
+        {
+            JToken comment = allComments[i];
+            JValue offsetJValue = comment.D("content_offset_seconds").As<JValue>();
+            long offset = offsetJValue.As<long>();
+            offsetJValue.Set(offset - start + delay);
+            selectedComments.Add(comment);
+        }
+        return filledJson;
+    }
+
+    private static JObject GetTemplate(long commentTime)
+    {
+        JObject template = [];
+        template.Set("content_offset_seconds", commentTime);
+        return template;
+    }
+
+    private static int GetIndex(JToken[] allComments, JToken template)
+    {
+        int index = Array.BinarySearch(allComments, template, CommentComparer.Instance);
+        if (index < 0)
+            return ~index;
+        int lastIndex = index;
+        for (int i = index - 1; i >= 0; i--)
+        {
+            if (CommentComparer.Instance.Compare(allComments[i], template) != 0)
+                break;
+            lastIndex = i;
+        }
+        return lastIndex;
+    }
+
     public static void ApplyOffset(JToken json, TransformCommonOptions options)
     {
         (long start, long end, long delay) = options;

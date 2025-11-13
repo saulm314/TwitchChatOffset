@@ -24,13 +24,9 @@ public static class BulkTransform
         return options;
     }
 
-    public static TransformManyOptimisation GetOptimisation(TransformManyCsvOptions? csvOptions0, TransformManyCsvOptions csvOptions1)
+    public static TransformManyOptimisation GetOptimisation(TransformManyCommonOptions? common0, TransformManyCommonOptions common1)
     {
-        if (csvOptions0 == null)
-            return TransformManyOptimisation.None;
-        TransformManyCommonOptions common0 = csvOptions0.CommonOptions;
-        TransformManyCommonOptions common1 = csvOptions1.CommonOptions;
-        if (common0.InputFile != common1.InputFile)
+        if (common0?.InputFile != common1.InputFile)
             return TransformManyOptimisation.None;
         if (common0.InputDir != common1.InputDir)
             return TransformManyOptimisation.None;
@@ -40,10 +36,10 @@ public static class BulkTransform
             return TransformManyOptimisation.SameInputFile;
         if (common0.TransformOptions.Format != common1.TransformOptions.Format)
             return TransformManyOptimisation.SameOffset;
-        if (common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
-            return TransformManyOptimisation.SameFormat;
-        if (csvOptions0 != csvOptions1)
-            return TransformManyOptimisation.SameSubtitleOptions;
+        if (common0.TransformOptions.Format == Format.Ytt && common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
+            return TransformManyOptimisation.SameOffset;
+        if (common0 != common1)
+            return TransformManyOptimisation.SameFormatSameSubtitleOptions;
         return TransformManyOptimisation.Same;
     }
 

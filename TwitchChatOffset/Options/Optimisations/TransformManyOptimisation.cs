@@ -1,12 +1,11 @@
 ﻿namespace TwitchChatOffset.Options.Optimisations;
 
-// for each optimisation, it is assumed that all optimisations above it also apply
+// the optimisations get more intense with each value
 public enum TransformManyOptimisation
 {
     None,
     SameInputFile,
     SameOffset,
-    SameFormat,
-    SameSubtitleOptions,
+    SameFormatSameSubtitleOptions, // if the format is not a subtitle format then subtitle options can be different
     Same
 }

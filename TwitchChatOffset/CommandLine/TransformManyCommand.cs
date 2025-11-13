@@ -1,5 +1,6 @@
 ﻿using TwitchChatOffset.ConsoleUtils;
 using TwitchChatOffset.Csv;
+using TwitchChatOffset.Json;
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Optimisations;
 using TwitchChatOffset.Options.Groups;
@@ -26,25 +27,22 @@ public static class TransformManyCommand
     {
         string csvPath = parseResult.GetValue(CsvArgument)!;
         TransformManyCliOptions cliOptions = parseResult.ParseOptions<TransformManyCliOptions>();
-        using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
-        List<TransformManyCsvOptions> csvOptionsList = [];
+
         PrintLine("Reading CSV data...", 0, cliOptions.Quiet);
-        foreach (TransformManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformManyCsvOptions>(reader))
-        {
-            csvOptions.CommonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
-            csvOptionsList.Add(csvOptions);
-        }
+        using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
+        List<TransformManyCommonOptions> commonOptionsList = [];
+        foreach (TransformManyCommonOptions commonOptions in CsvSerialization.Deserialize<TransformManyCommonOptions>(reader))
+            commonOptionsList.Add(BulkTransform.ResolveConflicts(commonOptions, cliOptions.CommonOptions));
+
         PrintLine("Sorting CSV data...", 0, cliOptions.Quiet);
-        csvOptionsList.Sort(new TransformManyCsvOptionsComparer());
-        TransformManyCsvOptions? globalCsvOptions = null;
-        MultiResponse? globalResponse = null;
+        commonOptionsList.Sort(new TransformManyCommonOptionsComparer());
+
         PrintLine("Writing files...", 0, cliOptions.Quiet);
-        foreach (TransformManyCsvOptions csvOptions in csvOptionsList)
+        TransformManyData data = new();
+        foreach (TransformManyCommonOptions commonOptions in commonOptionsList)
         {
-            TransformManyCsvOptions? previousCsvOptions = globalCsvOptions;
-            globalCsvOptions = csvOptions;
-            TransformManyOptimisation optimisation = BulkTransform.GetOptimisation(previousCsvOptions, csvOptions);
-            TransformManyCommonOptions commonOptions = csvOptions.CommonOptions;
+            TransformManyOptimisation optimisation = BulkTransform.GetOptimisation(data.CommonOptions, commonOptions);
+            data.CommonOptions = commonOptions;
             if (!IOUtils.ValidateInputFileNameNotEmpty(commonOptions.InputFile) || !IOUtils.ValidateOutputFileNameNotEmpty(commonOptions.OutputFile))
                 continue;
             string outputFileName =
@@ -53,7 +51,7 @@ public static class TransformManyCommand
                 Path.GetFileNameWithoutExtension(commonOptions.OutputFile) + commonOptions.Suffix;
             string inputPath = Path.Combine(commonOptions.InputDir, commonOptions.InputFile);
             string outputPath = Path.Combine(commonOptions.OutputDir, outputFileName);
-            Response? response = ResponseUtils.ValidateInputOutput(ref inputPath, ref outputPath, ref globalResponse, cliOptions.Response);
+            Response? response = ResponseUtils.ValidateInputOutput(ref inputPath, ref outputPath, ref data.Response, cliOptions.Response);
             if (response == null)
                 return;
             if (response == Response.No)
@@ -63,10 +61,10 @@ public static class TransformManyCommand
             PrintLine(outputPath, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
             string input = File.ReadAllText(inputPath);
-            string? output = BulkTransform.TryTransform(inputPath, input, commonOptions.TransformOptions);
-            if (output == null)
-                continue;
-            File.WriteAllText(outputPath, output);
+            data.OriginalComments = Transform.GetSortedOriginalCommentsAndEmptyJson(input, out data.EmptyJson);
+            data.FilledJson = Transform.ApplyOffset(data.OriginalComments, data.EmptyJson, commonOptions.TransformOptions);
+            data.Output = Transform.Serialize(data.FilledJson, commonOptions.TransformOptions);
+            File.WriteAllText(outputPath, data.Output);
         }
     }
 }
