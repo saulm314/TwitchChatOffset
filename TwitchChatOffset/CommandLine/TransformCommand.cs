@@ -24,15 +24,11 @@ public static class TransformCommand
         string inputPath = parseResult.GetValue(InputArgument)!;
         string outputPath = parseResult.GetValue(OutputArgument)!;
         TransformOptions options = parseResult.ParseOptions<TransformOptions>();
-        if (inputPath == outputPath)
-        {
-            Response response = ResponseUtils.GetResponseInputOutputWarning(outputPath);
-            if (response == Response.No)
-                return;
-            // response = Response.Yes
-        }
+        Response response = ResponseUtils.ValidateInputOutput(ref inputPath, ref outputPath, options.Response);
+        if (response == Response.No)
+            return;
         string input = File.ReadAllText(inputPath);
-        string output = Transform.DoTransform(input, options);
+        string output = Transform.DoTransform(input, options.Options);
         File.WriteAllText(outputPath, output);
     }
 }

@@ -54,7 +54,7 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    TransformOptions options = new()
+                    TransformCommonOptions options = new()
                     {
                         Start = new(start, true),
                         End = new(end, true),
@@ -92,7 +92,7 @@ public class TransformTests
             {
                 foreach (Format format in formats)
                 {
-                    TransformOptions options = new()
+                    TransformCommonOptions options = new()
                     {
                         Start = new(start, true),
                         End = new(end, true),
@@ -125,7 +125,7 @@ public class TransformTests
 
         foreach (long end in ends)
         {
-            TransformOptions options = new()
+            TransformCommonOptions options = new()
             {
                 Start = new(start, true),
                 End = new(end, true),
@@ -161,7 +161,7 @@ public class TransformTests
                 if (start == 0 && end < 0 && delay <= 0)
                     continue;
 
-                TransformOptions options = new()
+                TransformCommonOptions options = new()
                 {
                     Start = new(start, true),
                     End = new(end, true),
@@ -200,7 +200,7 @@ public class TransformTests
                 if (start == 0 && end < 0 && delay <= 0)
                     continue;
 
-                TransformOptions options = new()
+                TransformCommonOptions options = new()
                 {
                     Start = new(start, true),
                     End = new(end, true),
@@ -278,7 +278,7 @@ public class TransformTests
     {
         JToken json = JsonUtils.Deserialize(inputString);
 
-        TransformOptions options = new()
+        TransformCommonOptions options = new()
         {
             Start = new(start, true),
             End = new(end, true),

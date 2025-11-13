@@ -2,8 +2,6 @@
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
 using System;
-using System.IO;
-using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -25,7 +23,7 @@ public static class BulkTransform
         return options;
     }
 
-    public static string? TryTransform(string inputFile, string input, TransformOptions options)
+    public static string? TryTransform(string inputFile, string input, TransformCommonOptions options)
     {
         string output;
         try
@@ -53,7 +51,7 @@ public static class BulkTransform
         return output;
     }
 
-    public static string? TryTransform(string inputFile, JToken input, TransformOptions options)
+    public static string? TryTransform(string inputFile, JToken input, TransformCommonOptions options)
     {
         string output;
         try

@@ -1,4 +1,6 @@
-﻿namespace TwitchChatOffset.Options.Groups;
+﻿using TwitchChatOffset.ConsoleUtils;
+
+namespace TwitchChatOffset.Options.Groups;
 
 public record TransformManyToManyCliOptions : IOptionGroup
 {
@@ -9,4 +11,7 @@ public record TransformManyToManyCliOptions : IOptionGroup
 
     [CliOption(nameof(CliOptions.Quiet))]
     public Plicit<bool> Quiet;
+
+    [CliOption(nameof(CliOptions.MultiResponse))]
+    public Plicit<CliMultiResponse> Response;
 }

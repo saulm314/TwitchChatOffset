@@ -31,7 +31,7 @@ public static class TransformOneToManyCommand
         string input = File.ReadAllText(inputPath);
         JToken json = JsonUtils.Deserialize(input);
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
-        MultiResponse? response = null;
+        MultiResponse? globalResponse = null;
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         foreach (TransformOneToManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformOneToManyCsvOptions>(reader))
         {
@@ -46,17 +46,11 @@ public static class TransformOneToManyCommand
                 csvOptions.OutputFile :
                 Path.GetFileNameWithoutExtension(csvOptions.OutputFile) + commonOptions.Suffix;
             string outputPath = Path.Combine(commonOptions.OutputDir, outputFileName);
-            if (inputPath == outputPath && response != MultiResponse.YesToAll)
-            {
-                if (response == MultiResponse.NoToAll)
-                    continue;
-                response = ResponseUtils.GetMultiResponseInputOutputWarning(outputPath);
-                if (response == MultiResponse.Cancel)
-                    return;
-                if (response == MultiResponse.No || response == MultiResponse.NoToAll)
-                    continue;
-                // response = MultiResponse.Yes or null
-            }
+            Response? response = ResponseUtils.ValidateInputOutput(ref inputPath, ref outputPath, ref globalResponse, cliOptions.Response);
+            if (response == null)
+                return;
+            if (response == Response.No)
+                continue;
             PrintLine(csvOptions.OutputFile, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
             string? output = BulkTransform.TryTransform(inputPath, json, commonOptions.TransformOptions);

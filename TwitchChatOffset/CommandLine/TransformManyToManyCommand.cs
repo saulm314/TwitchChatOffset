@@ -25,7 +25,7 @@ public static class TransformManyToManyCommand
         string csvPath = parseResult.GetValue(CsvArgument)!;
         TransformManyToManyCliOptions cliOptions = parseResult.ParseOptions<TransformManyToManyCliOptions>();
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
-        MultiResponse? response = null;
+        MultiResponse? globalResponse = null;
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         foreach (TransformManyToManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformManyToManyCsvOptions>(reader))
         {
@@ -46,17 +46,11 @@ public static class TransformManyToManyCommand
                 Path.GetFileNameWithoutExtension(csvOptions.OutputFile) + commonOptions.Suffix;
             string inputPath = Path.Combine(commonOptions.InputDir, csvOptions.InputFile);
             string outputPath = Path.Combine(commonOptions.OutputDir, outputFileName);
-            if (inputPath == outputPath && response != MultiResponse.YesToAll)
-            {
-                if (response == MultiResponse.NoToAll)
-                    continue;
-                response = ResponseUtils.GetMultiResponseInputOutputWarning(outputPath);
-                if (response == MultiResponse.Cancel)
-                    return;
-                if (response == MultiResponse.No || response == MultiResponse.NoToAll)
-                    continue;
-                // response = MultiResponse.Yes or null
-            }
+            Response? response = ResponseUtils.ValidateInputOutput(ref inputPath, ref outputPath, ref globalResponse, cliOptions.Response);
+            if (response == null)
+                return;
+            if (response == Response.No)
+                continue;
             PrintLine(outputPath, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
             string input = File.ReadAllText(inputPath);

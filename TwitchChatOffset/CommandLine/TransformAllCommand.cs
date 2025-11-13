@@ -19,26 +19,22 @@ public static class TransformAllCommand
     private static void Execute(ParseResult parseResult)
     {
         TransformAllOptions options = parseResult.ParseOptions<TransformAllOptions>();
+        PrintError(options.Response.Value);
         string[] inputPaths = Directory.GetFiles(options.InputDir, options.SearchPattern);
         PrintEnumerable(inputPaths, "Input files found:", 0, options.Quiet);
         _ = Directory.CreateDirectory(options.OutputDir);
-        MultiResponse? response = null;
+        MultiResponse? globalResponse = null;
         PrintLine("Writing files...", 0, options.Quiet);
-        foreach (string inputPath in inputPaths)
+        foreach (string inputPath_ in inputPaths)
         {
+            string inputPath = inputPath_;
             string outputFileName = options.Suffix == "/auto" ? Path.GetFileName(inputPath) : Path.GetFileNameWithoutExtension(inputPath) + options.Suffix;
             string outputPath = Path.Combine(options.OutputDir, outputFileName);
-            if (inputPath == outputPath && response != MultiResponse.YesToAll)
-            {
-                if (response == MultiResponse.NoToAll)
-                    continue;
-                response = ResponseUtils.GetMultiResponseInputOutputWarning(outputPath);
-                if (response == MultiResponse.Cancel)
-                    return;
-                if (response == MultiResponse.No || response == MultiResponse.NoToAll)
-                    continue;
-                // response = MultiResponse.Yes or null
-            }
+            Response? response = ResponseUtils.ValidateInputOutput(ref inputPath, ref outputPath, ref globalResponse, options.Response);
+            if (response == null)
+                return;
+            if (response == Response.No)
+                continue;
             PrintLine(outputPath, 1, options.Quiet);
             string input = File.ReadAllText(inputPath);
             string? output = BulkTransform.TryTransform(inputPath, input, options.TransformOptions);

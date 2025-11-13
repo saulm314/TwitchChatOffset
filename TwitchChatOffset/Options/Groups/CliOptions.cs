@@ -1,4 +1,5 @@
-﻿using TwitchChatOffset.Ytt;
+﻿using TwitchChatOffset.ConsoleUtils;
+using TwitchChatOffset.Ytt;
 using YTSubConverter.Shared;
 
 namespace TwitchChatOffset.Options.Groups;
@@ -80,4 +81,12 @@ public static class CliOptions
     public static CliOptionContainer<string> SearchPattern { get; } = new("--search-pattern", Aliases.SearchPattern,
         "Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional)",
         _ => "*.json");
+
+    public static CliOptionContainer<CliResponse> Response { get; } = new("--response", Aliases.Response,
+        "Set automatic response to any prompts (optional)",
+        _ => CliResponse.Manual);
+
+    public static CliOptionContainer<CliMultiResponse> MultiResponse { get; } = new("--response", Aliases.MultiResponse,
+        "Set automatic response to any prompts (optional)",
+        _ => CliMultiResponse.Manual);
 }
