@@ -100,11 +100,11 @@ public static class CsvSerialization
         }
         catch
         {
-            PrintWarning($"Cannot convert \"{field}\" to type {fieldData.FieldPath[^1].FieldType.FullName}; treating as an empty field...", 1);
+            PrintWarning($"Cannot convert \"{field}\" to type {fieldData.FieldPath[^1].FieldType.GenericTypeArguments[0].FullName}; treating as an empty field...", 1);
             return;
         }
-        Type plicitType = FieldData.PlicitTypeDefinition.MakeGenericType(fieldData.FieldPath[^1].FieldType);
-        ConstructorInfo plicitConstructor = plicitType.GetConstructor([fieldData.FieldPath[^1].FieldType, typeof(bool)])!;
+        Type plicitType = fieldData.FieldPath[^1].FieldType;
+        ConstructorInfo plicitConstructor = plicitType.GetConstructor([fieldData.FieldPath[^1].FieldType.GenericTypeArguments[0], typeof(bool)])!;
         IPlicit plicit = (IPlicit)plicitConstructor.Invoke([rawValue, true]);
         data.WriteField(fieldData, plicit);
     }

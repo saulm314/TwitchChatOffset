@@ -11,7 +11,7 @@ public class FieldData
     {
         FieldPath = fieldPath;
         Attribute = attribute;
-        Converter = TypeDescriptor.GetConverter(fieldPath[^1].FieldType);
+        Converter = TypeDescriptor.GetConverter(fieldPath[^1].FieldType.GenericTypeArguments[0]);
         if (attribute is not CliOptionAttribute cliAttribute)
             return;
         _parseResultGetValueMethod = ParseResultGetValueMethodDefinition.MakeGenericMethod(cliAttribute.Option.ValueType);
