@@ -1,7 +1,9 @@
 ﻿using TwitchChatOffset.ConsoleUtils;
 using TwitchChatOffset.Csv;
 using TwitchChatOffset.Options;
+using TwitchChatOffset.Options.Comparers;
 using TwitchChatOffset.Options.Groups;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
 using CSVFile;
@@ -25,11 +27,20 @@ public static class TransformManyCommand
         string csvPath = parseResult.GetValue(CsvArgument)!;
         TransformManyCliOptions cliOptions = parseResult.ParseOptions<TransformManyCliOptions>();
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
-        MultiResponse? globalResponse = null;
-        PrintLine("Writing files...", 0, cliOptions.Quiet);
+        List<TransformManyCsvOptions> csvOptionsList = [];
+        PrintLine("Reading CSV data...", 0, cliOptions.Quiet);
         foreach (TransformManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformManyCsvOptions>(reader))
         {
-            TransformManyCommonOptions commonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
+            csvOptions.CommonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
+            csvOptionsList.Add(csvOptions);
+        }
+        PrintLine("Sorting CSV data...", 0, cliOptions.Quiet);
+        csvOptionsList.Sort(new TransformManyCsvOptionsComparer());
+        MultiResponse? globalResponse = null;
+        PrintLine("Writing files...", 0, cliOptions.Quiet);
+        foreach (TransformManyCsvOptions csvOptions in csvOptionsList)
+        {
+            TransformManyCommonOptions commonOptions = csvOptions.CommonOptions;
             if (!IOUtils.ValidateInputFileNameNotEmpty(commonOptions.InputFile) || !IOUtils.ValidateOutputFileNameNotEmpty(commonOptions.OutputFile))
                 continue;
             string outputFileName =

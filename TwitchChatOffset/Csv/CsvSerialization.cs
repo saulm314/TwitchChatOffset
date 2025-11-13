@@ -37,8 +37,8 @@ public static class CsvSerialization
     }
 
     private static readonly MethodInfo _deserializeDummyMethod =
-        typeof(CsvSerialization).GetMethod(nameof(DeserializeDummy), BindingFlags.NonPublic | BindingFlags.Static)!;
-    private static IEnumerable<TOptionGroup> DeserializeDummy<TOptionGroup>(CSVReader reader) where TOptionGroup : class, IOptionGroup, new()
+        typeof(CsvSerialization).GetMethod(nameof(Deserialize_), BindingFlags.NonPublic | BindingFlags.Static)!;
+    private static IEnumerable<TOptionGroup> Deserialize_<TOptionGroup>(CSVReader reader) where TOptionGroup : class, IOptionGroup, new()
         => Deserialize<TOptionGroup>(reader);
 
     private static Dictionary<string, FieldData> GetDataMap<TOptionGroup>(string[] headers) where TOptionGroup : class, IOptionGroup, new()
