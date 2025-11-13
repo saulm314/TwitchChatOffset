@@ -29,22 +29,14 @@ public static class TransformManyToManyCommand
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         foreach (TransformManyToManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformManyToManyCsvOptions>(reader))
         {
-            if (!csvOptions.InputFile.Explicit)
-            {
-                PrintError("Input file must not be empty! Skipping...", 1);
-                continue;
-            }
-            if (!csvOptions.OutputFile.Explicit)
-            {
-                PrintError("Output file must not be empty! Skipping...", 1);
-                continue;
-            }
             TransformManyToManyCommonOptions commonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
+            if (!IOUtils.ValidateInputFileNameNotEmpty(commonOptions.InputFile) || !IOUtils.ValidateOutputFileNameNotEmpty(commonOptions.OutputFile))
+                continue;
             string outputFileName =
                 commonOptions.Suffix == "/auto" ?
-                csvOptions.OutputFile :
-                Path.GetFileNameWithoutExtension(csvOptions.OutputFile) + commonOptions.Suffix;
-            string inputPath = Path.Combine(commonOptions.InputDir, csvOptions.InputFile);
+                commonOptions.OutputFile :
+                Path.GetFileNameWithoutExtension(commonOptions.OutputFile) + commonOptions.Suffix;
+            string inputPath = Path.Combine(commonOptions.InputDir, commonOptions.InputFile);
             string outputPath = Path.Combine(commonOptions.OutputDir, outputFileName);
             Response? response = ResponseUtils.ValidateInputOutput(ref inputPath, ref outputPath, ref globalResponse, cliOptions.Response);
             if (response == null)

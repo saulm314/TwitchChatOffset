@@ -5,6 +5,12 @@ public record TransformManyToManyCommonOptions : IOptionGroup
     public static FieldData[] FieldDatas => _fieldDatas ??= IOptionGroup.GetFieldDatas(typeof(TransformManyToManyCommonOptions));
     private static FieldData[]? _fieldDatas;
 
+    [CliOption(nameof(CliOptions.InputFile))]
+    public Plicit<string> InputFile;
+
+    [CliOption(nameof(CliOptions.OutputFile))]
+    public Plicit<string> OutputFile;
+
     public TransformCommonOptions TransformOptions = new();
 
     [CliOption(nameof(CliOptions.InputDir))]

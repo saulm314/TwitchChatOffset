@@ -62,12 +62,20 @@ public static class CliOptions
         "Background color for subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (optional)",
         _ => "black");
 
-    public static CliOptionContainer<string> OutputDir { get; } = new("--output-directory", Aliases.OutputDir,
-        "Output directory (will create if doesn't exist) (optional)",
-        _ => ".");
-    
+    public static CliOptionContainer<string> InputFile { get; } = new("--input-file", Aliases.InputFile,
+        "Input file (optional)",
+        _ => string.Empty);
+
     public static CliOptionContainer<string> InputDir { get; } = new("--input-dir", Aliases.InputDir,
         "Input directory (optional)",
+        _ => ".");
+
+    public static CliOptionContainer<string> OutputFile { get; } = new("--output-file", Aliases.OutputFile,
+        "Output file (optional)",
+        _ => string.Empty);
+
+    public static CliOptionContainer<string> OutputDir { get; } = new("--output-directory", Aliases.OutputDir,
+        "Output directory (will create if doesn't exist) (optional)",
         _ => ".");
 
     public static CliOptionContainer<string> Suffix { get; } = new("--suffix", Aliases.Suffix,

@@ -35,16 +35,13 @@ public static class TransformOneToManyCommand
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         foreach (TransformOneToManyCsvOptions csvOptions in CsvSerialization.Deserialize<TransformOneToManyCsvOptions>(reader))
         {
-            if (!csvOptions.OutputFile.Explicit)
-            {
-                PrintError("Output file must not be empty! Skipping...", 1);
-                continue;
-            }
             TransformOneToManyCommonOptions commonOptions = BulkTransform.ResolveConflicts(csvOptions.CommonOptions, cliOptions.CommonOptions);
+            if (!IOUtils.ValidateOutputFileNameNotEmpty(commonOptions.OutputFile))
+                continue;
             string outputFileName =
                 commonOptions.Suffix == "/auto" ?
-                csvOptions.OutputFile :
-                Path.GetFileNameWithoutExtension(csvOptions.OutputFile) + commonOptions.Suffix;
+                commonOptions.OutputFile :
+                Path.GetFileNameWithoutExtension(commonOptions.OutputFile) + commonOptions.Suffix;
             string outputPath = Path.Combine(commonOptions.OutputDir, outputFileName);
             Response? response = ResponseUtils.ValidateInputOutput(ref inputPath, ref outputPath, ref globalResponse, cliOptions.Response);
             if (response == null)
@@ -53,7 +50,7 @@ public static class TransformOneToManyCommand
                 continue;
             if (!File.ValidateFileExists(inputPath))
                 continue;
-            PrintLine(csvOptions.OutputFile, 1, cliOptions.Quiet);
+            PrintLine(outputPath, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
             string? output = BulkTransform.TryTransform(inputPath, json, commonOptions.TransformOptions);
             if (output == null)
