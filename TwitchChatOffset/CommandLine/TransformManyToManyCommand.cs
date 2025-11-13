@@ -51,6 +51,8 @@ public static class TransformManyToManyCommand
                 return;
             if (response == Response.No)
                 continue;
+            if (!File.ValidateFileExists(inputPath))
+                continue;
             PrintLine(outputPath, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
             string input = File.ReadAllText(inputPath);

@@ -51,6 +51,8 @@ public static class TransformOneToManyCommand
                 return;
             if (response == Response.No)
                 continue;
+            if (!File.ValidateFileExists(inputPath))
+                continue;
             PrintLine(csvOptions.OutputFile, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
             string? output = BulkTransform.TryTransform(inputPath, json, commonOptions.TransformOptions);
