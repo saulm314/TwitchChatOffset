@@ -1,7 +1,7 @@
 ﻿using TwitchChatOffset.ConsoleUtils;
 using TwitchChatOffset.Csv;
 using TwitchChatOffset.Options;
-using TwitchChatOffset.Options.Comparers;
+using TwitchChatOffset.Options.Optimisations;
 using TwitchChatOffset.Options.Groups;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -36,10 +36,14 @@ public static class TransformManyCommand
         }
         PrintLine("Sorting CSV data...", 0, cliOptions.Quiet);
         csvOptionsList.Sort(new TransformManyCsvOptionsComparer());
+        TransformManyCsvOptions? globalCsvOptions = null;
         MultiResponse? globalResponse = null;
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         foreach (TransformManyCsvOptions csvOptions in csvOptionsList)
         {
+            TransformManyCsvOptions? previousCsvOptions = globalCsvOptions;
+            globalCsvOptions = csvOptions;
+            TransformManyOptimisation optimisation = BulkTransform.GetOptimisation(previousCsvOptions, csvOptions);
             TransformManyCommonOptions commonOptions = csvOptions.CommonOptions;
             if (!IOUtils.ValidateInputFileNameNotEmpty(commonOptions.InputFile) || !IOUtils.ValidateOutputFileNameNotEmpty(commonOptions.OutputFile))
                 continue;

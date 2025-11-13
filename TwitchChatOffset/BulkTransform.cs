@@ -4,6 +4,7 @@ using TwitchChatOffset.Options.Groups;
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TwitchChatOffset.Options.Optimisations;
 
 namespace TwitchChatOffset;
 
@@ -21,6 +22,29 @@ public static class BulkTransform
             options.WriteField(fieldData, winner);
         }
         return options;
+    }
+
+    public static TransformManyOptimisation GetOptimisation(TransformManyCsvOptions? csvOptions0, TransformManyCsvOptions csvOptions1)
+    {
+        if (csvOptions0 == null)
+            return TransformManyOptimisation.None;
+        TransformManyCommonOptions common0 = csvOptions0.CommonOptions;
+        TransformManyCommonOptions common1 = csvOptions1.CommonOptions;
+        if (common0.InputFile != common1.InputFile)
+            return TransformManyOptimisation.None;
+        if (common0.InputDir != common1.InputDir)
+            return TransformManyOptimisation.None;
+        (long start0, long end0, long delay0) = common0.TransformOptions;
+        (long start1, long end1, long delay1) = common1.TransformOptions;
+        if (start0 != start1 || end0 != end1 || delay0 != delay1)
+            return TransformManyOptimisation.SameInputFile;
+        if (common0.TransformOptions.Format != common1.TransformOptions.Format)
+            return TransformManyOptimisation.SameOffset;
+        if (common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
+            return TransformManyOptimisation.SameFormat;
+        if (csvOptions0 != csvOptions1)
+            return TransformManyOptimisation.SameSubtitleOptions;
+        return TransformManyOptimisation.Same;
     }
 
     public static string? TryTransform(string inputFile, string input, TransformCommonOptions options)
