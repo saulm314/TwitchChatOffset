@@ -36,6 +36,8 @@ public static class Transform
         return sortedComments;
     }
 
+    private static readonly JToken _startTemplate = new JObject() { ["content_offset_seconds"] = JsonUtils.ToJToken((long)0) };
+    private static readonly JToken _endTemplate = new JObject() { ["content_offset_seconds"] = JsonUtils.ToJToken((long)0) };
     public static JToken ApplyOffset(JToken[] allComments, JToken emptyJson, TransformCommonOptions options)
     {
         JToken filledJson = emptyJson.DeepClone();
@@ -51,10 +53,10 @@ public static class Transform
             return filledJson;
         }
         JArray selectedComments = filledJson.D("comments").As<JArray>();
-        JToken startTemplate = GetTemplate(start);
-        JToken endTemplate = GetTemplate(end);
-        int startIndex = GetIndex(allComments, startTemplate);
-        int endIndex = end >= 0 ? GetIndex(allComments, endTemplate) : allComments.Length;
+        _startTemplate.Set("content_offset_seconds", start);
+        _endTemplate.Set("content_offset_seconds", end);
+        int startIndex = GetIndex(allComments, _startTemplate);
+        int endIndex = end >= 0 ? GetIndex(allComments, _endTemplate) : allComments.Length;
         for (int i = startIndex; i < endIndex && i < allComments.Length; i++)
         {
             JToken comment = allComments[i].DeepClone();
@@ -64,13 +66,6 @@ public static class Transform
             selectedComments.Add(comment);
         }
         return filledJson;
-    }
-
-    private static JObject GetTemplate(long commentTime)
-    {
-        JObject template = [];
-        template.Set("content_offset_seconds", commentTime);
-        return template;
     }
 
     private static int GetIndex(JToken[] allComments, JToken template)
