@@ -1,7 +1,7 @@
 ﻿namespace TwitchChatOffset.Options.Optimisations;
 
 // the optimisations get more intense with each value
-public enum TransformManyOptimisation
+public enum Optimisation
 {
     None,
     SameInputFile,

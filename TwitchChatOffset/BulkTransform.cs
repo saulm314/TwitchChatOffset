@@ -2,6 +2,7 @@
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
 using System;
+using System.IO;
 using Newtonsoft.Json;
 using TwitchChatOffset.Options.Optimisations;
 
@@ -23,23 +24,96 @@ public static class BulkTransform
         return options;
     }
 
-    public static TransformManyOptimisation GetOptimisation(TransformManyCommonOptions? common0, TransformManyCommonOptions common1)
+    public static Optimisation GetOptimisation(TransformManyCommonOptions? common0, TransformManyCommonOptions common1)
     {
-        if (common0?.InputFile != common1.InputFile)
-            return TransformManyOptimisation.None;
-        if (common0.InputDir != common1.InputDir)
-            return TransformManyOptimisation.None;
+        if (common0 == null)
+            return Optimisation.None;
+        string common0InputPath = Path.Combine(common0.InputDir, common0.InputFile);
+        string common1InputPath = Path.Combine(common1.InputDir, common1.InputFile);
+        if (common0InputPath != common1InputPath)
+            return Optimisation.None;
         (long start0, long end0, long delay0) = common0.TransformOptions;
         (long start1, long end1, long delay1) = common1.TransformOptions;
         if (start0 != start1 || end0 != end1 || delay0 != delay1)
-            return TransformManyOptimisation.SameInputFile;
+            return Optimisation.SameInputFile;
         if (common0.TransformOptions.Format != common1.TransformOptions.Format)
-            return TransformManyOptimisation.SameOffset;
+            return Optimisation.SameOffset;
         if (common0.TransformOptions.Format == Format.Ytt && common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
-            return TransformManyOptimisation.SameOffset;
+            return Optimisation.SameOffset;
         if (common0 != common1)
-            return TransformManyOptimisation.SameFormatSameSubtitleOptions;
-        return TransformManyOptimisation.Same;
+            return Optimisation.SameFormatSameSubtitleOptions;
+        return Optimisation.Same;
+    }
+
+    public static bool TryGetSortedOriginalCommentsAndJson(TransformManyData data, string input, string inputPath)
+    {
+        data.MaxOptimisation = Optimisation.SameInputFile - 1;
+        try
+        {
+            (data.OriginalComments, data.Json) = Transform.GetSortedOriginalCommentsAndJson(input);
+        }
+        catch (Exception e)
+        {
+            ProcessException(e, inputPath);
+            PrintWarning($"Warning: skipping input file {inputPath}...", 2);
+            data.SkipFile = true;
+            return false;
+        }
+        data.MaxOptimisation = Optimisation.Same;
+        return true;
+    }
+
+    public static bool TryApplyOffset(TransformManyData data, TransformCommonOptions options, string inputPath, string outputPath)
+    {
+        data.MaxOptimisation = Optimisation.SameOffset - 1;
+        try
+        {
+            Transform.ApplyOffset(data.OriginalComments!, data.Json!, options);
+        }
+        catch (Exception e)
+        {
+            ProcessException(e, inputPath);
+            PrintWarning($"Warning: skipping output file {outputPath}...", 2);
+            return false;
+        }
+        data.MaxOptimisation = Optimisation.Same;
+        return true;
+    }
+
+    public static bool TrySerialize(TransformManyData data, TransformCommonOptions options, string inputPath, string outputPath)
+    {
+        data.MaxOptimisation = Optimisation.SameFormatSameSubtitleOptions - 1;
+        try
+        {
+            data.Output = Transform.Serialize(data.Json!, options);
+        }
+        catch (Exception e)
+        {
+            ProcessException(e, inputPath);
+            PrintWarning($"Warning: skipping output file {outputPath}...", 2);
+            return false;
+        }
+        data.MaxOptimisation = Optimisation.Same;
+        return true;
+    }
+
+    private static void ProcessException(Exception e, string inputPath)
+    {
+        switch (e)
+        {
+            case JsonException:
+                PrintError($"Could not parse JSON file {inputPath}", 2);
+                PrintError(e.Message, 2);
+                break;
+            case JsonContentException:
+                PrintError($"JSON file {inputPath} parsed successfully but the contents were unexpected", 2);
+                PrintError(e.Message, 2);
+                break;
+            case Exception:
+                PrintError($"JSON file {inputPath} parsed successfully but an error occurred, possibly internal", 2);
+                PrintError(e, 2);
+                break;
+        }
     }
 
     public static string? TryTransform(string inputFile, string input, TransformCommonOptions options)

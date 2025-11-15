@@ -40,8 +40,12 @@ public static class TransformManyCommand
         TransformManyData data = new();
         foreach (TransformManyCommonOptions commonOptions in commonOptionsList)
         {
-            TransformManyOptimisation optimisation = BulkTransform.GetOptimisation(data.CommonOptions, commonOptions);
-            if (optimisation == TransformManyOptimisation.Same)
+            Optimisation optimisation = BulkTransform.GetOptimisation(data.CommonOptions, commonOptions);
+            if (optimisation >= Optimisation.SameInputFile && data.SkipFile)
+                continue;
+            data.SkipFile = false;
+            optimisation = optimisation <= data.MaxOptimisation ? optimisation : data.MaxOptimisation;
+            if (optimisation == Optimisation.Same)
                 continue;
             if (!IOUtils.ValidateInputFileNameNotEmpty(commonOptions.InputFile) || !IOUtils.ValidateOutputFileNameNotEmpty(commonOptions.OutputFile))
                 continue;
@@ -60,16 +64,20 @@ public static class TransformManyCommand
                 continue;
             PrintLine(outputPath, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
-            if (optimisation < TransformManyOptimisation.SameInputFile)
+            data.CommonOptions = commonOptions;
+            if (optimisation < Optimisation.SameInputFile)
             {
                 string input = File.ReadAllText(inputPath);
-                (data.OriginalComments, data.Json) = Transform.GetSortedOriginalCommentsAndJson(input);
+                if (!BulkTransform.TryGetSortedOriginalCommentsAndJson(data, input, inputPath))
+                    continue;
             }
-            if (optimisation < TransformManyOptimisation.SameOffset)
-                Transform.ApplyOffset(data.OriginalComments!, data.Json!, commonOptions.TransformOptions);
-            if (optimisation < TransformManyOptimisation.SameFormatSameSubtitleOptions)
-                data.Output = Transform.Serialize(data.Json!, commonOptions.TransformOptions);
-            data.CommonOptions = commonOptions;
+            if (optimisation < Optimisation.SameOffset)
+                if (!BulkTransform.TryApplyOffset(data, commonOptions.TransformOptions, inputPath, outputPath))
+                    continue;
+            if (optimisation < Optimisation.SameFormatSameSubtitleOptions)
+                if (!BulkTransform.TrySerialize(data, commonOptions.TransformOptions, inputPath, outputPath))
+                    continue;
+            data.MaxOptimisation = Optimisation.Same;
             File.WriteAllText(outputPath, data.Output);
         }
     }

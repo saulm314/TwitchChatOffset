@@ -6,6 +6,8 @@ namespace TwitchChatOffset.Options.Optimisations;
 
 public class TransformManyData
 {
+    public Optimisation MaxOptimisation = Optimisation.Same; // if previous transform threw an error, we must not optimise away the step that threw an error
+    public bool SkipFile = false;
     public TransformManyCommonOptions? CommonOptions;
     public MultiResponse? Response;
 

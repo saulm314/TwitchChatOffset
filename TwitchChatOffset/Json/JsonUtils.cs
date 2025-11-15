@@ -229,7 +229,7 @@ public static class JsonUtils
     }
 
     public static string AddPathWarning(this string message)
-        => message + '\n' + "(path may not be the original path if JSON object was modified at the time of the exception being thrown)";
+        => $"{message} (path may not be the original path if JSON object was modified at the time of the exception being thrown)";
 
     public static string Dereference(this string path, string propertyName)
         => string.IsNullOrWhiteSpace(path) ? propertyName : path + '.' + propertyName;
