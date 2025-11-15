@@ -26,21 +26,20 @@ public static class Transform
 
     //_______________________________________________________________________
 
-    public static JToken[] GetSortedOriginalCommentsAndEmptyJson(string input, out JToken emptyJson)
+    public static (JToken[], JToken) GetSortedOriginalCommentsAndJson(string input)
     {
-        emptyJson = JsonUtils.Deserialize(input);
-        JArray originalComments = emptyJson.D("comments").As<JArray>();
-        JToken[] sortedComments = [..originalComments];
-        sortedComments.Sort(new CommentComparer());
-        emptyJson.Set("comments", new JArray());
-        return sortedComments;
+        JToken json = JsonUtils.Deserialize(input);
+        JArray commentsJArray = json.D("comments").As<JArray>();
+        JToken[] comments = [..commentsJArray];
+        comments.Sort(CommentComparer.Instance);
+        return (comments, json);
     }
 
+    // allComments must be sorted
     private static readonly JToken _startTemplate = new JObject() { ["content_offset_seconds"] = JsonUtils.ToJToken((long)0) };
     private static readonly JToken _endTemplate = new JObject() { ["content_offset_seconds"] = JsonUtils.ToJToken((long)0) };
-    public static JToken ApplyOffset(JToken[] allComments, JToken emptyJson, TransformCommonOptions options)
+    public static void ApplyOffset(JToken[] allComments, JToken json, TransformCommonOptions options)
     {
-        JToken filledJson = emptyJson.DeepClone();
         (long start, long end, long delay) = options;
         if (delay < 0)
         {
@@ -50,9 +49,13 @@ public static class Transform
         if (end >= 0 && end < start)
         {
             PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
-            return filledJson;
+            json.Set("comments", new JArray());
+            return;
         }
-        JArray selectedComments = filledJson.D("comments").As<JArray>();
+        // if there is no offset to apply compared to the original JSON, we still have to re-add all the values manually,
+        // since we are assuming that the original JSON file was unsorted
+        JArray selectedComments = [];
+        json.Set("comments", selectedComments);
         _startTemplate.Set("content_offset_seconds", start);
         _endTemplate.Set("content_offset_seconds", end);
         int startIndex = GetIndex(allComments, _startTemplate);
@@ -65,7 +68,6 @@ public static class Transform
             offsetJValue.Set(offset - start + delay);
             selectedComments.Add(comment);
         }
-        return filledJson;
     }
 
     private static int GetIndex(JToken[] allComments, JToken template)

@@ -9,10 +9,7 @@ public class TransformManyData
     public TransformManyCommonOptions? CommonOptions;
     public MultiResponse? Response;
 
-    // do not modify the contents of these (can modify the references though)
-    // if you need to modify, make a copy first
-    public JToken[]? OriginalComments;
-    public JToken? EmptyJson;
-    public JToken? FilledJson;
+    public JToken[]? OriginalComments; // DO NOT modify the JTokens - instead make a deep-clone and modify the deep-clone
+    public JToken? Json;
     public string? Output;
 }

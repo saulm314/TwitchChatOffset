@@ -1,6 +1,5 @@
 ﻿using TwitchChatOffset.ConsoleUtils;
 using TwitchChatOffset.Csv;
-using TwitchChatOffset.Json;
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Optimisations;
 using TwitchChatOffset.Options.Groups;
@@ -64,12 +63,12 @@ public static class TransformManyCommand
             if (optimisation < TransformManyOptimisation.SameInputFile)
             {
                 string input = File.ReadAllText(inputPath);
-                data.OriginalComments = Transform.GetSortedOriginalCommentsAndEmptyJson(input, out data.EmptyJson);
+                (data.OriginalComments, data.Json) = Transform.GetSortedOriginalCommentsAndJson(input);
             }
             if (optimisation < TransformManyOptimisation.SameOffset)
-                data.FilledJson = Transform.ApplyOffset(data.OriginalComments!, data.EmptyJson!, commonOptions.TransformOptions);
+                Transform.ApplyOffset(data.OriginalComments!, data.Json!, commonOptions.TransformOptions);
             if (optimisation < TransformManyOptimisation.SameFormatSameSubtitleOptions)
-                data.Output = Transform.Serialize(data.FilledJson!, commonOptions.TransformOptions);
+                data.Output = Transform.Serialize(data.Json!, commonOptions.TransformOptions);
             data.CommonOptions = commonOptions;
             File.WriteAllText(outputPath, data.Output);
         }
