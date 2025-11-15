@@ -40,6 +40,7 @@ public static class TransformManyCommand
         TransformManyData data = new();
         foreach (TransformManyCommonOptions commonOptions in commonOptionsList)
         {
+            // detect optimisation based on the previous transform and skip if file can be skipped altogether
             Optimisation optimisation = BulkTransform.GetOptimisation(data.CommonOptions, commonOptions);
             if (optimisation >= Optimisation.SameInputFile && data.SkipFile)
                 continue;
@@ -47,6 +48,8 @@ public static class TransformManyCommand
             optimisation = optimisation <= data.MaxOptimisation ? optimisation : data.MaxOptimisation;
             if (optimisation == Optimisation.Same)
                 continue;
+
+            // validate the input and output files and skip to the next file if invalid
             if (!IOUtils.ValidateInputFileNameNotEmpty(commonOptions.InputFile) || !IOUtils.ValidateOutputFileNameNotEmpty(commonOptions.OutputFile))
                 continue;
             string outputFileName =
@@ -62,6 +65,15 @@ public static class TransformManyCommand
                 continue;
             if (!File.ValidateFileExists(inputPath))
                 continue;
+
+            // carry out transformation (with appropriate optimisation), but skip to the next file if an error occurs
+            // if there is an optimisation, then skip calculating the value and instead use the previously calculated value from the data variable
+            // if there isn't an optimisation, then calculate the value and put it into the data variable, so that the next file can use it if needed
+            // the CSV data is sorted in such a way that rows that are optimisable are placed next to each other,
+            //   thus only the file directly previous to this one is relevant
+            //   (or the one before that if there was an error, but that data will still be there)
+            // if in the previous transformation there was an error,
+            //   then data.MaxOptimisation is set up so that the step with the error doesn't get optimised away in the next iteration
             PrintLine(outputPath, 1, cliOptions.Quiet);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
             data.CommonOptions = commonOptions;
