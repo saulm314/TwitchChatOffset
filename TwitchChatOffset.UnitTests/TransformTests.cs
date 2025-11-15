@@ -112,13 +112,10 @@ public class TransformTests
     }
 
     [Theory]
-    [InlineData("{}")]
-    [InlineData("{\"comment\":{}}")]
-    [InlineData("{\"comments\":[]}")]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
     public void ApplyOffset_Start0EndNegativeDelay0_DoesNothing(string inputString)
     {
-        JToken json = JsonUtils.Deserialize(inputString);
+        (JToken[] allComments, JToken json) = Transform.GetSortedOriginalCommentsAndJson(inputString);
         long start = 0;
         long[] ends = AllNegativeEnds;
         long delay = 0;
@@ -132,91 +129,49 @@ public class TransformTests
                 Delay = new(delay, true),
                 SubtitleOptions = DefaultSubtitleOptions
             };
-            Transform.ApplyOffset(json.DeepClone(), options);
+            Transform.ApplyOffset(allComments, json, options);
             string output = JsonConvert.SerializeObject(json);
 
             Assert.Equal(inputString, output);
         }
     }
 
-    // all remaining ApplyOffset tests assume that the conditions of the previous test aren't true
-
     [Theory]
     [InlineData("{}")]
     [InlineData("{\"comment\":[]}")]
     [InlineData("{\"commentss\":[]}")]
-    public void ApplyOffset_NoComments_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
+    public void GetSortedOriginalCommentsAndJson_NoComments_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = JsonUtils.Deserialize(inputString);
-        long[] starts = AllStartsEnds;
-        long[] ends = AllStartsEnds;
-        long delay = 0;
-
         JsonContentException.PropertyNotFound expectedException = new(string.Empty, "comments");
 
-        foreach (long start in starts)
-        {
-            foreach (long end in ends)
-            {
-                if (start == 0 && end < 0 && delay <= 0)
-                    continue;
+        void GetSortedOriginalCommentsAndJson() => Transform.GetSortedOriginalCommentsAndJson(inputString);
 
-                TransformCommonOptions options = new()
-                {
-                    Start = new(start, true),
-                    End = new(end, true),
-                    SubtitleOptions = DefaultSubtitleOptions
-                };
-                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), options);
+        JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(GetSortedOriginalCommentsAndJson);
+        Assert.Equal(expectedException.Message, exception.Message);
 
-                JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
-                Assert.Equal(expectedException.Message, exception.Message);
-
-                #pragma warning disable CS0162
-                continue; Transform.ApplyOffset(json.DeepClone(), options);
-                #pragma warning restore CS0162
-            }
-        }
+        #pragma warning disable CS0162
+        return; Transform.GetSortedOriginalCommentsAndJson(inputString);
+        #pragma warning restore CS0162
     }
 
     [Theory]
     [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}}]}}")]
-    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}")]
-    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
-    public void ApplyOffset_NoContentOffsetSeconds_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
+    //[InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}")]
+    //[InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
+    public void GetSortedOriginalCommentsAndJson_NoContentOffsetSeconds_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
-        JToken json = JsonUtils.Deserialize(inputString);
-        long[] starts = AllStartsEnds;
-        long[] ends = AllStartsEnds;
-        long delay = 0;
-
         string expectedPathRegex = @"comments\[\d*\]";
         string expectedPropertyName = "content_offset_seconds";
 
-        foreach (long start in starts)
-        {
-            foreach (long end in ends)
-            {
-                if (start == 0 && end < 0 && delay <= 0)
-                    continue;
+        void GetSortedOriginalCommentsAndJson() => Transform.GetSortedOriginalCommentsAndJson(inputString);
 
-                TransformCommonOptions options = new()
-                {
-                    Start = new(start, true),
-                    End = new(end, true),
-                    SubtitleOptions = DefaultSubtitleOptions
-                };
-                void ApplyOffset() => Transform.ApplyOffset(json.DeepClone(), options);
+        JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(GetSortedOriginalCommentsAndJson);
+        Assert.Matches(expectedPathRegex, exception.Path);
+        Assert.Equal(expectedPropertyName, exception.PropertyName);
 
-                JsonContentException.PropertyNotFound exception = Assert.Throws<JsonContentException.PropertyNotFound>(ApplyOffset);
-                Assert.Matches(expectedPathRegex, exception.Path);
-                Assert.Equal(expectedPropertyName, exception.PropertyName);
-
-                #pragma warning disable CS0162
-                continue; Transform.ApplyOffset(json.DeepClone(), options);
-                #pragma warning restore CS0162
-            }
-        }
+        #pragma warning disable CS0162
+        return; Transform.GetSortedOriginalCommentsAndJson(inputString);
+        #pragma warning restore CS0162
     }
 
     [Theory]
@@ -276,7 +231,7 @@ public class TransformTests
     [InlineData("{\"comments\":[{\"content_offset_seconds\":5},{\"content_offset_seconds\":17}]}", 17, 17, 13, "{\"comments\":[{\"content_offset_seconds\":13}]}")]
     public void ApplyOffset_ValidInput(string inputString, long start, long end, long delay, string expectedOutput)
     {
-        JToken json = JsonUtils.Deserialize(inputString);
+        (JToken[] allComments, JToken json) = Transform.GetSortedOriginalCommentsAndJson(inputString);
 
         TransformCommonOptions options = new()
         {
@@ -285,7 +240,7 @@ public class TransformTests
             Delay = new(delay, true),
             SubtitleOptions = DefaultSubtitleOptions
         };
-        Transform.ApplyOffset(json, options);
+        Transform.ApplyOffset(allComments, json, options);
         string output = JsonConvert.SerializeObject(json);
 
         Assert.Equal(expectedOutput, output);

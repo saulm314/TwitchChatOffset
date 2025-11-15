@@ -10,17 +10,10 @@ namespace TwitchChatOffset;
 
 public static class Transform
 {
-    public static string DoTransform(string inputString, TransformCommonOptions options)
+    public static string DoTransform(string input, TransformCommonOptions options)
     {
-        JObject json = JsonUtils.Deserialize(inputString);
-        ApplyOffset(json, options);
-        return Serialize(json, options);
-    }
-
-    public static string DoTransform(JToken inputJson, TransformCommonOptions options)
-    {
-        JToken json = inputJson.DeepClone();
-        ApplyOffset(json, options);
+        (JToken[] allComments, JToken json) = GetSortedOriginalCommentsAndJson(input);
+        ApplyOffset(allComments, json, options);
         return Serialize(json, options);
     }
 
@@ -31,8 +24,26 @@ public static class Transform
         JToken json = JsonUtils.Deserialize(input);
         JArray commentsJArray = json.D("comments").As<JArray>();
         JToken[] comments = [..commentsJArray];
-        comments.Sort(CommentComparer.Instance);
+        SortOrThrow(comments);
         return (comments, json);
+    }
+
+    private static void SortOrThrow(JToken[] comments)
+    {
+        try
+        {
+            Array.Sort(comments, CommentComparer.Instance);
+        }
+        catch (InvalidOperationException e)
+        {
+            if (e.InnerException == null)
+                throw;
+            throw e.InnerException;
+        }
+        // if array has length 1, the sort method does nothing,
+        // so we manually do a dummy comparison so that we detect an exception with missing content at this point
+        if (comments.Length == 1)
+            _ = CommentComparer.Instance.Compare(_startTemplate, comments[0]);
     }
 
     // allComments must be sorted
@@ -58,8 +69,8 @@ public static class Transform
         json.Set("comments", selectedComments);
         _startTemplate.Set("content_offset_seconds", start);
         _endTemplate.Set("content_offset_seconds", end);
-        int startIndex = GetIndex(allComments, _startTemplate);
-        int endIndex = end >= 0 ? GetIndex(allComments, _endTemplate) : allComments.Length;
+        int startIndex = GetIndex(allComments, _startTemplate, true);
+        int endIndex = end >= 0 ? GetIndex(allComments, _endTemplate, false) : allComments.Length;
         for (int i = startIndex; i < endIndex && i < allComments.Length; i++)
         {
             JToken comment = allComments[i].DeepClone();
@@ -70,7 +81,7 @@ public static class Transform
         }
     }
 
-    private static int GetIndex(JToken[] allComments, JToken template)
+    private static int GetIndex(JToken[] allComments, JToken template, bool isStart)
     {
         int index = Array.BinarySearch(allComments, template, CommentComparer.Instance);
         if (index < 0)
@@ -82,36 +93,7 @@ public static class Transform
                 break;
             lastIndex = i;
         }
-        return lastIndex;
-    }
-
-    public static void ApplyOffset(JToken json, TransformCommonOptions options)
-    {
-        (long start, long end, long delay) = options;
-        if (delay < 0)
-        {
-            PrintWarning("Warning: delay value is less than zero which is not supported; treating it as zero instead");
-            delay = 0;
-        }
-        if (end >= 0 && end < start)
-            PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
-        if (start == 0 && end < 0 && delay == 0)
-            return;
-        JArray comments = json.D("comments").As<JArray>();
-        int i = 0;
-        while (i < comments.Count)
-        {
-            JValue offsetJValue = comments[i].D("content_offset_seconds").As<JValue>();
-            long offset = offsetJValue.As<long>();
-            bool inRange = offset >= start && (offset <= end || end < 0);
-            if (!inRange)
-            {
-                comments.RemoveAt(i);
-                continue;
-            }
-            offsetJValue.Set(offset - start + delay);
-            i++;
-        }
+        return lastIndex + (isStart ? 0 : 1);
     }
 
     public static string Serialize(JToken json, TransformCommonOptions options)

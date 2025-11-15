@@ -3,7 +3,6 @@ using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
 using System;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using TwitchChatOffset.Options.Optimisations;
 
 namespace TwitchChatOffset;
@@ -44,34 +43,6 @@ public static class BulkTransform
     }
 
     public static string? TryTransform(string inputFile, string input, TransformCommonOptions options)
-    {
-        string output;
-        try
-        {
-            output = Transform.DoTransform(input, options);
-        }
-        catch (JsonException e)
-        {
-            PrintError($"Could not parse JSON file {inputFile}", 2);
-            PrintError(e.Message, 2);
-            return null;
-        }
-        catch (JsonContentException e)
-        {
-            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
-            PrintError(e.Message, 2);
-            return null;
-        }
-        catch (Exception e)
-        {
-            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
-            PrintError(e.Message, 2);
-            return null;
-        }
-        return output;
-    }
-
-    public static string? TryTransform(string inputFile, JToken input, TransformCommonOptions options)
     {
         string output;
         try
