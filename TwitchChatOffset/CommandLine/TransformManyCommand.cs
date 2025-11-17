@@ -86,7 +86,7 @@ public static class TransformManyCommand
             if (optimisation < Optimisation.SameOffset)
                 if (!BulkTransform.TryApplyOffset(data, commonOptions.TransformOptions, inputPath, outputPath))
                     continue;
-            if (optimisation < Optimisation.SameFormatSameSubtitleOptions)
+            if (optimisation < Optimisation.SameFormatSameSerializationOptions)
                 if (!BulkTransform.TrySerialize(data, commonOptions.TransformOptions, inputPath, outputPath))
                     continue;
             data.MaxOptimisation = Optimisation.Same;

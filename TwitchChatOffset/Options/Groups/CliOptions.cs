@@ -97,4 +97,8 @@ public static class CliOptions
     public static CliOptionContainer<CliMultiResponse> MultiResponse { get; } = new("--response", Aliases.MultiResponse,
         "Set automatic response to any prompts (optional)",
         _ => CliMultiResponse.Manual);
+
+    public static CliOptionContainer<string> CsvPath { get; } = new("--csv-path", Aliases.CsvPath,
+        "CSV path to specify options for multiple outputs per input (optional)",
+        _ => string.Empty);
 }

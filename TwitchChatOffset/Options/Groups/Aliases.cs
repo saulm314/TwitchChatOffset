@@ -28,4 +28,5 @@ public static class Aliases
     public static AliasesContainer SearchPattern { get; } = new(["--search-pattern", "--pattern"]);
     public static AliasesContainer Response { get; } = new(["--response"]);
     public static AliasesContainer MultiResponse { get; } = new(["--response"]);
+    public static AliasesContainer CsvPath { get; } = new(["--csv-path", "--csv"]);
 }

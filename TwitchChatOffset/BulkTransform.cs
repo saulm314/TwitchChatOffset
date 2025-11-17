@@ -42,11 +42,48 @@ public static class BulkTransform
         if (common0.TransformOptions.Format == Format.Ytt && common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
             return Optimisation.SameOffset;
         if (common0 != common1)
-            return Optimisation.SameFormatSameSubtitleOptions;
+            return Optimisation.SameFormatSameSerializationOptions;
+        return Optimisation.Same;
+    }
+
+    public static Optimisation GetOptimisation(string? inputPath0, TransformAllCommonOptions? common0, string inputPath1, TransformAllCommonOptions common1)
+    {
+        if (inputPath0 == null || common0 == null)
+            return Optimisation.None;
+        if (inputPath0 != inputPath1)
+            return Optimisation.None;
+        (long start0, long end0, long delay0) = common0.TransformOptions;
+        (long start1, long end1, long delay1) = common1.TransformOptions;
+        if (start0 != start1 || end0 != end1 || delay0 != delay1)
+            return Optimisation.SameInputFile;
+        if (common0.TransformOptions.Format != common1.TransformOptions.Format)
+            return Optimisation.SameOffset;
+        if (common0.TransformOptions.Format == Format.Ytt && common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
+            return Optimisation.SameOffset;
+        if (common0 != common1)
+            return Optimisation.SameFormatSameSerializationOptions;
         return Optimisation.Same;
     }
 
     public static bool TryGetSortedOriginalCommentsAndJson(TransformManyData data, string input, string inputPath)
+    {
+        data.MaxOptimisation = Optimisation.SameInputFile - 1;
+        try
+        {
+            (data.OriginalComments, data.Json) = Transform.GetSortedOriginalCommentsAndJson(input);
+        }
+        catch (Exception e)
+        {
+            ProcessException(e, inputPath);
+            PrintWarning($"Warning: skipping input file {inputPath}...", 2);
+            data.SkipFile = true;
+            return false;
+        }
+        data.MaxOptimisation = Optimisation.Same;
+        return true;
+    }
+
+    public static bool TryGetSortedOriginalCommentsAndJson(TransformAllData data, string input, string inputPath)
     {
         data.MaxOptimisation = Optimisation.SameInputFile - 1;
         try
@@ -81,9 +118,43 @@ public static class BulkTransform
         return true;
     }
 
+    public static bool TryApplyOffset(TransformAllData data, TransformCommonOptions options, string inputPath, string outputPath)
+    {
+        data.MaxOptimisation = Optimisation.SameOffset - 1;
+        try
+        {
+            Transform.ApplyOffset(data.OriginalComments, data.Json, options);
+        }
+        catch (Exception e)
+        {
+            ProcessException(e, inputPath);
+            PrintWarning($"Warning: skipping output file {outputPath}...", 2);
+            return false;
+        }
+        data.MaxOptimisation = Optimisation.Same;
+        return true;
+    }
+
     public static bool TrySerialize(TransformManyData data, TransformCommonOptions options, string inputPath, string outputPath)
     {
-        data.MaxOptimisation = Optimisation.SameFormatSameSubtitleOptions - 1;
+        data.MaxOptimisation = Optimisation.SameFormatSameSerializationOptions - 1;
+        try
+        {
+            data.Output = Transform.Serialize(data.Json, options);
+        }
+        catch (Exception e)
+        {
+            ProcessException(e, inputPath);
+            PrintWarning($"Warning: skipping output file {outputPath}...", 2);
+            return false;
+        }
+        data.MaxOptimisation = Optimisation.Same;
+        return true;
+    }
+
+    public static bool TrySerialize(TransformAllData data, TransformCommonOptions options, string inputPath, string outputPath)
+    {
+        data.MaxOptimisation = Optimisation.SameFormatSameSerializationOptions - 1;
         try
         {
             data.Output = Transform.Serialize(data.Json, options);
