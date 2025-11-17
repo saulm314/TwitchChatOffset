@@ -2,11 +2,8 @@
 
 namespace TwitchChatOffset.Options.Groups;
 
-public record TransformManyCliOptions : IOptionGroup
+public record TransformManyCliOptions : IOptionGroup<TransformManyCliOptions>
 {
-    public static FieldData[] FieldDatas => _fieldDatas ??= IOptionGroup.GetFieldDatas(typeof(TransformManyCliOptions));
-    private static FieldData[]? _fieldDatas;
-
     public TransformManyCommonOptions CommonOptions = new();
 
     [CliOption(nameof(CliOptions.Quiet))]

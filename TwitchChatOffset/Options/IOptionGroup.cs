@@ -4,31 +4,53 @@ using System.Reflection;
 
 namespace TwitchChatOffset.Options;
 
-public interface IOptionGroup
+public interface IOptionGroup<TOptionGroup> where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
 {
-    static abstract FieldData[] FieldDatas { get; }
-
-    protected static FieldData[] GetFieldDatas(Type type)
+    public static FieldData[] FieldDatas
     {
-        List<FieldData> fieldDatas = [];
-        FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
-        foreach (FieldInfo field in fields)
+        get
         {
-            AliasesAttribute? attribute = field.GetCustomAttribute<AliasesAttribute>();
-            if (attribute == null)
+            if (_fieldDatas != null)
+                return _fieldDatas;
+            List<FieldData> fieldDatas = [];
+            FieldInfo[] fields = typeof(TOptionGroup).GetFields(BindingFlags.Instance | BindingFlags.Public);
+            foreach (FieldInfo @field in fields)
             {
-                if (!field.FieldType.IsClass || !field.FieldType.IsAssignableTo(typeof(IOptionGroup)))
+                AliasesAttribute? attribute = @field.GetCustomAttribute<AliasesAttribute>();
+                if (attribute == null)
+                {
+                    Type iOptionGroupType = typeof(IOptionGroup<>).MakeGenericType(@field.FieldType);
+                    if (!@field.FieldType.IsClass || !@field.FieldType.IsAssignableTo(iOptionGroupType))
+                        continue;
+                    PropertyInfo innerFieldDatasProperty = iOptionGroupType.GetProperty(nameof(FieldDatas), BindingFlags.Static | BindingFlags.Public)!;
+                    FieldData[] innerFieldDatas = (FieldData[])innerFieldDatasProperty.GetMethod!.Invoke(null, [])!;
+                    fieldDatas.AddRange(PrependField(innerFieldDatas, @field));
                     continue;
-                PropertyInfo innerFieldDatasProperty = field.FieldType.GetProperty(nameof(FieldDatas), BindingFlags.Static | BindingFlags.Public)!;
-                FieldData[] innerFieldDatas = (FieldData[])innerFieldDatasProperty.GetMethod!.Invoke(null, [])!;
-                fieldDatas.AddRange(PrependField(innerFieldDatas, field));
-                continue;
+                }
+                FieldData fieldData = new([@field], attribute);
+                fieldDatas.Add(fieldData);
             }
-            FieldData fieldData = new([field], attribute);
-            fieldDatas.Add(fieldData);
+            return _fieldDatas = [..fieldDatas];
         }
-        return [..fieldDatas];
     }
+
+    public void WriteField(FieldData fieldData, IPlicit value)
+    {
+        object o = this;
+        for (int i = 0; i < fieldData.FieldPath.Length - 1; i++)
+            o = fieldData.FieldPath[i].GetValue(o)!;
+        fieldData.FieldPath[^1].SetValue(o, value);
+    }
+
+    public IPlicit ReadField(FieldData fieldData)
+    {
+        object o = this;
+        foreach (FieldInfo field in fieldData.FieldPath)
+            o = field.GetValue(o)!;
+        return (IPlicit)o;
+    }
+
+    private static FieldData[]? _fieldDatas;
 
     private static IEnumerable<FieldData> PrependField(FieldData[] fieldDatas, FieldInfo field)
     {

@@ -3,11 +3,8 @@ using static TwitchChatOffset.Options.Groups.CliOptions;
 
 namespace TwitchChatOffset.Options.Groups;
 
-public record SubtitleOptions : IOptionGroup
+public record SubtitleOptions : IOptionGroup<SubtitleOptions>
 {
-    public static FieldData[] FieldDatas => _fieldDatas ??= IOptionGroup.GetFieldDatas(typeof(SubtitleOptions));
-    private static FieldData[]? _fieldDatas;
-
     [CliOption(nameof(SubPosition))]
     public Plicit<AnchorPoint> Position;
 

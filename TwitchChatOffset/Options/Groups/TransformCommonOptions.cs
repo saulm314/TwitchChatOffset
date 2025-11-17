@@ -1,10 +1,7 @@
 ﻿namespace TwitchChatOffset.Options.Groups;
 
-public record TransformCommonOptions : IOptionGroup
+public record TransformCommonOptions : IOptionGroup<TransformCommonOptions>
 {
-    public static FieldData[] FieldDatas => _fieldDatas ??= IOptionGroup.GetFieldDatas(typeof(TransformCommonOptions));
-    private static FieldData[]? _fieldDatas;
-
     [CliOption(nameof(CliOptions.Start))]
     public Plicit<long> Start;
 
