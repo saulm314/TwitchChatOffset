@@ -4,4 +4,8 @@
 public record struct Plicit<T>(T Value, bool Explicit) : IPlicit
 {
     public static implicit operator T(Plicit<T> plicit) => plicit.Value;
+
+    public readonly override string? ToString() => $"{Value} ({ExplicitToString})";
+
+    private readonly string ExplicitToString => (Explicit ? "ex" : "im") + "plicit";
 }
