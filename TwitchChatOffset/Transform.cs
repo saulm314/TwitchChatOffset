@@ -2,6 +2,7 @@
 using TwitchChatOffset.Options.Groups;
 using TwitchChatOffset.Ytt;
 using System;
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,27 +24,16 @@ public static class Transform
     {
         JToken json = JsonUtils.Deserialize(input);
         JArray commentsJArray = json.D("comments").As<JArray>();
-        JToken[] comments = [..commentsJArray];
-        SortOrThrow(comments);
-        return (comments, json);
-    }
 
-    private static void SortOrThrow(JToken[] comments)
-    {
-        try
-        {
-            Array.Sort(comments, CommentComparer.Instance);
-        }
-        catch (InvalidOperationException e)
-        {
-            if (e.InnerException == null)
-                throw;
-            throw e.InnerException;
-        }
-        // if array has length 1, the sort method does nothing,
-        // so we manually do a dummy comparison so that we detect an exception with missing content at this point
+        // use OrderBy over Sort for stable sort
+        JToken[] comments = [..commentsJArray.OrderBy(comment => comment.D("content_offset_seconds").As<long>())];
+
+        // if array has length 1, the OrderBy method does nothing
+        // so we manually check if content_offset_seconds exists and throw exception if not
         if (comments.Length == 1)
-            _ = CommentComparer.Instance.Compare(_startTemplate, comments[0]);
+            _ = comments[0].D("content_offset_seconds").As<long>();
+
+        return (comments, json);
     }
 
     // allComments must be sorted
