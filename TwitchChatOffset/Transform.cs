@@ -1,6 +1,6 @@
 ﻿using TwitchChatOffset.Json;
 using TwitchChatOffset.Options.Groups;
-using TwitchChatOffset.Ytt;
+using TwitchChatOffset.Subtitles;
 using System;
 using System.Linq;
 using System.Text;
@@ -107,9 +107,10 @@ public static class Transform
         {
             Format.Json => SerializeToJson(json),
             Format.JsonIndented => SerializeToJsonIndented(json),
-            Format.Ytt => SerializeToYtt(json, options.SubtitleOptions),
+            Format.Ytt => SerializeToYtt(json, options.SubtitleOptions, options.Format),
+            Format.Ass => SerializeToAss(json, options.SubtitleOptions, options.Format),
             Format.Plaintext => SerializeToPlaintext(json),
-            _ => throw new InternalException("Internal error: unrecognised format type")
+            _ => throw new InternalException($"Internal error: unrecognised format type {options.Format.Value}")
         };
     }
 
@@ -125,9 +126,14 @@ public static class Transform
         return JsonConvert.SerializeObject(json, Formatting.Indented);
     }
 
-    public static string SerializeToYtt(JToken json, SubtitleOptions options)
+    public static string SerializeToYtt(JToken json, SubtitleOptions options, Format format)
     {
-        return YttSerialization.Serialize(json, options);
+        return SubtitleSerialization.Serialize(json, options, format);
+    }
+
+    public static string SerializeToAss(JToken json, SubtitleOptions options, Format format)
+    {
+        return SubtitleSerialization.Serialize(json, options, format);
     }
 
     public static string SerializeToPlaintext(JToken json)

@@ -1,6 +1,6 @@
 ﻿using System;
 using YTSubConverter.Shared;
 
-namespace TwitchChatOffset.Ytt;
+namespace TwitchChatOffset.Subtitles;
 
 public readonly record struct ChatMessage(Section Name, Section Message, TimeSpan Time);

@@ -10,11 +10,11 @@ using YTSubConverter.Shared;
 using YTSubConverter.Shared.Formats;
 using static System.Drawing.ColorTranslator;
 
-namespace TwitchChatOffset.Ytt;
+namespace TwitchChatOffset.Subtitles;
 
-public static class YttSerialization
+public static class SubtitleSerialization
 {
-    public static string Serialize(JToken json, SubtitleOptions options)
+    public static string Serialize(JToken json, SubtitleOptions options, Format format)
     {
         if (options.MaxMessages < 1)
         {
@@ -31,18 +31,18 @@ public static class YttSerialization
             PrintWarning("Warning: ytt-background-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
             options.SectionOptions.BackgroundOpacity.Value = 254;
         }
-        YttDocument ytt = new();
+        SubtitleDocument sub = format.NewDocument();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
         Queue<ChatMessage> visibleMessages = new((int)options.MaxMessages);
         foreach (JToken comment in comments)
         {
-            ChatMessage chatMessage = GetChatMessage(comment, userColors, options);
+            ChatMessage chatMessage = GetChatMessage(comment, userColors, options, format);
 
             if (visibleMessages.Count > 0)
             {
-                Line line = GetLine(visibleMessages, chatMessage, options);
-                ytt.Lines.Add(line);
+                Line line = GetLine(visibleMessages, chatMessage, options, format);
+                sub.Lines.Add(line);
             }
 
             if (visibleMessages.Count >= options.MaxMessages)
@@ -51,16 +51,16 @@ public static class YttSerialization
         }
         if (comments.Count > 0)
         {
-            Line lastLine = GetLine(visibleMessages, null, options);
-            ytt.Lines.Add(lastLine);
+            Line lastLine = GetLine(visibleMessages, null, options, format);
+            sub.Lines.Add(lastLine);
         }
 
         StringWriter stringWriter = new();
-        ytt.Save(stringWriter);
+        sub.Save(stringWriter);
         return stringWriter.ToString();
     }
 
-    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, SubtitleOptions options)
+    private static ChatMessage GetChatMessage(JToken comment, Dictionary<string, Color> userColors, SubtitleOptions options, Format format)
     {
         long offset = comment.D("content_offset_seconds").As<long>();
         TimeSpan timeSpan = TimeSpan.FromSeconds(offset);
@@ -68,18 +68,12 @@ public static class YttSerialization
         JToken message = comment.D("message");
         string displayName = comment.D("commenter").D("display_name").As<string>();
         string messageStr = message.D("body").As<string>();
-        GetWrappedMessage(displayName, messageStr, (int)options.MaxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage);
+        GetWrappedMessage(displayName, messageStr, (int)options.MaxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage, format);
 
         Color userColor = GetUserColor(userColors, displayName, message);
 
-        Section displayNameSection = new(wrappedDisplayName)
-        {
-            ForeColor = userColor
-        };
-        Section messageSection = new(wrappedMessage)
-        {
-            ForeColor = FromHtml(options.TextColor)
-        };
+        Section displayNameSection = format.NewSection(wrappedDisplayName, userColor);
+        Section messageSection = format.NewSection(wrappedMessage, FromHtml(options.TextColor));
         displayNameSection.ApplyOptions(options.SectionOptions);
         messageSection.ApplyOptions(options.SectionOptions);
 
@@ -106,16 +100,17 @@ public static class YttSerialization
         return color;
     }
 
-    private static void GetWrappedMessage(string displayName, string message, int maxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage)
+    private static void GetWrappedMessage(string displayName, string message, int maxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage,
+        Format format)
     {
         string total = displayName + ": " + message;
-        string wrappedTotal = GetWrappedText(total.AsSpan(), maxCharsPerLine);
+        string wrappedTotal = GetWrappedText(total.AsSpan(), maxCharsPerLine, format);
         int colonIndex = wrappedTotal.IndexOf(':');
         wrappedDisplayName = wrappedTotal[..(colonIndex + 2)];
         wrappedMessage = wrappedTotal[(colonIndex + 2)..];
     }
 
-    private static string GetWrappedText(ReadOnlySpan<char> text, int maxCharsPerLine)
+    private static string GetWrappedText(ReadOnlySpan<char> text, int maxCharsPerLine, Format format)
     {
         StringBuilder builder = new();
         int index = 0;
@@ -125,11 +120,11 @@ public static class YttSerialization
             if (whiteSpaceIndex == -1)
             {
                 builder.Append(text[index..(index += maxCharsPerLine)]);
-                builder.Append('\n');
+                builder.Append("\r\n");
                 continue;
             }
             builder.Append(text[index..whiteSpaceIndex]);
-            builder.Append('\n');
+            builder.Append("\r\n");
             index = whiteSpaceIndex + 1;
         }
         builder.Append(text[index..]);
@@ -144,7 +139,7 @@ public static class YttSerialization
         return -1;
     }
 
-    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, SubtitleOptions options)
+    private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, SubtitleOptions options, Format format)
     {
         List<Section> sections = new(chatMessages.Count * 3);
         ChatMessage lastChatMessage = default;
@@ -152,7 +147,7 @@ public static class YttSerialization
         {
             sections.Add(chatMessage.Name);
             sections.Add(chatMessage.Message);
-            Section newlineSection = new("\n");
+            Section newlineSection = format.NewSection("\r\n"); // for YTT, \n and \r\n work, but for ASS, only \r\n works
             newlineSection.ApplyOptions(options.SectionOptions);
             sections.Add(newlineSection);
             lastChatMessage = chatMessage;
@@ -160,12 +155,6 @@ public static class YttSerialization
         DateTime start = SubtitleDocument.TimeBase + lastChatMessage.Time;
         DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? TimeSpan.FromHours(12)); // 12 hours is the max YouTube video length
         // if any line has the same start and end value, YTSubConverter appears to automatically get rid of that line when saving the YTT file
-        Line line = new(start, end, sections)
-        {
-            AnchorPoint = options.Position,
-            AndroidDarkTextHackAllowed = false,
-            WindowOpacity = (byte)options.WindowOpacity
-        };
-        return line;
+        return format.NewLine(start, end, sections, options.Position, (byte)options.WindowOpacity);
     }
 }

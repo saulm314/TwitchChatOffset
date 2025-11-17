@@ -1,4 +1,4 @@
-﻿using TwitchChatOffset.Ytt;
+﻿using TwitchChatOffset.Subtitles;
 using System.Drawing;
 using YTSubConverter.Shared;
 using static TwitchChatOffset.Options.Groups.CliOptions;

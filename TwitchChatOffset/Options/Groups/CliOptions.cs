@@ -1,5 +1,5 @@
 ﻿using TwitchChatOffset.ConsoleUtils;
-using TwitchChatOffset.Ytt;
+using TwitchChatOffset.Subtitles;
 using YTSubConverter.Shared;
 
 namespace TwitchChatOffset.Options.Groups;

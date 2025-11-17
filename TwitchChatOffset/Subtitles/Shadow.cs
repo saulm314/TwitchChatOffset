@@ -1,4 +1,4 @@
-﻿namespace TwitchChatOffset.Ytt;
+﻿namespace TwitchChatOffset.Subtitles;
 
 public enum Shadow
 {

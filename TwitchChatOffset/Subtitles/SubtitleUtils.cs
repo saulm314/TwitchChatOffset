@@ -2,9 +2,9 @@
 using System.Drawing;
 using YTSubConverter.Shared;
 
-namespace TwitchChatOffset.Ytt;
+namespace TwitchChatOffset.Subtitles;
 
-public static class YttUtils
+public static class SubtitleUtils
 {
     public static void ApplyOptions(this Section section, SubtitleSectionOptions options)
     {
