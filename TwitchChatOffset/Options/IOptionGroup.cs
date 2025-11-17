@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace TwitchChatOffset.Options;
 
-public interface IOptionGroup<TOptionGroup> where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+public interface IOptionGroup<TOptionGroup> : ICloneable where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
 {
     public static FieldData[] FieldDatas
     {
@@ -33,6 +33,19 @@ public interface IOptionGroup<TOptionGroup> where TOptionGroup : class, IOptionG
             return _fieldDatas = [..fieldDatas];
         }
     }
+
+    public new TOptionGroup Clone()
+    {
+        TOptionGroup clone = new();
+        foreach (FieldData fieldData in FieldDatas)
+        {
+            IPlicit value = ReadField(fieldData);
+            clone.WriteField(fieldData, value);
+        }
+        return clone;
+    }
+
+    object ICloneable.Clone() => Clone();
 
     public void WriteField(FieldData fieldData, IPlicit value)
     {
