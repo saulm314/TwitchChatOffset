@@ -68,7 +68,7 @@ public static class BulkTransform
         data.MaxOptimisation = Optimisation.SameOffset - 1;
         try
         {
-            Transform.ApplyOffset(data.OriginalComments!, data.Json!, options);
+            Transform.ApplyOffset(data.OriginalComments, data.Json, options);
         }
         catch (Exception e)
         {
@@ -85,7 +85,7 @@ public static class BulkTransform
         data.MaxOptimisation = Optimisation.SameFormatSameSubtitleOptions - 1;
         try
         {
-            data.Output = Transform.Serialize(data.Json!, options);
+            data.Output = Transform.Serialize(data.Json, options);
         }
         catch (Exception e)
         {
