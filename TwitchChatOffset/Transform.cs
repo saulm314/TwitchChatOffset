@@ -47,8 +47,6 @@ public static class Transform
     }
 
     // allComments must be sorted
-    private static readonly JToken _startTemplate = new JObject() { ["content_offset_seconds"] = JsonUtils.ToJToken((long)0) };
-    private static readonly JToken _endTemplate = new JObject() { ["content_offset_seconds"] = JsonUtils.ToJToken((long)0) };
     public static void ApplyOffset(JToken[] allComments, JToken json, TransformCommonOptions options)
     {
         (long start, long end, long delay) = options;
@@ -69,8 +67,8 @@ public static class Transform
         json.Set("comments", selectedComments);
         _startTemplate.Set("content_offset_seconds", start);
         _endTemplate.Set("content_offset_seconds", end);
-        int startIndex = GetIndex(allComments, _startTemplate, true);
-        int endIndex = end >= 0 ? GetIndex(allComments, _endTemplate, false) : allComments.Length;
+        int startIndex = GetStartIndex(allComments);
+        int endIndex = end >= 0 ? GetEndIndex(allComments) : allComments.Length;
         for (int i = startIndex; i < endIndex && i < allComments.Length; i++)
         {
             JToken comment = allComments[i].DeepClone();
@@ -81,19 +79,36 @@ public static class Transform
         }
     }
 
-    private static int GetIndex(JToken[] allComments, JToken template, bool isStart)
+    private static readonly JToken _startTemplate = new JObject() { ["content_offset_seconds"] = JsonUtils.ToJToken((long)0) };
+    private static int GetStartIndex(JToken[] allComments)
     {
-        int index = Array.BinarySearch(allComments, template, CommentComparer.Instance);
+        int index = Array.BinarySearch(allComments, _startTemplate, CommentComparer.Instance);
+        if (index < 0)
+            return ~index;
+        int firstIndex = index;
+        for (int i = index - 1; i >= 0; i--)
+        {
+            if (CommentComparer.Instance.Compare(allComments[i], _startTemplate) != 0)
+                break;
+            firstIndex = i;
+        }
+        return firstIndex;
+    }
+
+    private static readonly JToken _endTemplate = new JObject() { ["content_offset_seconds"] = JsonUtils.ToJToken((long)0) };
+    private static int GetEndIndex(JToken[] allComments)
+    {
+        int index = Array.BinarySearch(allComments, _endTemplate, CommentComparer.Instance);
         if (index < 0)
             return ~index;
         int lastIndex = index;
-        for (int i = index - 1; i >= 0; i--)
+        for (int i = index + 1; i < allComments.Length; i++)
         {
-            if (CommentComparer.Instance.Compare(allComments[i], template) != 0)
+            if (CommentComparer.Instance.Compare(allComments[i], _endTemplate) != 0)
                 break;
             lastIndex = i;
         }
-        return lastIndex + (isStart ? 0 : 1);
+        return lastIndex + 1;
     }
 
     public static string Serialize(JToken json, TransformCommonOptions options)
