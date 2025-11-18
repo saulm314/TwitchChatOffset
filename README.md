@@ -123,3 +123,7 @@ Aim: same as the previous example, but this time we only want to apply transform
 ```
 TwitchChatOffset transform-all --suffix "-transformed.json" --start 60 --pattern "*chat*.json"
 ```
+Aim: same as the previous example, but this time we want to perform several transformations that we will specify in `transform-all.csv` (along with suffixes and formats).
+```
+TwitchChatOffset transform-all --start 60 --pattern "*chat*.json" --csv transform-all.csv
+```
