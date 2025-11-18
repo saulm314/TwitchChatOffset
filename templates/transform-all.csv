@@ -1,0 +1,7 @@
+start,end,delay,format,sub-position,sub-max-messages,sub-max-chars-per-line,sub-window-opacity,sub-text-color,ass-font-size,ass-background-enable,ytt-scale,sub-shadow,ytt-background-opacity,sub-shadow-color,ytt-background-color,input-dir,output-dir,suffix,/next,format,output-dir,suffix,/next,format,output-dir,suffix,Notes:
+7,1943,3,ytt,topleft,6,55,254,white,20,FALSE,0,glow,0,black,black,original\json,transformations\ytt,.ytt,,plaintext,transformations\txt,.txt,,jsonindented,transformations\json,.json,"if there are any fields where you are happy with the default value,"
+19,3021,0,ytt,bottomcenter,6,55,0,#B0B0B0,22,TRUE,1.5,none,254,black,black,original\json,transformations\ytt,.ytt,,plaintext,transformations\txt,.txt,,ass,transformations\ass,.ass,leave the field blank
+,,,,,,,,,,,,,,,,,,,,,,,,,,,or delete the entire column
+,,,,,,,,,,,,,,,,,,,,,,,,,,,"you can add extra columns if you want, and you can delete this column if you want"
+,,,,,,,,,,,,,,,,,,,,,,,,,,,just be aware that since this column currently has more rows than the real data does
+,,,,,,,,,,,,,,,,,,,,,,,,,,,"the program will complain about this, but will handle it gracefully"

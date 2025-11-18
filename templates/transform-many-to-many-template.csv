@@ -1,8 +1,0 @@
-input-file,output-file,start,end,delay,format,ytt-position,ytt-max-messages,ytt-max-chars-per-line,ytt-scale,ytt-shadow,ytt-window-opacity,ytt-background-opacity,ytt-text-color,ytt-shadow-color,ytt-background-color,output-dir,option-priority,Notes:
-highlight1.json,highlight1.ytt,7,1943,3,ytt,topleft,6,55,0,glow,254,0,white,black,black,transformations\ytt,0,input-file and output-file are the only mandatory columns
-highlight2.json,highlight2.ytt,19,3021,0,ytt,bottomcenter,6,55,1.5,none,0,254,#B0B0B0,black,black,transformations\ytt,-20,"if there are any fields where you are happy with the default value,"
-,,,,,,,,,,,,,,,,,,leave the field blank
-,,,,,,,,,,,,,,,,,,or delete the entire column
-,,,,,,,,,,,,,,,,,,"you can add extra columns if you want, and you can delete this column if you want"
-,,,,,,,,,,,,,,,,,,"just be aware that if any columns have more rows than output-file,"
-,,,,,,,,,,,,,,,,,,the program will complain about it but will handle it gracefully
