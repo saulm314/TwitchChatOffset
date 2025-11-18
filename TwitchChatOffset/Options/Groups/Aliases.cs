@@ -21,7 +21,7 @@ public static class Aliases
     public static AliasesContainer SubShadowColor { get; } = new(["--subtitle-shadow-color", "--sub-shadow-color", "--ytt-shadow-color", "--ass-shadow-color"]);
     public static AliasesContainer YttBackgroundColor { get; } = new(["--ytt-background-color", "--ytt-bg-color"]);
     public static AliasesContainer InputFile { get; } = new(["--input-file"]);
-    public static AliasesContainer InputDir { get; } = new(["--input-directory", "--input", "-i"]);
+    public static AliasesContainer InputDir { get; } = new(["--input-directory", "--input-dir", "--input", "-i"]);
     public static AliasesContainer OutputFile { get; } = new(["--output-file"]);
     public static AliasesContainer OutputDir { get; } = new(["--output-directory", "--output-dir", "--output", "-o"]);
     public static AliasesContainer Suffix { get; } = new(["--suffix"]);
