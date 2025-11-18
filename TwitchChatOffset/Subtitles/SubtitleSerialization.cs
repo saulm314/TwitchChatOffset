@@ -18,17 +18,17 @@ public static class SubtitleSerialization
     {
         if (options.MaxMessages < 1)
         {
-            PrintWarning("Warning: ytt-max-messages is less than 1 which is not supported; treating it as 1 instead");
+            PrintWarning("Warning: sub-max-messages is less than 1 which is not supported; treating it as 1 instead");
             options.MaxMessages.Value = 1;
         }
         if (options.WindowOpacity == 255)
         {
-            PrintWarning("Warning: ytt-window-opacity is 255 which for some reason may get overridden in the YouTube player, treatingit as 254 instead");
+            PrintWarning("Warning: sub-window-opacity is 255 which for some reason may get overridden in the YouTube player, treatingit as 254 instead");
             options.WindowOpacity.Value = 254;
         }
         if (options.SectionOptions.BackgroundOpacity == 255)
         {
-            PrintWarning("Warning: ytt-background-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
+            PrintWarning("Warning: sub-background-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
             options.SectionOptions.BackgroundOpacity.Value = 254;
         }
         SubtitleDocument sub = format.NewDocument();
