@@ -1,6 +1,6 @@
 ﻿using TwitchChatOffset.Options.Groups;
 using TwitchChatOffset.Json;
-using TwitchChatOffset.Ytt;
+using TwitchChatOffset.Subtitles;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using YTSubConverter.Shared;
@@ -21,11 +21,11 @@ public class TransformTests
         TextColor = new("white", true),
         SectionOptions = new()
         {
-            Scale = new(0.0, true),
+            YttScale = new(0.0, true),
             Shadow = new(Shadow.Glow, true),
-            BackgroundOpacity = new(0, true),
+            YttBackgroundOpacity = new(0, true),
             ShadowColor = new("black", true),
-            BackgroundColor = new("black", true)
+            YttBackgroundColor = new("black", true)
         }
     };
 
