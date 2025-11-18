@@ -1,19 +1,22 @@
 # TwitchChatOffset
 This is TwitchChatOffset.
 
-The purpose of this software is to take a JSON Twitch chat file, apply various transformations to it, and serialize it back into one of various formats (JSON, YTT, plaintext). The primary uses are for cropping/delaying Twitch chats and for converting JSON Twitch chat files into YTT YouTube subtitle files, so that the Twitch chat can be replayed directly in YouTube, as seen [here](https://youtu.be/y7_ZrMJNHUk).
+The purpose of this software is to take a JSON Twitch chat file, apply various transformations to it, and serialize it back into one of various formats (JSON, YTT, ASS, plaintext). The primary uses are for cropping/delaying Twitch chats and for converting JSON Twitch chat files into YTT YouTube subtitle files (or general ASS subtitle files that can be played in a local video player such as VLC), so that the Twitch chat can be replayed directly in YouTube, as seen [here](https://youtu.be/y7_ZrMJNHUk).
 
 TwitchChatOffset also supports bulk transformations, so if you have many Twitch chats (or one big Twitch chat that needs to split into several videos), you can put the details of each chat into a CSV table and TwitchChatOffset will automatically apply all the transformations into as many files as needed.
 
-The app has been tested quite extensively with over 150 unit tests, but if you find a bug feel free to raise an issue. To handle the YTT conversions, the app uses [YTSubConverter](https://github.com/arcusmaximus/YTSubConverter).
+To handle the YTT conversions, the app uses a fork of [YTSubConverter](https://github.com/arcusmaximus/YTSubConverter).
 
 TwitchChatOffset can be run on any operating system that supports the .NET Runtime (Windows, MacOS, Linux), though you may need to install .NET manually if you don't have it already.
 
 TwitchChatOffset is available as a console application only.
+
+## WARNING
+**TwitchChatOffset will only warn you about overwriting files if for any given transformation the input file is the same as the output file. If the output file differs from the input file, or if the output file is the same as an input file from a different transformation, no warning will be given!**
 # Installation
 To install the app, first download the latest release [here](https://github.com/saulm314/TwitchChatOffset/releases), and extract the ZIP file.
 
-Then, to run the app, open a terminal and navigate to the folder where you extracted the ZIP file, and run `.\TwitchChatOffset.exe` on Windows or `dotnet TwitchChatOffset.dll` on any operating system. If it doesn't work, you likely don't have the .NET runtime installed. The required .NET version is 9+, so you can download it [here](https://dotnet.microsoft.com/en-us/download/dotnet/9.0/runtime) and once you have it installed try running the app again.
+Then, to run the app, open a terminal and navigate to the folder where you extracted the ZIP file, and run `.\TwitchChatOffset.exe` on Windows or `dotnet TwitchChatOffset.dll` on any operating system. If it doesn't work, you likely don't have the .NET runtime installed. The required .NET version is 10+, so you can download it [here](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) and once you have it installed try running the app again.
 
 If you are on Windows, it is recommended to use [PowerShell](https://github.com/PowerShell/PowerShell/releases) rather than the default terminal app, since the default terminal may not be able to parse the command inputs correctly. In particular, the default terminal does not parse `""` as an empty string but rather it thinks no input was provided at all.
 
@@ -65,59 +68,56 @@ Aim: Same as the first example, but this time we want to convert it to a YouTube
 ```
 TwitchChatOffset transform chat.json transformed-chat.ytt --start 3600 --end 10800 --delay 60 -f ytt --ytt-position topright
 ```
-## Transform All
-Find all files that have a name with a matching search pattern in a given directory, then apply a transformation to each of them, and create a new output file for each input file.
+## Transform Many
+Using a CSV file with a list of input JSON files and transformations, apply all the listed transformations and create an output file for each, or multiple output files for each. For the CSV file, use the template provided [here](templates/transform-many.csv).
 ```
-TwitchChatOffset transform-all <suffix> [options]
+TwitchChatOffset transform-many <csv-path> [options]
 ```
-To see more information about each argument and option, run `TwitchChatOffset transform-all --help`.
-### Examples
-Aim: to find all JSON files in the current directory, cut out the first minute of their chats, and store the resulting chats in new JSON files in the `transformed` directory, with each output file having the same name as its corresponding input file.
-```
-TwitchChatOffset transform-all ".json" -o transformed --start 60
-```
-Aim: as before but this time we want to leave the output files in the same directory, but adding `-transformed` to their names to differentiate them from the input files. E.g. `chat.json` becomes `chat-transformed.json`.
-```
-TwitchChatOffset transform-all "-transformed.json" --start 60
-```
-Aim: same as the previous example, but this time we only want to apply transformations to JSON files that have "`chat`" in their names.
-```
-TwitchChatOffset transform-all "-transformed.json" --start 60 --pattern "*chat*.json"
-```
-## Transform Many to Many
-Using a CSV file with a list of input JSON files and transformations, apply all the listed transformations and create an output file for each. For the CSV file, use the template provided [here](templates/transform-many-to-many-template.csv).
-```
-TwitchChatOffset transform-many-to-many <csv-path> [options]
-```
-To see more information about each argument and option, run `TwitchChatOffset transform-many-to-many --help`.
+To see more information about each argument and option, run `TwitchChatOffset transform-many --help`.
 
-Most of the options that are available on the command line are also available in the CSV file with the same alias but without leading hyphens. For example, the `--ytt-position` command-line option is also available as a CSV option as `ytt-position`. An exhaustive list of all available options in the CSV file is defined [here](TwitchChatOffset/Csv/TransformManyToManyCsvNullables.cs).
+Most of the options that are available on the command line are also available in the CSV file with the same alias but without leading hyphens. For example, the `--ytt-position` command-line option is also available as a CSV option as `ytt-position`. An exhaustive list of all available options in the CSV file is defined [here](TwitchChatOffset/Options/Groups/TransformManyCommonOptions). Options may be specified in any order.
 
 The same option can be specified both in the CSV file and on the command line. In that case, the program uses the value from the CSV file and ignores the one from the command line. A field or an entire column can also be left blank in the CSV file. In that case, for that file, the value provided on the command line is used instead. If no value is provided on the command line, then the hardcoded default value is used (run the `--help` option to see default values).
 
-However, this behaviour can be overridden using the `option-priority` option. (WARNING: this is complicated so it is recommended to leave this option alone unless you have a very specific use case.) `option-priority` is available both in CLI (command-line interface) and CSV, and it can be any integer. If this option is omitted either on the CLI or the CSV, it defaults to 0. When the option priority is the same on both the CLI and the CSV, the behaviour is as described above. However, when the CLI option priority is strictly greater than the CSV option priority, then CLI values will be prioritised over CSV values. The table below illustrates this behaviour:
+The CSV file can contain redundant columns and the program will ignore them. Though be careful, because some apps such as Google Sheets allow you to put a newline `\n` character in a field, which is not allowed in CSV and will lead your CSV file to be parsed incorrectly. The CSV file can also contain redundant rows but the program will complain about it (though it will handle it gracefully - you will simply see a message that that row is being skipped).
 
-|                              | CLI Option Not Specified | CLI Option Specified        |
-| ---------------------------- | ------------------------ | --------------------------- |
-| **CSV Option Not Specified** | hardcoded value is used  | CLI value is used           |
-| **CSV Option Specified**     | CSV value is used        | special value is calculated |
+You can specify the same input file in multiple rows of the CSV document, and the program will perform multiple transformations accordingly. Don't worry if rows with identical input files are not adjacent - the program will automatically sort the rows and carry out the transformations in an optimised manner (e.g. by reusing computations from a previous transformation with the same input file).
 
-The special value means that if the CSV option priority is equal to or greater than the CLI option priority, then the CSV value is used; else the CLI value is used.
+If you need to perform multiple transformations for each input file (e.g. one for JSON format, one for YTT format, one for ASS format, one for TXT format), the CSV document can get a bit cluttered if you have to repeat all those rows in their entirety while just changing a handful of values. To make it easier to manage your data, you may specify multiple transformations on a single row. To do this, specify all of the options that you need for one transformation, then append a `/next` column and add options for another transformation to the right of that column (and optionally keep adding as many `/next` columns to produce as many transformations per input file as you please). After the `/next` column, you do not need to repeat all the options that come before the `/next` column: you only need to repeat the ones that are different. In a document with `/next` columns, the program parses each row as follows:
+- First, all data up to the first `/next` column is collected and will result in a single transformation (and a single output file)
+  - If any fields up to this point are left blank, then the command line value is used instead, or the hardcoded default value if no value is specified on the command line either
+- Then, the copy makes a copy of all the data up to that point, and reuses it after the `/next` column
+- Any non-empty fields after the `/next` column overwrite the existing data
+- Then after the next `/next` column after that, a copy of the previous data is made again, and so on...
+
+It is best to understand this with an example, so see the template provided above for more clarity.
 ### Examples
-Aim: transform all files in `transform-many-to-many.csv`, such that if for any file no `ytt-position` is specified, default it to bottom-right.
+Aim: to transform all files in `transform-many.csv`, such that if for any file no `ytt-position` is specified, default it to bottom-right.
 ```
-TwitchChatOffset transform-many-to-many transform-many-to-many.csv --ytt-position bottomright
+TwitchChatOffset transform-many transform-many.csv --ytt-position bottomright
 ```
-## Transform One To Many
-Using a JSON Twitch chat file and a CSV file with a list of transformations, apply all the listed transformations and create an output file for each. For the CSV file, use the template provided [here](templates/transform-one-to-many-template.csv).
+## Transform All
+Find all files that have a name with a matching search pattern in a given directory, then apply a transformation or multiple transformations to each of them, and create a new output file (or multiple output files) for each input file.
 ```
-TwitchChatOffset transform-one-to-many <input-path> <csv-path> [options]
+TwitchChatOffset transform-all [options]
 ```
-To see more information about each argument and option, run `TwitchChatOffset transform-one-to-many --help`.
+To see more information about each argument and option, run `TwitchChatOffset transform-all --help`.
 
-Read the above section on `transform-many-to-many`, as the same information is relevant here. The only difference is that the exhaustive list of all available options in the CSV file is defined [here](TwitchChatOffset/Csv/TransformOneToManyCsvNullables.cs), though they are the same bar the `input-file` column.
+Use this command similar to the `transform` command, but if you need to apply the same transformation or set of transformations to all the files in a directory. Use the `-i` option to select the input directory, and the `-o` option to select your output directory. You can also use the `--search-pattern` option to specify which files in the input directory to transform, e.g. `*.json` for all JSON files, or `*chat*.json` for all JSON files with "chat" in their names. Use `*` to represent zero or more characters, or `?` to represent exactly one character, as is documented on [this](https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.getfiles?view=net-10.0) page. You may also find the `--suffix` option particularly useful: by default all output files will keep the same names as their input files, but you can specify a suffix to remove the file's extension and append a new suffix onto it, e.g. `.ytt` or `-transformed.ytt`.
+
+Note that merely running `TwitchChatOffset transform-all` without specifying your input or output directories (`-i`, `-o`) finds all JSON files in the current directory, performs a transformation for each, and then replaces the same file. This is of course dangerous, however if you do accidentally leave the input and output directories the same, the program will give you a warning and ask if you want to proceed. **The program will not give you a warning if the input and output directories are different, even if there are already files that will be overwritten in the output directory!**
+
+If you wish to specify multiple transformations per input file in a `transform-all` command, you can do this with a CSV file, just like we did with the `transform-many` command. The only difference is that on this CSV file the `input-file` and `output-file` options are not recognised. Every transformation will simply apply to every input file and output files will be generated based on the given output directory and suffix. You can either specify multiple transformations across multiple rows, or use the `/next` technique from the `transform-many` command to specify multiple transformations within the same row. If you wish to do this, simply add a `--csv` option and specify the path to your CSV file.
 ### Examples
-Aim: apply all transformations to `chat.json` as listed in `transform-one-to-many.csv`, such that if for any transformation no `format` is specified, default it to plaintext.
+Aim: to find all JSON files in the current directory, cut out the first minute of their chats, and store the resulting chats in new JSON files in the `transformed` directory, with each output file having the same name as its corresponding input file.
 ```
-TwitchChatOffset transform-one-to-many chat.json transform-one-to-many.csv -f plaintext
+TwitchChatOffset transform-all -o transformed --start 60
+```
+Aim: as before but this time we want to leave the output files in the same directory, but adding `-transformed` to their names to differentiate them from the input files. E.g. `chat.json` becomes `chat-transformed.json`.
+```
+TwitchChatOffset transform-all --suffix "-transformed.json" --start 60
+```
+Aim: same as the previous example, but this time we only want to apply transformations to JSON files that have "`chat`" in their names.
+```
+TwitchChatOffset transform-all --suffix "-transformed.json" --start 60 --pattern "*chat*.json"
 ```
