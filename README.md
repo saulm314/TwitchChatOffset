@@ -90,6 +90,8 @@ If you need to perform multiple transformations for each input file (e.g. one fo
 - Any non-empty fields after the `/next` column overwrite the existing data
 - Then after the next `/next` column after that, a copy of the previous data is made again, and so on...
 
+While options are allowed to be repeated if there is a `/next` column in between, with a single group surrounded by the start/end of the file and/or `/next` columns, repetitions are not allowed and will throw an error.
+
 It is best to understand this with an example, so see the template provided above for more clarity.
 ### Examples
 Aim: to transform all files in `transform-many.csv`, such that if for any file no `ytt-position` is specified, default it to bottom-right.
