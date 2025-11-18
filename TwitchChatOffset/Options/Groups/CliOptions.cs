@@ -34,9 +34,13 @@ public static class CliOptions
         "Maximum number of characters to display in a single subtitle line before it wraps to a New line (optional)",
         _ => 40);
 
-    public static CliOptionContainer<double> SubScale { get; } = new("--subtitle-scale", Aliases.SubScale,
-        "Subtitle size (e.g. 0, 0.5, 1.5, etc.) (must be at least 0) (optional)",
+    public static CliOptionContainer<double> YttScale { get; } = new("--ytt-scale", Aliases.YttScale,
+        "YTT subtitle size (e.g. 0, 0.5, 1.5, etc.) (must be at least 0) (optional)",
         _ => 0.0);
+
+    public static CliOptionContainer<long> AssFontSize { get; } = new("--ass-font-size", Aliases.AssFontSize,
+        "ASS subtitle font size (e.g. 18, 15, 25, etc.) (must be a positive integer) (optional)",
+        _ => 18);
 
     public static CliOptionContainer<Shadow> SubShadow { get; } = new("--subtitle-shadow", Aliases.SubShadow,
         "Shadow type (or none) for subtitles (optional)",
@@ -46,9 +50,13 @@ public static class CliOptions
         "Window opacity for subtitles (the text box containing the subtitles), ranging from 0 (fully transparent) to 254 (fully opaque) (optional)",
         _ => 0);
 
-    public static CliOptionContainer<long> SubBackgroundOpacity { get; } = new("--subtitle-background-opacity", Aliases.SubBackgroundOpacity,
-        "Background opacity for subtitles (the text only, not the entire text box), ranging from 0 (fully transparent) to 254 (fully opaque) (optional)",
+    public static CliOptionContainer<long> YttBackgroundOpacity { get; } = new("--ytt-background-opacity", Aliases.YttBackgroundOpacity,
+        "Background opacity for YTT subtitles (the text only, not the entire text box), ranging from 0 (fully transparent) to 254 (fully opaque) (optional)",
         _ => 0);
+
+    public static CliOptionContainer<bool> AssBackgroundEnable { get; } = new("--ass-background-enable", Aliases.AssBackgroundEnable,
+        "Enable black opaque background for ASS subtitles (the text only, not the entire text box, overrides sub-window-opacity to 0) (optional)",
+        _ => false);
 
     public static CliOptionContainer<string> SubTextColor { get; } = new("--subtitle-text-color", Aliases.SubTextColor,
         "Text color for subtitles, (e.g. \"white\", \"#B0B0B0\", etc.) (optional)",
@@ -58,8 +66,8 @@ public static class CliOptions
         "Shadow color for subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (optional)",
         _ => "black");
 
-    public static CliOptionContainer<string> SubBackgroundColor { get; } = new("--subtitle-background-color", Aliases.SubBackgroundColor,
-        "Background color for subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (optional)",
+    public static CliOptionContainer<string> YttBackgroundColor { get; } = new("--ytt-background-color", Aliases.YttBackgroundColor,
+        "Background color for YTT subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (optional)",
         _ => "black");
 
     public static CliOptionContainer<string> InputFile { get; } = new("--input-file", Aliases.InputFile,

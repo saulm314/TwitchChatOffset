@@ -8,27 +8,27 @@ namespace TwitchChatOffset.Options.Groups;
 
 public record SubtitleSectionOptions : IOptionGroup<SubtitleSectionOptions>
 {
-    [CliOption(nameof(SubScale))]
-    public Plicit<double> Scale;
+    [CliOption(nameof(CliOptions.YttScale))]
+    public Plicit<double> YttScale;
 
     [CliOption(nameof(SubShadow))]
     public Plicit<Shadow> Shadow;
 
-    [CliOption(nameof(SubBackgroundOpacity))]
-    public Plicit<long> BackgroundOpacity;
+    [CliOption(nameof(CliOptions.YttBackgroundOpacity))]
+    public Plicit<long> YttBackgroundOpacity;
 
     [CliOption(nameof(SubShadowColor))]
     public Plicit<string> ShadowColor;
 
-    [CliOption(nameof(SubBackgroundColor))]
-    public Plicit<string> BackgroundColor;
+    [CliOption(nameof(CliOptions.YttBackgroundColor))]
+    public Plicit<string> YttBackgroundColor;
 
-    public void Deconstruct(out float scale, out ShadowType? shadow, out byte backgroundOpacity, out Color shadowColor, out Color backgroundColor)
+    public void Deconstruct(out float yttScale, out ShadowType? shadow, out byte yttBackgroundOpacity, out Color shadowColor, out Color yttBackgroundColor)
     {
-        scale = (float)Scale;
+        yttScale = (float)YttScale;
         shadow = Shadow.Value.Convert();
-        backgroundOpacity = (byte)BackgroundOpacity;
+        yttBackgroundOpacity = (byte)YttBackgroundOpacity;
         shadowColor = FromHtml(ShadowColor);
-        backgroundColor = FromHtml(BackgroundColor);
+        yttBackgroundColor = FromHtml(YttBackgroundColor);
     }
 }
