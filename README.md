@@ -86,7 +86,7 @@ You can specify the same input file in multiple rows of the CSV document, and th
 If you need to perform multiple transformations for each input file (e.g. one for JSON format, one for YTT format, one for ASS format, one for TXT format), the CSV document can get a bit cluttered if you have to repeat all those rows in their entirety while just changing a handful of values. To make it easier to manage your data, you may specify multiple transformations on a single row. To do this, specify all of the options that you need for one transformation, then append a `/next` column and add options for another transformation to the right of that column (and optionally keep adding as many `/next` columns to produce as many transformations per input file as you please). After the `/next` column, you do not need to repeat all the options that come before the `/next` column: you only need to repeat the ones that are different. In a document with `/next` columns, the program parses each row as follows:
 - First, all data up to the first `/next` column is collected and will result in a single transformation (and a single output file)
   - If any fields up to this point are left blank, then the command line value is used instead, or the hardcoded default value if no value is specified on the command line either
-- Then, the copy makes a copy of all the data up to that point, and reuses it after the `/next` column
+- Then, the program makes a copy of all the data up to that point, and reuses it after the `/next` column
 - Any non-empty fields after the `/next` column overwrite the existing data
 - Then after the next `/next` column after that, a copy of the previous data is made again, and so on...
 
