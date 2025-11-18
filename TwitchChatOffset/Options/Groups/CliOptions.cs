@@ -47,7 +47,7 @@ public static class CliOptions
         _ => Shadow.Glow);
 
     public static CliOptionContainer<long> SubWindowOpacity { get; } = new("--subtitle-window-opacity", Aliases.SubWindowOpacity,
-        "Window opacity for subtitles (the text box containing the subtitles), ranging from 0 (fully transparent) to 254 (fully opaque) (optional)",
+        "Window opacity for subtitles (the text box containing the subtitles), ranging from 0 (fully transparent) to 255 (fully opaque) (optional)",
         _ => 0);
 
     public static CliOptionContainer<long> YttBackgroundOpacity { get; } = new("--ytt-background-opacity", Aliases.YttBackgroundOpacity,

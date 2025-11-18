@@ -8,7 +8,6 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using YTSubConverter.Shared;
 using YTSubConverter.Shared.Formats;
-using YTSubConverter.Shared.Formats.Ass;
 using static System.Drawing.ColorTranslator;
 
 namespace TwitchChatOffset.Subtitles;
@@ -22,9 +21,11 @@ public static class SubtitleSerialization
             PrintWarning("Warning: sub-max-messages is less than 1 which is not supported; treating it as 1 instead");
             options.MaxMessages.Value = 1;
         }
-        if (options.WindowOpacity == 255)
+        SubtitleUtils.NormaliseByte(ref options.WindowOpacity);
+        SubtitleUtils.NormaliseByte(ref options.SectionOptions.YttBackgroundOpacity);
+        if (format == Format.Ytt && options.WindowOpacity == 255)
         {
-            PrintWarning("Warning: sub-window-opacity is 255 which for some reason may get overridden in the YouTube player, treatingit as 254 instead");
+            PrintWarning("Warning: sub-window-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
             options.WindowOpacity.Value = 254;
         }
         if (options.SectionOptions.YttBackgroundOpacity == 255)
@@ -32,7 +33,8 @@ public static class SubtitleSerialization
             PrintWarning("Warning: ytt-background-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
             options.SectionOptions.YttBackgroundOpacity.Value = 254;
         }
-        format.GetBackgroundOpacity(ref options.SectionOptions.YttBackgroundOpacity, options.AssBackgroundEnable);
+        if (format != Format.Ytt)
+            options.SectionOptions.YttBackgroundOpacity.Value = 0;
         SubtitleDocument sub = format.NewDocument();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
@@ -56,7 +58,7 @@ public static class SubtitleSerialization
             Line lastLine = GetLine(visibleMessages, null, options, format);
             sub.Lines.Add(lastLine);
         }
-        format.ApplyFontSize(sub, options.AssFontSize);
+        format.ApplyAssStyles(sub, options.AssFontSize, options.AssBackgroundEnable, options.WindowOpacity);
 
         StringWriter stringWriter = new();
         sub.Save(stringWriter);

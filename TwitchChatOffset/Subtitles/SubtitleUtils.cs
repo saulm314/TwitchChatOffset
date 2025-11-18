@@ -30,19 +30,26 @@ public static class SubtitleUtils
             _ => throw new InternalException("Internal error: unrecognised shadow type")
         };
 
-    public static void GetBackgroundOpacity(this Format format, ref Plicit<long> yttBackgroundOpacity, bool assBackgroundEnable)
+    public static void NormaliseByte(ref Plicit<long> byteValue)
     {
-        if (format != Format.Ass)
-            return;
-        yttBackgroundOpacity.Value = assBackgroundEnable ? 254 : 0;
+        byteValue.Value = byteValue.Value switch
+        {
+            < 0 => 0,
+            > 255 => 255,
+            _ => byteValue
+        };
     }
 
-    public static void ApplyFontSize(this Format format, SubtitleDocument sub, long fontSize)
+    public static void ApplyAssStyles(this Format format, SubtitleDocument sub, long fontSize, bool backgroundEnable, long windowOpacity)
     {
         if (format != Format.Ass)
             return;
         AssDocument ass = (AssDocument)sub;
         foreach (AssStyle style in ass.Styles)
+        {
             style.LineHeight = fontSize;
+            style.BackgroundEnable = backgroundEnable;
+            style.WindowOpacity = (byte)windowOpacity;
+        }
     }
 }
