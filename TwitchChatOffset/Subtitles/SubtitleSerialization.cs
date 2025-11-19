@@ -73,7 +73,7 @@ public static class SubtitleSerialization
         JToken message = comment.D("message");
         string displayName = comment.D("commenter").D("display_name").As<string>();
         string messageStr = message.D("body").As<string>();
-        GetWrappedMessage(displayName, messageStr, (int)options.MaxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage, format);
+        GetWrappedMessage(displayName, messageStr, (int)options.MaxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage);
 
         Color userColor = GetUserColor(userColors, displayName, message);
 
@@ -105,17 +105,16 @@ public static class SubtitleSerialization
         return color;
     }
 
-    private static void GetWrappedMessage(string displayName, string message, int maxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage,
-        Format format)
+    private static void GetWrappedMessage(string displayName, string message, int maxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage)
     {
         string total = displayName + ": " + message;
-        string wrappedTotal = GetWrappedText(total.AsSpan(), maxCharsPerLine, format);
+        string wrappedTotal = GetWrappedText(total.AsSpan(), maxCharsPerLine);
         int colonIndex = wrappedTotal.IndexOf(':');
         wrappedDisplayName = wrappedTotal[..(colonIndex + 2)];
         wrappedMessage = wrappedTotal[(colonIndex + 2)..];
     }
 
-    private static string GetWrappedText(ReadOnlySpan<char> text, int maxCharsPerLine, Format format)
+    private static string GetWrappedText(ReadOnlySpan<char> text, int maxCharsPerLine)
     {
         StringBuilder builder = new();
         int index = 0;
@@ -125,11 +124,11 @@ public static class SubtitleSerialization
             if (whiteSpaceIndex == -1)
             {
                 builder.Append(text[index..(index += maxCharsPerLine)]);
-                builder.Append("\r\n");
+                builder.Append('\n');
                 continue;
             }
             builder.Append(text[index..whiteSpaceIndex]);
-            builder.Append("\r\n");
+            builder.Append('\n');
             index = whiteSpaceIndex + 1;
         }
         builder.Append(text[index..]);
@@ -152,7 +151,7 @@ public static class SubtitleSerialization
         {
             sections.Add(chatMessage.Name);
             sections.Add(chatMessage.Message);
-            Section newlineSection = format.NewSection("\r\n"); // for YTT, \n and \r\n work, but for ASS, only \r\n works
+            Section newlineSection = format.NewSection("\n"); // for YTT, \n and \r\n work, but for ASS, only \r\n works
             newlineSection.ApplyOptions(options.SectionOptions);
             sections.Add(newlineSection);
             lastChatMessage = chatMessage;
