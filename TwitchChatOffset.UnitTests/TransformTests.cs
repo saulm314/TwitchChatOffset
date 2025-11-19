@@ -21,11 +21,11 @@ public class TransformTests
         TextColor = new("white", true),
         SectionOptions = new()
         {
-            YttScale = new(0.0, true),
+            SubScale = new(0.0, true),
             Shadow = new(Shadow.Glow, true),
-            YttBackgroundOpacity = new(0, true),
+            SubBackgroundOpacity = new(0, true),
             ShadowColor = new("black", true),
-            YttBackgroundColor = new("black", true)
+            SubBackgroundColor = new("black", true)
         }
     };
 
