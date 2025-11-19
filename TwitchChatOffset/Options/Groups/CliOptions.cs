@@ -23,55 +23,55 @@ public static class CliOptions
         _ => TwitchChatOffset.Format.Json);
 
     public static CliOptionContainer<AnchorPoint> SubPosition { get; } = new("--sub-position", Aliases.SubPosition,
-        "Position on the screen for subtitles (optional)",
+        "[YTT|ASS] Position on the screen for subtitles (optional)",
         _ => AnchorPoint.TopLeft);
 
     public static CliOptionContainer<long> SubMaxMessages { get; } = new("--sub-max-messages", Aliases.SubMaxMessages,
-        "Maximum number of messages to display at once for subtitles (must be at least 1) (optional)",
+        "[YTT|ASS] Maximum number of messages to display at once for subtitles (must be at least 1) (optional)",
         _ => 4);
 
     public static CliOptionContainer<long> SubMaxCharsPerLine { get; } = new("--sub-max-chars-per-line", Aliases.SubMaxCharsPerLine,
-        "Maximum number of characters to display in a single subtitle line before it wraps to a New line (optional)",
+        "[YTT|ASS] Maximum number of characters to display in a single subtitle line before it wraps to a New line (optional)",
         _ => 40);
 
     public static CliOptionContainer<double> SubScale { get; } = new("--sub-scale", Aliases.SubScale,
-        "YTT subtitle size (e.g. 0, 0.5, 1.5, etc.) (must be at least 0) (YTT only) (optional)",
+        "[YTT] YTT subtitle size (e.g. 0, 0.5, 1.5, etc.) (must be at least 0) (YTT only) (optional)",
         _ => 0.0);
 
     public static CliOptionContainer<long> SubFontSize { get; } = new("--sub-font-size", Aliases.SubFontSize,
-        "ASS subtitle font size (e.g. 18, 15, 25, etc.) (must be a positive integer) (ASS only) (optional)",
+        "[ASS] ASS subtitle font size (e.g. 18, 15, 25, etc.) (must be a positive integer) (ASS only) (optional)",
         _ => 18);
 
     public static CliOptionContainer<Shadow> SubShadow { get; } = new("--sub-shadow", Aliases.SubShadow,
-        "Shadow type (or none) for subtitles (optional)",
+        "[YTT] YTT Shadow type (or none) for subtitles (YTT only) (optional)",
         _ => Shadow.Glow);
 
     public static CliOptionContainer<bool> SubOutlineDisable { get; } = new("--sub-outline-disable", Aliases.SubOutlineDisable,
-        "Disable outline for ASS subtitles (ASS only) (optional)",
+        "[ASS] Disable outline for ASS subtitles (ASS only) (optional)",
         _ => false);
 
     public static CliOptionContainer<long> SubWindowOpacity { get; } = new("--sub-window-opacity", Aliases.SubWindowOpacity,
-        "Window opacity for subtitles (the text box containing the subtitles), ranging from 0 (fully transparent) to 255 (fully opaque) (optional)",
+        "[YTT|ASS] Window opacity for subtitles (the text box containing the subtitles), ranging from 0 (fully transparent) to 255 (fully opaque) (optional)",
         _ => 0);
 
     public static CliOptionContainer<long> SubBackgroundOpacity { get; } = new("--sub-background-opacity", Aliases.SubBackgroundOpacity,
-        "Background opacity for YTT subtitles (the text only, not the entire text box), ranging from 0 (fully transparent) to 254 (fully opaque) (YTT only) (optional)",
+        "[YTT] Background opacity for YTT subtitles (the text only, not the entire text box), ranging from 0 (fully transparent) to 254 (fully opaque) (YTT only) (optional)",
         _ => 0);
 
     public static CliOptionContainer<bool> SubBackgroundEnable { get; } = new("--sub-background-enable", Aliases.SubBackgroundEnable,
-        "Enable black opaque background for ASS subtitles (the text only, not the entire text box, overrides sub-window-opacity to 0) (ASS only) (optional)",
+        "[ASS] Enable black opaque background for ASS subtitles (the text only, not the entire text box, overrides sub-window-opacity to 0) (ASS only) (optional)",
         _ => false);
 
     public static CliOptionContainer<string> SubTextColor { get; } = new("--sub-text-color", Aliases.SubTextColor,
-        "Text color for subtitles, (e.g. \"white\", \"#B0B0B0\", etc.) (optional)",
+        "[YTT|ASS] Text color for subtitles, (e.g. \"white\", \"#B0B0B0\", etc.) (optional)",
         _ => "white");
 
     public static CliOptionContainer<string> SubShadowColor { get; } = new("--sub-shadow-color", Aliases.SubShadowColor,
-        "Shadow color for subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (optional)",
+        "[YTT|ASS] Shadow color for subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (optional)",
         _ => "black");
 
     public static CliOptionContainer<string> SubBackgroundColor { get; } = new("--sub-background-color", Aliases.SubBackgroundColor,
-        "Background color for YTT subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (YTT only) (optional)",
+        "[YTT] Background color for YTT subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (YTT only) (optional)",
         _ => "black");
 
     public static CliOptionContainer<string> InputFile { get; } = new("--input-file", Aliases.InputFile,
