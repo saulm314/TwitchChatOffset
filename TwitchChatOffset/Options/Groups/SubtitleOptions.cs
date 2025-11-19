@@ -20,11 +20,14 @@ public record SubtitleOptions : IOptionGroup<SubtitleOptions>
     [CliOption(nameof(SubTextColor))]
     public Plicit<string> TextColor;
 
-    [CliOption(nameof(CliOptions.AssFontSize))]
-    public Plicit<long> AssFontSize;
+    [CliOption(nameof(CliOptions.SubFontSize))]
+    public Plicit<long> SubFontSize;
 
-    [CliOption(nameof(CliOptions.AssBackgroundEnable))]
-    public Plicit<bool> AssBackgroundEnable;
+    [CliOption(nameof(CliOptions.SubBackgroundEnable))]
+    public Plicit<bool> SubBackgroundEnable;
+
+    [CliOption(nameof(CliOptions.SubOutlineDisable))]
+    public Plicit<bool> SubOutlineDisable;
 
     public SubtitleSectionOptions SectionOptions = new();
 }

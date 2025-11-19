@@ -22,19 +22,22 @@ public static class SubtitleSerialization
             options.MaxMessages.Value = 1;
         }
         SubtitleUtils.NormaliseByte(ref options.WindowOpacity);
-        SubtitleUtils.NormaliseByte(ref options.SectionOptions.YttBackgroundOpacity);
+        SubtitleUtils.NormaliseByte(ref options.SectionOptions.SubBackgroundOpacity);
         if (format == Format.Ytt && options.WindowOpacity == 255)
         {
             PrintWarning("Warning: sub-window-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
             options.WindowOpacity.Value = 254;
         }
-        if (options.SectionOptions.YttBackgroundOpacity == 255)
+        if (options.SectionOptions.SubBackgroundOpacity == 255)
         {
             PrintWarning("Warning: ytt-background-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
-            options.SectionOptions.YttBackgroundOpacity.Value = 254;
+            options.SectionOptions.SubBackgroundOpacity.Value = 254;
         }
         if (format != Format.Ytt)
-            options.SectionOptions.YttBackgroundOpacity.Value = 0;
+        {
+            options.SectionOptions.SubBackgroundOpacity.Value = 0;
+            options.SectionOptions.Shadow.Value = options.SubOutlineDisable ? Shadow.None : Shadow.Glow;
+        }
         SubtitleDocument sub = format.NewDocument();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
@@ -58,7 +61,7 @@ public static class SubtitleSerialization
             Line lastLine = GetLine(visibleMessages, null, options, format);
             sub.Lines.Add(lastLine);
         }
-        format.ApplyAssStyles(sub, options.AssFontSize, options.AssBackgroundEnable, options.WindowOpacity);
+        format.ApplyAssStyles(sub, options.SubFontSize, options.SubBackgroundEnable, options.WindowOpacity);
 
         StringWriter stringWriter = new();
         sub.Save(stringWriter);
