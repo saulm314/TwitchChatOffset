@@ -158,7 +158,7 @@ public static class SubtitleSerialization
             lastChatMessage = chatMessage;
         }
         DateTime start = SubtitleDocument.TimeBase + lastChatMessage.Time;
-        DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? TimeSpan.FromHours(12)); // 12 hours is the max YouTube video length
+        DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? format.GetMaxTimeSpan(lastChatMessage));
         // if any line has the same start and end value, YTSubConverter appears to automatically get rid of that line when saving the YTT file
         return format.NewLine(start, end, sections, options.Position, (byte)options.WindowOpacity);
     }

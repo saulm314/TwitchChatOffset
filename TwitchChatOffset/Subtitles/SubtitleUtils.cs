@@ -1,5 +1,6 @@
 ﻿using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
+using System;
 using System.Drawing;
 using YTSubConverter.Shared;
 using YTSubConverter.Shared.Formats;
@@ -52,4 +53,14 @@ public static class SubtitleUtils
             style.WindowOpacity = (byte)windowOpacity;
         }
     }
+
+    // 12 hours is the max YouTube video length
+    private static readonly TimeSpan _time12Hours = TimeSpan.FromHours(12);
+    public static TimeSpan GetMaxTimeSpan(this Format format, ChatMessage lastChatMessage)
+        => format switch
+        {
+            Format.Ytt => lastChatMessage.Time <= _time12Hours ? _time12Hours : lastChatMessage.Time + _time12Hours,
+            Format.Ass => lastChatMessage.Time + _time12Hours,
+            _ => throw new InternalException($"Internal error: non-subtitle format {format} not allowed")
+        };
 }
