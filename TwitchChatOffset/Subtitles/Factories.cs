@@ -17,14 +17,16 @@ public static class Factories
             _ => throw new InternalException($"Internal error: non-subtitle format {format} not allowed")
         };
 
-    public static Line NewLine(this Format format, DateTime start, DateTime end, IEnumerable<Section> sections, AnchorPoint anchorPoint, byte windowOpacity)
+    public static Line NewLine(this Format format, DateTime start, DateTime end, IEnumerable<Section> sections, AnchorPoint anchorPoint, byte windowOpacity,
+        PointF position)
         => format switch
         {
             Format.Ytt => new Line(start, end, sections)
             {
                 AndroidDarkTextHackAllowed = false,
                 AnchorPoint = anchorPoint,
-                WindowOpacity = windowOpacity
+                WindowOpacity = windowOpacity,
+                Position = position
             },
             Format.Ass => NewAssLine(start, end, sections, anchorPoint, windowOpacity),
             _ => throw new InternalException($"Internal error: non-subtitle format {format} not allowed")

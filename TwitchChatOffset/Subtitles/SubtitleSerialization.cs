@@ -162,6 +162,7 @@ public static class SubtitleSerialization
         DateTime start = SubtitleDocument.TimeBase + lastChatMessage.Time;
         DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? format.GetMaxTimeSpan(lastChatMessage));
         // if any line has the same start and end value, YTSubConverter appears to automatically get rid of that line when saving the YTT file
-        return format.NewLine(start, end, sections, options.Position, (byte)options.WindowOpacity);
+        PointF position = new((float)options.SubTranslateX, (float)options.SubTranslateY);
+        return format.NewLine(start, end, sections, options.Position, (byte)options.WindowOpacity, position);
     }
 }

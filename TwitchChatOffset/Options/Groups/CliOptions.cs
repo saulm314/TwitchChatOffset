@@ -74,6 +74,14 @@ public static class CliOptions
         "[YTT] Background color for YTT subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (YTT only) (optional)",
         _ => "black");
 
+    public static CliOptionContainer<double> SubTranslateX { get; } = new("--sub-translate-x", Aliases.SubTranslateX,
+        "[YTT|ASS] Translate subtitles by a positive/negative number in the x direction (right/left) [this option is low level and may cause the chats to be cut off by the screen edge if applied incorrectly, use at your own risk] (optional)",
+        _ => 0.0);
+
+    public static CliOptionContainer<double> SubTranslateY { get; } = new("--sub-translate-y", Aliases.SubTranslateY,
+        "[YTT|ASS] Translate subtitles by a positive/negative number in the y direction (down/up) [this option is low level and may cause the chats to be cut off by the screen edge if applied incorrectly, use at your own risk] (optional)",
+        _ => 0.0);
+
     public static CliOptionContainer<string> InputFile { get; } = new("--input-file", Aliases.InputFile,
         "Input file (optional)",
         _ => string.Empty);

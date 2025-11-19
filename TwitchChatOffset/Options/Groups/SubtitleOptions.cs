@@ -29,5 +29,11 @@ public record SubtitleOptions : IOptionGroup<SubtitleOptions>
     [CliOption(nameof(CliOptions.SubOutlineDisable))]
     public Plicit<bool> SubOutlineDisable;
 
+    [CliOption(nameof(CliOptions.SubTranslateX))]
+    public Plicit<double> SubTranslateX;
+
+    [CliOption(nameof(CliOptions.SubTranslateY))]
+    public Plicit<double> SubTranslateY;
+
     public SubtitleSectionOptions SectionOptions = new();
 }

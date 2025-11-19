@@ -19,6 +19,8 @@ public static class Aliases
     public static AliasesContainer SubTextColor { get; } = new(["--sub-text-color"]);
     public static AliasesContainer SubShadowColor { get; } = new(["--sub-shadow-color"]);
     public static AliasesContainer SubBackgroundColor { get; } = new(["--sub-background-color", "--sub-bg-color"]);
+    public static AliasesContainer SubTranslateX { get; } = new(["--sub-translate-x"]);
+    public static AliasesContainer SubTranslateY { get; } = new(["--sub-translate-y"]);
     public static AliasesContainer InputFile { get; } = new(["--input-file"]);
     public static AliasesContainer InputDir { get; } = new(["--input-directory", "--input-dir", "--input", "-i"]);
     public static AliasesContainer OutputFile { get; } = new(["--output-file"]);
