@@ -7,6 +7,9 @@ public record TransformAllCommonOptions : IOptionGroup<TransformAllCommonOptions
     [CliOption(nameof(CliOptions.InputDir))]
     public Plicit<string> InputDir;
 
+    [CliOption(nameof(CliOptions.SearchPattern))]
+    public Plicit<string> SearchPattern;
+
     [CliOption(nameof(CliOptions.OutputDir))]
     public Plicit<string> OutputDir;
 

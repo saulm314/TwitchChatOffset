@@ -6,6 +6,7 @@ using TwitchChatOffset.Options.Optimisations;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
+using System.Linq;
 using CSVFile;
 
 namespace TwitchChatOffset.CommandLine;
@@ -24,9 +25,6 @@ public static class TransformAllCommand
     {
         TransformAllCliOptions cliOptions = parseResult.ParseOptions<TransformAllCliOptions>();
 
-        string[] inputPaths = Directory.GetFiles(cliOptions.CommonOptions.InputDir, cliOptions.SearchPattern);
-        PrintEnumerable(inputPaths, "Input files found:", 0, cliOptions.Quiet);
-
         List<TransformAllCommonOptions> commonOptionsList;
         if (cliOptions.CsvPath != string.Empty)
         {
@@ -41,6 +39,12 @@ public static class TransformAllCommand
         }
         else
             commonOptionsList = [BulkTransform.ResolveConflicts(new(), cliOptions.CommonOptions)];
+
+        HashSet<string> inputPaths = [..commonOptionsList
+            .Select(commonOptions => (commonOptions.InputDir.Value, commonOptions.SearchPattern.Value))
+            .ToHashSet()
+            .SelectMany(inputDirPattern => Directory.GetFiles(inputDirPattern.Item1, inputDirPattern.Item2))];
+        PrintEnumerable(inputPaths, "Input files found:", 0 , cliOptions.Quiet);
 
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         TransformAllData data = new();

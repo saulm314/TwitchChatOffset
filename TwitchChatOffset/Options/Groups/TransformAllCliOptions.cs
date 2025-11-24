@@ -6,9 +6,6 @@ public record TransformAllCliOptions : IOptionGroup<TransformAllCliOptions>
 {
     public TransformAllCommonOptions CommonOptions = new();
 
-    [CliOption(nameof(CliOptions.SearchPattern))]
-    public Plicit<string> SearchPattern;
-
     [CliOption(nameof(CliOptions.Quiet))]
     public Plicit<bool> Quiet;
 
