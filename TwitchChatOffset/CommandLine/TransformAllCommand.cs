@@ -32,7 +32,11 @@ public static class TransformAllCommand
             using CSVReader reader = CSVReader.FromFile(cliOptions.CsvPath, CsvUtils.CsvSettings);
             commonOptionsList = [];
             foreach (TransformAllCommonOptions commonOptions in CsvSerialization.Deserialize<TransformAllCommonOptions>(reader))
-                commonOptionsList.Add(BulkTransform.ResolveConflicts(commonOptions, cliOptions.CommonOptions));
+            {
+                TransformAllCommonOptions winnerCommonOptions = BulkTransform.ResolveConflicts(commonOptions, cliOptions.CommonOptions);
+                winnerCommonOptions.InputDir.Value = Path.GetRelativePath(".", winnerCommonOptions.InputDir.Value);
+                commonOptionsList.Add(winnerCommonOptions);
+            }
 
             PrintLine("Sorting CSV data...", 0, cliOptions.Quiet);
             commonOptionsList.Sort(TransformAllCommonOptionsComparer.Instance);
@@ -40,19 +44,30 @@ public static class TransformAllCommand
         else
             commonOptionsList = [BulkTransform.ResolveConflicts(new(), cliOptions.CommonOptions)];
 
-        HashSet<string> inputPaths = [..commonOptionsList
-            .Select(commonOptions => (commonOptions.InputDir.Value, commonOptions.SearchPattern.Value))
-            .ToHashSet()
-            .SelectMany(inputDirPattern => Directory.GetFiles(inputDirPattern.Item1, inputDirPattern.Item2))];
-        PrintEnumerable(inputPaths, "Input files found:", 0 , cliOptions.Quiet);
+        HashSet<InputDirAndPath> inputDirAndPaths = [];
+        HashSet<InputDirAndSearchPattern> inputDirAndSearchPatterns = [];
+        foreach (TransformAllCommonOptions commonOptions in commonOptionsList)
+        {
+            InputDirAndSearchPattern inputDirAndSearchPattern = new(commonOptions.InputDir, commonOptions.SearchPattern);
+            if (inputDirAndSearchPatterns.Contains(inputDirAndSearchPattern))
+                continue;
+            inputDirAndSearchPatterns.Add(inputDirAndSearchPattern);
+            string[] inputPaths_ = Directory.GetFiles(commonOptions.InputDir, commonOptions.SearchPattern);
+            foreach (string inputPath_ in inputPaths_)
+                inputDirAndPaths.Add(new(commonOptions.InputDir, inputPath_));
+        }
+        PrintEnumerable(inputDirAndPaths.Select(inputDirAndPath => inputDirAndPath.InputPath), "Input files found", 0, cliOptions.Quiet);
 
         PrintLine("Writing files...", 0, cliOptions.Quiet);
         TransformAllData data = new();
-        foreach (string inputPath_ in inputPaths)
+        foreach (InputDirAndPath inputDirAndPath in inputDirAndPaths)
         {
-            string inputPath = inputPath_;
+            string inputPath = inputDirAndPath.InputPath;
             foreach (TransformAllCommonOptions commonOptions in commonOptionsList)
             {
+                if (inputDirAndPath.InputDir != commonOptions.InputDir)
+                    continue;
+
                 // detect optimisation based on the previous transform and skip if file can be skipped altogether
                 Optimisation optimisation = BulkTransform.GetOptimisation(data.InputPath, data.CommonOptions, inputPath, commonOptions);
                 if (optimisation >= Optimisation.SameInputFile && data.SkipFile)
@@ -84,6 +99,7 @@ public static class TransformAllCommand
                 PrintLine(outputPath, 1, cliOptions.Quiet);
                 _ = Directory.CreateDirectory(commonOptions.OutputDir);
                 data.CommonOptions = commonOptions;
+                data.InputPath = inputPath;
                 if (optimisation < Optimisation.SameInputFile)
                 {
                     string input = File.ReadAllText(inputPath);

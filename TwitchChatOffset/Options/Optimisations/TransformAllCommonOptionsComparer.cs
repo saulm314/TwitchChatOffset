@@ -13,8 +13,12 @@ public class TransformAllCommonOptionsComparer : Comparer<TransformAllCommonOpti
     private static long Compare_(TransformAllCommonOptions? x, TransformAllCommonOptions? y)
     {
         long compare;
-        (long xStart, long xEnd, long xDelay) = x!.TransformOptions;
-        (long yStart, long yEnd, long yDelay) = y!.TransformOptions;
+        compare = string.Compare(x!.InputDir, y!.InputDir);
+        if (compare != 0)
+            return compare;
+
+        (long xStart, long xEnd, long xDelay) = x.TransformOptions;
+        (long yStart, long yEnd, long yDelay) = y.TransformOptions;
         compare = xStart - yStart;
         if (compare != 0)
             return compare;
