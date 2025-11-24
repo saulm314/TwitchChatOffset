@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace TwitchChatOffset.Options;
 
-public interface IOptionGroup<TOptionGroup> : ICloneable where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+public abstract record OptionGroup<TOptionGroup> : ICloneable where TOptionGroup : OptionGroup<TOptionGroup>, new()
 {
     public static FieldData[] FieldDatas
     {
@@ -19,7 +19,7 @@ public interface IOptionGroup<TOptionGroup> : ICloneable where TOptionGroup : cl
                 AliasesAttribute? attribute = @field.GetCustomAttribute<AliasesAttribute>();
                 if (attribute == null)
                 {
-                    Type iOptionGroupType = typeof(IOptionGroup<>).MakeGenericType(@field.FieldType);
+                    Type iOptionGroupType = typeof(OptionGroup<>).MakeGenericType(@field.FieldType);
                     if (!@field.FieldType.IsClass || !@field.FieldType.IsAssignableTo(iOptionGroupType))
                         continue;
                     PropertyInfo innerFieldDatasProperty = iOptionGroupType.GetProperty(nameof(FieldDatas), BindingFlags.Static | BindingFlags.Public)!;
@@ -34,7 +34,7 @@ public interface IOptionGroup<TOptionGroup> : ICloneable where TOptionGroup : cl
         }
     }
 
-    public new TOptionGroup Clone()
+    public TOptionGroup DeepClone()
     {
         TOptionGroup clone = new();
         foreach (FieldData fieldData in FieldDatas)
@@ -45,7 +45,7 @@ public interface IOptionGroup<TOptionGroup> : ICloneable where TOptionGroup : cl
         return clone;
     }
 
-    object ICloneable.Clone() => Clone();
+    object ICloneable.Clone() => DeepClone();
 
     public void WriteField(FieldData fieldData, IPlicit value)
     {

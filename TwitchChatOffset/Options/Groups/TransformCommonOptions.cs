@@ -1,6 +1,6 @@
 ﻿namespace TwitchChatOffset.Options.Groups;
 
-public record TransformCommonOptions : IOptionGroup<TransformCommonOptions>
+public record TransformCommonOptions : OptionGroup<TransformCommonOptions>
 {
     [CliOption(nameof(CliOptions.Start))]
     public Plicit<long> Start;

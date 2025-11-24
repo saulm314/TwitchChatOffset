@@ -6,7 +6,7 @@ using static System.Drawing.ColorTranslator;
 
 namespace TwitchChatOffset.Options.Groups;
 
-public record SubtitleSectionOptions : IOptionGroup<SubtitleSectionOptions>
+public record SubtitleSectionOptions : OptionGroup<SubtitleSectionOptions>
 {
     [CliOption(nameof(CliOptions.SubScale))]
     public Plicit<double> SubScale;

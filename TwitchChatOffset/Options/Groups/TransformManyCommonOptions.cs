@@ -1,6 +1,6 @@
 ﻿namespace TwitchChatOffset.Options.Groups;
 
-public record TransformManyCommonOptions : IOptionGroup<TransformManyCommonOptions>
+public record TransformManyCommonOptions : OptionGroup<TransformManyCommonOptions>
 {
     [CliOption(nameof(CliOptions.InputFile))]
     public Plicit<string> InputFile;

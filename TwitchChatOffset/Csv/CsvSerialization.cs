@@ -12,7 +12,7 @@ public static class CsvSerialization
     // deserialize CSV content into fields in a class TOptionGroup that implements IOptionGroup
     // type TOptionGroup may not have any duplicate aliases (across multiple fields or in the same field), or an internal exception will be thrown
     // if no data for a field is found, then it is left with its default value and explicit is set to false, else explicit is set to true
-    public static IEnumerable<TOptionGroup> Deserialize<TOptionGroup>(CSVReader reader) where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+    public static IEnumerable<TOptionGroup> Deserialize<TOptionGroup>(CSVReader reader) where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         ThrowIfDuplicateAliases<TOptionGroup>();
         List<HeaderGroup> headerGroups = GetHeaderGroups<TOptionGroup>(reader.Headers);
@@ -34,11 +34,10 @@ public static class CsvSerialization
 
     private static readonly MethodInfo _deserializeDummyMethod =
         typeof(CsvSerialization).GetMethod(nameof(Deserialize_), BindingFlags.NonPublic | BindingFlags.Static)!;
-    private static IEnumerable<TOptionGroup> Deserialize_<TOptionGroup>(CSVReader reader) where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+    private static IEnumerable<TOptionGroup> Deserialize_<TOptionGroup>(CSVReader reader) where TOptionGroup : OptionGroup<TOptionGroup>, new()
         => Deserialize<TOptionGroup>(reader);
 
-    private static List<HeaderGroup> GetHeaderGroups<TOptionGroup>(ReadOnlySpan<string> headers)
-        where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+    private static List<HeaderGroup> GetHeaderGroups<TOptionGroup>(ReadOnlySpan<string> headers) where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         List<HeaderGroup> headerGroups = [];
         foreach (Range range in headers.Split("/next"))
@@ -50,14 +49,13 @@ public static class CsvSerialization
         return headerGroups;
     }
 
-    private static Dictionary<string, FieldData> GetDataMap<TOptionGroup>(ReadOnlySpan<string> headers)
-        where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+    private static Dictionary<string, FieldData> GetDataMap<TOptionGroup>(ReadOnlySpan<string> headers) where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         Dictionary<string, FieldData> dataMap = [];
         HashSet<FieldData> addedFields = [];
         foreach (string header in headers)
         {
-            foreach (FieldData fieldData in IOptionGroup<TOptionGroup>.FieldDatas)
+            foreach (FieldData fieldData in OptionGroup<TOptionGroup>.FieldDatas)
             {
                 foreach (string alias in fieldData.Attribute.AliasesContainer.StrippedAliases)
                 {
@@ -76,10 +74,10 @@ public static class CsvSerialization
         return dataMap;
     }
 
-    private static void ThrowIfDuplicateAliases<TOptionGroup>() where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+    private static void ThrowIfDuplicateAliases<TOptionGroup>() where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         HashSet<string> aliases = [];
-        foreach (FieldData fieldData in IOptionGroup<TOptionGroup>.FieldDatas)
+        foreach (FieldData fieldData in OptionGroup<TOptionGroup>.FieldDatas)
         {
             foreach (string alias in fieldData.Attribute.AliasesContainer.StrippedAliases)
             {
@@ -91,13 +89,13 @@ public static class CsvSerialization
     }
 
     private static IEnumerable<TOptionGroup> WriteLine<TOptionGroup>(string[] allHeaders, List<HeaderGroup> headerGroups, string[] wholeLine)
-        where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+        where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         TOptionGroup? previousData = null;
         foreach (HeaderGroup headerGroup in headerGroups)
         {
             (Range range, Dictionary<string, FieldData> dataMap) = headerGroup;
-            TOptionGroup data = previousData?.Clone() ?? new();
+            TOptionGroup data = previousData?.DeepClone() ?? new();
             ReadOnlySpan<string> headers = allHeaders.AsSpan()[range];
             ReadOnlySpan<string> line;
             if (range.Start.Value >= wholeLine.Length)
@@ -115,7 +113,7 @@ public static class CsvSerialization
     }
 
     private static void WriteField<TOptionGroup>(TOptionGroup data, string field, string header, Dictionary<string, FieldData> dataMap)
-        where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+        where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         if (!dataMap.TryGetValue(header, out FieldData? fieldData))
             return;

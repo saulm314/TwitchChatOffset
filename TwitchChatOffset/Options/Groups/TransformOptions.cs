@@ -2,7 +2,7 @@
 
 namespace TwitchChatOffset.Options.Groups;
 
-public record TransformOptions : IOptionGroup<TransformOptions>
+public record TransformOptions : OptionGroup<TransformOptions>
 {
     public TransformCommonOptions Options = new();
 

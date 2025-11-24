@@ -11,10 +11,10 @@ namespace TwitchChatOffset;
 public static class BulkTransform
 {
     public static TOptionGroup ResolveConflicts<TOptionGroup>(TOptionGroup csvOptions, TOptionGroup cliOptions)
-        where TOptionGroup : class, IOptionGroup<TOptionGroup>, new()
+        where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         TOptionGroup options = new();
-        FieldData[] fieldDatas = IOptionGroup<TOptionGroup>.FieldDatas;
+        FieldData[] fieldDatas = OptionGroup<TOptionGroup>.FieldDatas;
         foreach (FieldData fieldData in fieldDatas)
         {
             IPlicit csvPlicit = csvOptions.ReadField(fieldData);
