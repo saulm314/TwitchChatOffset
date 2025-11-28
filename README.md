@@ -66,7 +66,7 @@ TwitchChatOffset transform chat.json transformed-full-chat.txt -f plaintext
 ```
 Aim: Same as the first example, but this time we want to convert it to a YouTube subtitle YTT file `transformed-chat.ytt` where the subtitles are displayed in the top-right corner.
 ```
-TwitchChatOffset transform chat.json transformed-chat.ytt --start 3600 --end 10800 --delay 60 -f ytt --ytt-position topright
+TwitchChatOffset transform chat.json transformed-chat.ytt --start 3600 --end 10800 --delay 60 -f ytt --sub-position topright
 ```
 ## Transform Many
 Using a CSV file with a list of input JSON files and transformations, apply all the listed transformations and create an output file for each, or multiple output files for each. For the CSV file, use the template provided [here](templates/transform-many.csv).
@@ -75,7 +75,7 @@ TwitchChatOffset transform-many <csv-path> [options]
 ```
 To see more information about each argument and option, run `TwitchChatOffset transform-many --help`.
 
-Most of the options that are available on the command line are also available in the CSV file with the same alias but without leading hyphens. For example, the `--ytt-position` command-line option is also available as a CSV option as `ytt-position`. An exhaustive list of all available options in the CSV file is defined [here](TwitchChatOffset/Options/Groups/TransformManyCommonOptions.cs). Options may be specified in any order.
+Most of the options that are available on the command line are also available in the CSV file with the same alias but without leading hyphens. For example, the `--sub-position` command-line option is also available as a CSV option as `sub-position`. An exhaustive list of all available options in the CSV file is defined [here](TwitchChatOffset/Options/Groups/TransformManyCommonOptions.cs). Options may be specified in any order.
 
 The same option can be specified both in the CSV file and on the command line. In that case, the program uses the value from the CSV file and ignores the one from the command line. A field or an entire column can also be left blank in the CSV file. In that case, for that file, the value provided on the command line is used instead. If no value is provided on the command line, then the hardcoded default value is used (run the `--help` option to see default values).
 
@@ -94,9 +94,9 @@ While options are allowed to be repeated if there is a `/next` column in between
 
 It is best to understand this with an example, so see the template provided above for more clarity.
 ### Examples
-Aim: to transform all files in `transform-many.csv`, such that if for any file no `ytt-position` is specified, default it to bottom-right.
+Aim: to transform all files in `transform-many.csv`, such that if for any file no `sub-position` is specified, default it to bottom-right.
 ```
-TwitchChatOffset transform-many transform-many.csv --ytt-position bottomright
+TwitchChatOffset transform-many transform-many.csv --sub-position bottomright
 ```
 ## Transform All
 Find all files that have a name with a matching search pattern in a given directory, then apply a transformation or multiple transformations to each of them, and create a new output file (or multiple output files) for each input file.
