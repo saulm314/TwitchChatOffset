@@ -3,7 +3,22 @@ This is TwitchChatOffset.
 
 The purpose of this software is to take a JSON Twitch chat file, apply various transformations to it, and serialize it back into one of various formats (JSON, YTT, ASS, plaintext). The primary uses are for cropping/delaying Twitch chats and for converting JSON Twitch chat files into YTT YouTube subtitle files (or general ASS subtitle files that can be played in a local video player such as VLC), so that the Twitch chat can be replayed directly in YouTube, as seen [here](https://youtu.be/y7_ZrMJNHUk).
 
-TwitchChatOffset also supports bulk transformations, so if you have many Twitch chats (or one big Twitch chat that needs to split into several videos), you can put the details of each chat into a CSV table and TwitchChatOffset will automatically apply all the transformations into as many files as needed.
+For all transformations, TwitchChatOffset supports:
+- configuring the start time (and setting it as the new zero point) and dismissing all messages before that point
+- configuring the end time and dismissing all messages after that point, or allowing messages without any end limit
+- configuring a delay to apply to all messages after they have been trimmed
+- choosing which format to convert the Twitch chat to (JSON, JSON indented, YTT, ASS, plaintext)
+
+When converting to YTT/ASS subtitles, TwitchChatOffset supports:
+- preserving the original username colours
+- generating random colours for usernames without a colour (but keeping the same colour for each user in the same file)
+- choosing which corner (or midpoint) the subtitles appear in
+- configuring the background window opacity (fully transparent to fully opaque)
+- configuring the maximum number of messages that appear on the screen at a time
+- configuring the maximum number of characters before the text wraps to the next line
+- tailoring other formatting options, such as text colour (apart from username), text size, text shadow, text shadow colour
+
+TwitchChatOffset also supports bulk transformations, so if you have many Twitch chats (or one big Twitch chat that needs to split into several videos), you can put the details of each chat into a CSV table and TwitchChatOffset will automatically apply all the transformations into as many files as needed. TwitchChatOffset also supports easily making several transformations per input file (e.g. converting the same Twitch chat JSON file into both YTT and ASS formats), and performs optimisations to avoid doing duplicate work for the same input file.
 
 To handle the YTT conversions, the app uses a fork of [YTSubConverter](https://github.com/arcusmaximus/YTSubConverter).
 
