@@ -1,3 +1,11 @@
+- [TwitchChatOffset](#twitchchatoffset)
+- [Installation](#installation)
+- [Acquiring the Twitch chat JSON file](#acquiring-the-twitch-chat-json-file)
+- [Usage](#usage)
+  - [Transform](#transform)
+  - [Transform Many](#transform-many)
+  - [Transform All](#transform-all)
+
 # TwitchChatOffset
 This is TwitchChatOffset.
 
