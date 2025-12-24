@@ -6,7 +6,7 @@ The purpose of this software is to take a JSON Twitch chat file, apply various t
 For all transformations, TwitchChatOffset supports:
 - configuring the start time (and setting it as the new zero point) and dismissing all messages before that point
 - configuring the end time and dismissing all messages after that point, or allowing messages without any end limit
-- configuring a delay to apply to all messages after they have been trimmed
+- configuring a delay to apply to all messages after they have been trimmed (for Twitch highlights/VODs/clips, a delay of 5 seconds is recommended to account for streaming delay)
 - choosing which format to convert the Twitch chat to (JSON, JSON indented, YTT, ASS, plaintext)
 
 When converting to YTT/ASS subtitles, TwitchChatOffset supports:
