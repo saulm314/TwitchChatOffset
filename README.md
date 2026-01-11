@@ -167,6 +167,11 @@ Find the built files in `TwitchChatOffset\bin\Debug\net10.0`.
 dotnet publish TwitchChatOffset -c Release
 ```
 Find the built files in `TwitchChatOffset\bin\Release\net10.0\publish`.
+### Run Tests
+```
+dotnet test TwitchChatOffset.UnitTests
+```
+See the results on the CLI output. If some tests come back failed, it is recommended to use Visual Studio or another suitable IDE to debug them.
 ## Option 2: Visual Studio
 Open `TwitchChatOffset.slnx` from the repository's root directory with Visual Studio.
 ### Debug Build
@@ -184,3 +189,7 @@ Open `TwitchChatOffset.slnx` from the repository's root directory with Visual St
   - Target location: `bin\Release\net10.0\publish\`
 - Click `Publish`
 - Find the built files in `TwitchChatOffset\bin\Release\net10.0\publish`
+### Run Tests
+- In the Solution Explorer on the right, right-click on `TwitchChatOffset` and select `Run Tests`
+  - Alternatively, press `Ctrl+R,A` (that is, press `Ctrl+R`, then press `A`)
+- In the bottom bar, ensure you have `Test Explorer` selected so that you can see the results
