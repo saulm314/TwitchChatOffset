@@ -6,6 +6,9 @@
   - [Transform Many](#transform-many)
   - [Transform All](#transform-all)
 - [Build](#build)
+  - [Prerequisites](#prerequisites)
+  - [Option 1: CLI](#option-1-cli)
+  - [Option 2: Visual Studio](#option-2-visual-studio)
 
 # TwitchChatOffset
 This is TwitchChatOffset.
