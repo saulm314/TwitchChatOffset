@@ -164,7 +164,7 @@ dotnet build TwitchChatOffset
 Find the built files in `TwitchChatOffset\bin\Debug\net10.0`.
 ### Release Build
 ```
-dotnet publish TwitchChatOffset -c Release
+dotnet publish TwitchChatOffset
 ```
 Find the built files in `TwitchChatOffset\bin\Release\net10.0\publish`.
 ### Run Tests
