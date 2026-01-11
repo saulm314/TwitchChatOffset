@@ -180,7 +180,7 @@ Open `TwitchChatOffset.slnx` from the repository's root directory with Visual St
 ### Debug Build
 - At the top, ensure the `Debug` configuration is selected (as opposed to `Release` or any other configuration)
 - In the Solution Explorer on the right, right-click on `TwitchChatOffset` and select `Build`
-  - Alternatively, left-click on `TwitchChatOffset` or open any file from with that project, and press `Ctrl+B`
+  - Alternatively, left-click on `TwitchChatOffset` or open any file from within that project, and press `Ctrl+B`
 - Find the built files in `TwitchChatOffset\bin\Debug\net10.0`
 ### Release Build
 - In the Solution Explorer on the right, right-click on `TwitchChatOffset` and select `Publish...`
