@@ -153,7 +153,7 @@ TwitchChatOffset transform-all --start 60 --pattern "*chat*.json" --csv transfor
 ```
 # Build
 ## Prerequisites
-- [.NET SDK 10+](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+- [.NET SDK 10+](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) (distinct from *.NET runtime* required to run the app)
 - [Visual Studio 2026+](https://visualstudio.microsoft.com/downloads/) (optional)
 ## Option 1: CLI
 Open the repository's root directory in a terminal, then run one of the following:
