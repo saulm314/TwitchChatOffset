@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.IO.Hashing;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using YTSubConverter.Shared;
@@ -95,17 +96,22 @@ public static class SubtitleSerialization
         string? userColorStr = message.D("user_color").AsN<string>()?.Value;
         if (userColorStr == null)
         {
-            Random random = new();
-            int r = random.Next(256);
-            int g = random.Next(256);
-            int b = random.Next(256);
-            color = Color.FromArgb(r, g, b);
+            color = GetRandomDeterministicColor(user);
             userColors.Add(user, color);
             return color;
         }
         color = FromHtml(userColorStr);
         userColors.Add(user, color);
         return color;
+    }
+
+    private static Color GetRandomDeterministicColor(string seed)
+    {
+        Span<byte> bytes = stackalloc byte[seed.Length * 2];    // each char is 2 bytes, so byte count is double the char count
+        _ = Encoding.Unicode.GetBytes(seed, bytes);             // .NET uses UTF-16 (16-bit/2-byte) encoding, which is represented in Encoding.Unicode
+        uint argb = XxHash32.HashToUInt32(bytes);               // deterministic hash into a random 32-bit value
+        argb |= 0xFF000000;                                     // set the first byte to FF to make alpha=255 (fully opaque), RGB values remain unchanged
+        return Color.FromArgb((int)argb);                       // cast to Int32 preserves all the same bits since sizeof(UInt32)=sizeof(Int32)=4
     }
 
     private static void GetWrappedMessage(string displayName, string message, int maxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage)
