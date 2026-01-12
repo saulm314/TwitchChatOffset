@@ -29,5 +29,8 @@ public record SubtitleOptions : OptionGroup<SubtitleOptions>
     [CliOption(nameof(CliOptions.SubOutlineDisable))]
     public Plicit<bool> SubOutlineDisable;
 
+    [CliOption(nameof(CliOptions.SubColorSeed))]
+    public Plicit<long> SubColorSeed;
+
     public SubtitleSectionOptions SectionOptions = new();
 }

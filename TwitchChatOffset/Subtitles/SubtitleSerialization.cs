@@ -79,7 +79,7 @@ public static class SubtitleSerialization
         string messageStr = message.D("body").As<string>();
         GetWrappedMessage(displayName, messageStr, (int)options.MaxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage);
 
-        Color userColor = GetUserColor(userColors, displayName, message);
+        Color userColor = GetUserColor(userColors, displayName, message, options);
 
         Section displayNameSection = format.NewSection(wrappedDisplayName, userColor);
         Section messageSection = format.NewSection(wrappedMessage, FromHtml(options.TextColor));
@@ -89,14 +89,14 @@ public static class SubtitleSerialization
         return new(displayNameSection, messageSection, timeSpan);
     }
 
-    private static Color GetUserColor(Dictionary<string, Color> userColors, string user, JToken message)
+    private static Color GetUserColor(Dictionary<string, Color> userColors, string user, JToken message, SubtitleOptions options)
     {
         if (userColors.TryGetValue(user, out Color color))
             return color;
         string? userColorStr = message.D("user_color").AsN<string>()?.Value;
         if (userColorStr == null)
         {
-            color = GetRandomDeterministicColor(user);
+            color = GetRandomDeterministicColor(user, (int)options.SubColorSeed);
             userColors.Add(user, color);
             return color;
         }
@@ -105,11 +105,11 @@ public static class SubtitleSerialization
         return color;
     }
 
-    private static Color GetRandomDeterministicColor(string seed)
+    private static Color GetRandomDeterministicColor(string seed, int seed2)
     {
         Span<byte> bytes = stackalloc byte[seed.Length * 2];    // each char is 2 bytes, so byte count is double the char count
         _ = Encoding.Unicode.GetBytes(seed, bytes);             // .NET uses UTF-16 (16-bit/2-byte) encoding, which is represented in Encoding.Unicode
-        uint argb = XxHash32.HashToUInt32(bytes);               // deterministic hash into a random 32-bit value
+        uint argb = XxHash32.HashToUInt32(bytes, seed2);        // deterministic hash into a random 32-bit value
         argb |= 0xFF000000;                                     // set the first byte to FF to make alpha=255 (fully opaque), RGB values remain unchanged
         return Color.FromArgb((int)argb);                       // cast to Int32 preserves all the same bits since sizeof(UInt32)=sizeof(Int32)=4
     }

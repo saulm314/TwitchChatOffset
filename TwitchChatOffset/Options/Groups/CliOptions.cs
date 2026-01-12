@@ -74,6 +74,10 @@ public static class CliOptions
         "[YTT] Background color for YTT subtitles, (e.g. \"black\", \"#B0B0B0\", etc.) (YTT only) (optional)",
         _ => "black");
 
+    public static CliOptionContainer<long> SubColorSeed { get; } = new("--sub-color-seed", Aliases.SubColorSeed,
+        "[YTT|ASS] Seed for generating deterministic colors for users with no specified color (positive or negative integer) (optional)",
+        _ => 0);
+
     public static CliOptionContainer<string> InputFile { get; } = new("--input-file", Aliases.InputFile,
         "Input file (optional)",
         _ => string.Empty);
