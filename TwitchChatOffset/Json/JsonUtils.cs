@@ -9,7 +9,15 @@ namespace TwitchChatOffset.Json;
 
 public static class JsonUtils
 {
-    public static JObject Deserialize(string jsonString) => (JObject)(JsonConvert.DeserializeObject(jsonString) ?? throw new JsonContentException.Empty());
+    public static JsonSerializerSettings Settings { get; } = new()
+    {
+        DateParseHandling = DateParseHandling.None
+    };
+
+    public static JObject Deserialize(string jsonString)
+        => (JObject)(JsonConvert.DeserializeObject(jsonString, Settings) ?? throw new JsonContentException.Empty());
+
+    public static string Serialize(JToken json, Formatting formatting = Formatting.None) => JsonConvert.SerializeObject(json, formatting, Settings);
 
     public static T As<T>(this JToken jtoken) where T : notnull
     {

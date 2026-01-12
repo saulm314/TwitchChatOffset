@@ -118,12 +118,12 @@ public static class Transform
 
     public static string SerializeToJson(JToken json)
     {
-        return JsonConvert.SerializeObject(json);
+        return JsonUtils.Serialize(json);
     }
 
     public static string SerializeToJsonIndented(JToken json)
     {
-        return JsonConvert.SerializeObject(json, Formatting.Indented);
+        return JsonUtils.Serialize(json, Formatting.Indented);
     }
 
     public static string SerializeToYtt(JToken json, SubtitleOptions options, Format format)
