@@ -23,7 +23,7 @@ For all transformations, TwitchChatOffset supports:
 
 When converting to YTT/ASS subtitles, TwitchChatOffset supports:
 - preserving the original username colours
-- generating random colours for usernames without a colour (but keeping the same colour for each user in the same file)
+- generating deterministic random colours for usernames without a colour, using the username as a seed and an optional customisable second seed
 - choosing which corner (or midpoint) the subtitles appear in
 - configuring the background window opacity (fully transparent to fully opaque)
 - configuring the maximum number of messages that appear on the screen at a time
