@@ -16,7 +16,7 @@ public static class IOUtils
     {
         if (!string.IsNullOrEmpty(outputFile))
             return true;
-        PrintError("Input file name must not be empty; skipping...", 2);
+        PrintError("Output file name must not be empty; skipping...", 2);
         return false;
     }
 
