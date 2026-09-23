@@ -95,7 +95,7 @@ public static class CliOptions
         _ => ".");
 
     public static CliOptionContainer<string> Suffix { get; } = new("--suffix", Aliases.Suffix,
-        "Suffix override for output file, e.g. \".json\", \".ytt\", \"-transformed.json\", etc., or \"/auto\" to keep the same as input file (optional)",
+        "Suffix override for output file, e.g. \".json\", \".ytt\", \"-transformed.json\", etc., or \"/auto\" for no suffix override (optional)",
         _ => "/auto");
 
     public static CliOptionContainer<bool> Quiet { get; } = new("--quiet", Aliases.Quiet,

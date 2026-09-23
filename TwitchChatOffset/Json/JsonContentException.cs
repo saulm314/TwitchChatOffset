@@ -28,7 +28,7 @@ public abstract class JsonContentException(string? message) : Exception(message)
             """.AddPathWarning())
     {
         public Type DesiredType => desiredType;
-        public string Path => Path;
+        public string Path => path;
         public object? Value => value;
     }
 
