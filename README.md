@@ -96,7 +96,7 @@ Aim: Same as the first example, but this time we want to convert it to a YouTube
 TwitchChatOffset transform chat.json transformed-chat.ytt --start 3600 --end 10800 --delay 60 -f ytt --sub-position topright
 ```
 ## Transform Many
-Using a CSV file with a list of input JSON files and transformations, apply all the listed transformations and create an output file for each, or multiple output files for each. For the CSV file, use the template provided [here](templates/transform-many.csv).
+Using a CSV file with a list of input JSON files and transformations, apply all the listed transformations and create an output file for each, or multiple output files for each. For the CSV file, use the `transform-many.csv` template provided [here](templates).
 ```
 TwitchChatOffset transform-many <csv-path> [options]
 ```
@@ -136,7 +136,7 @@ Use this command similar to the `transform` command, but if you need to apply th
 
 Note that merely running `TwitchChatOffset transform-all` without specifying your input or output directories (`-i`, `-o`) finds all JSON files in the current directory, performs a transformation for each, and then replaces the same file. This is of course dangerous, however if you do accidentally leave the input and output directories the same, the program will give you a warning and ask if you want to proceed. **The program will not give you a warning if the input and output directories are different, even if there are already files that will be overwritten in the output directory!**
 
-If you wish to specify multiple transformations per input file in a `transform-all` command, you can do this with a CSV file, just like we did with the `transform-many` command. The only difference is that on this CSV file the `input-file` and `output-file` options are not recognised (see template [here](templates/transform-all.csv) and an exhaustive list of all available CSV options [here](TwitchChatOffset/Options/Groups/TransformAllCommonOptions.cs)). Every transformation will simply apply to every input file and output files will be generated based on the given output directory and suffix. You can either specify multiple transformations across multiple rows, or use the `/next` technique from the `transform-many` command to specify multiple transformations within the same row. If you wish to do this, simply add a `--csv` option and specify the path to your CSV file.
+If you wish to specify multiple transformations per input file in a `transform-all` command, you can do this with a CSV file, just like we did with the `transform-many` command. The only difference is that on this CSV file the `input-file` and `output-file` options are not recognised (see `transform-all.csv` template [here](templates) and an exhaustive list of all available CSV options [here](TwitchChatOffset/Options/Groups/TransformAllCommonOptions.cs)). Every transformation will simply apply to every input file and output files will be generated based on the given output directory and suffix. You can either specify multiple transformations across multiple rows, or use the `/next` technique from the `transform-many` command to specify multiple transformations within the same row. If you wish to do this, simply add a `--csv` option and specify the path to your CSV file.
 ### Examples
 Aim: to find all JSON files in the current directory, cut out the first minute of their chats, and store the resulting chats in new JSON files in the `transformed` directory, with each output file having the same name as its corresponding input file.
 ```
