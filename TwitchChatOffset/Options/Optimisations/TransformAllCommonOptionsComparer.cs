@@ -7,40 +7,38 @@ public class TransformAllCommonOptionsComparer : Comparer<TransformAllCommonOpti
 {
     public static readonly TransformAllCommonOptionsComparer Instance = new();
 
-    public override int Compare(TransformAllCommonOptions? x, TransformAllCommonOptions? y) => (int)Compare_(x, y);
-
-    private static long Compare_(TransformAllCommonOptions? x, TransformAllCommonOptions? y)
+    public override int Compare(TransformAllCommonOptions? x, TransformAllCommonOptions? y)
     {
-        long compare;
+        int compare;
         compare = string.Compare(x!.InputDir, y!.InputDir);
         if (compare != 0)
             return compare;
 
         (long xStart, long xEnd, long xDelay) = x.TransformOptions;
         (long yStart, long yEnd, long yDelay) = y.TransformOptions;
-        compare = xStart - yStart;
+        compare = xStart.CompareTo(yStart);
         if (compare != 0)
             return compare;
 
-        compare = xEnd - yEnd;
+        compare = xEnd.CompareTo(yEnd);
         if (compare != 0)
             return compare;
 
-        compare = xDelay - yDelay;
+        compare = xDelay.CompareTo(yDelay);
         if (compare != 0)
             return compare;
 
-        compare = x.TransformOptions.Format.Value - y.TransformOptions.Format.Value;
+        compare = x.TransformOptions.Format.Value.CompareTo(y.TransformOptions.Format.Value);
         if (compare != 0)
             return compare;
 
-        compare = x.TransformOptions.SubtitleOptions.GetHashCode() - y.TransformOptions.SubtitleOptions.GetHashCode();
+        compare = x.TransformOptions.SubtitleOptions.GetHashCode().CompareTo(y.TransformOptions.SubtitleOptions.GetHashCode());
         if (compare != 0)
             return compare;
 
         int xRemaining = x.OutputDir.Value.GetHashCode() ^ x.Suffix.Value.GetHashCode();
         int yRemaining = y.OutputDir.Value.GetHashCode() ^ y.Suffix.Value.GetHashCode();
-        compare = xRemaining - yRemaining;
+        compare = xRemaining.CompareTo(yRemaining);
         return compare;
     }
 }

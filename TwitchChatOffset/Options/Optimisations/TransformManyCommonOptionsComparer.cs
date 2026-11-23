@@ -8,11 +8,9 @@ public class TransformManyCommonOptionsComparer : Comparer<TransformManyCommonOp
 {
     public static readonly TransformManyCommonOptionsComparer Instance = new();
 
-    public override int Compare(TransformManyCommonOptions? x, TransformManyCommonOptions? y) => (int)Compare_(x, y);
-
-    private static long Compare_(TransformManyCommonOptions? x, TransformManyCommonOptions? y)
+    public override int Compare(TransformManyCommonOptions? x, TransformManyCommonOptions? y)
     {
-        long compare;
+        int compare;
         string xInputPath = Path.Combine(x!.InputDir, x.InputFile);
         string yInputPath = Path.Combine(y!.InputDir, y.InputFile);
         compare = string.Compare(xInputPath, yInputPath);
@@ -21,23 +19,23 @@ public class TransformManyCommonOptionsComparer : Comparer<TransformManyCommonOp
 
         (long xStart, long xEnd, long xDelay) = x.TransformOptions;
         (long yStart, long yEnd, long yDelay) = y.TransformOptions;
-        compare = xStart - yStart;
+        compare = xStart.CompareTo(yStart);
         if (compare != 0)
             return compare;
 
-        compare = xEnd - yEnd;
+        compare = xEnd.CompareTo(yEnd);
         if (compare != 0)
             return compare;
 
-        compare = xDelay - yDelay;
+        compare = xDelay.CompareTo(yDelay);
         if (compare != 0)
             return compare;
 
-        compare = x.TransformOptions.Format.Value - y.TransformOptions.Format.Value;
+        compare = x.TransformOptions.Format.Value.CompareTo(y.TransformOptions.Format.Value);
         if (compare != 0)
             return compare;
 
-        compare = x.TransformOptions.SubtitleOptions.GetHashCode() - y.TransformOptions.SubtitleOptions.GetHashCode();
+        compare = x.TransformOptions.SubtitleOptions.GetHashCode().CompareTo(y.TransformOptions.SubtitleOptions.GetHashCode());
         if (compare != 0)
             return compare;
 
@@ -45,7 +43,7 @@ public class TransformManyCommonOptionsComparer : Comparer<TransformManyCommonOp
         string yOutputNoExt = Path.GetFileNameWithoutExtension(y.OutputFile);
         int xRemaining = xOutputNoExt.GetHashCode() ^ x.OutputDir.Value.GetHashCode() ^ x.Suffix.Value.GetHashCode();
         int yRemaining = yOutputNoExt.GetHashCode() ^ y.OutputDir.Value.GetHashCode() ^ y.Suffix.Value.GetHashCode();
-        compare = xRemaining - yRemaining;
+        compare = xRemaining.CompareTo(yRemaining);
         return compare;
     }
 }
