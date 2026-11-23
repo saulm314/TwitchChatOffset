@@ -11,7 +11,7 @@ public class TransformTests
 {
     private static long[] AllStartsEnds => [0, 1, 10, 100, 1000, -1, -10, -100, -1000, long.MinValue, long.MaxValue];
     private static long[] AllNegativeEnds => [-1, -10, -100, -1000, long.MinValue];
-    private static Format[] AllFormats => [Format.Json, Format.JsonIndented, Format.Ytt, Format.Plaintext];
+    private static Format[] AllFormats => [Format.Json, Format.JsonIndented, Format.Ytt, Format.Ass, Format.Plaintext];
     private static SubtitleOptions DefaultSubtitleOptions => new()
     {
         Position = new(AnchorPoint.TopLeft, true),
@@ -156,8 +156,8 @@ public class TransformTests
 
     [Theory]
     [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}}]}}")]
-    //[InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}")]
-    //[InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}},{{{CommenterTemplate},{MessageTemplate}}}]}}")]
+    [InlineData($"{{\"comments\":[{{{CommenterTemplate},{MessageTemplate}}},{{{ContentOffsetSecondsTemplate},{CommenterTemplate},{MessageTemplate}}}]}}")]
     public void GetSortedOriginalCommentsAndJson_NoContentOffsetSeconds_ThrowsJsonContentExceptionPropertyNotFound(string inputString)
     {
         string expectedPathRegex = @"comments\[\d*\]";
