@@ -41,6 +41,14 @@ public static class SubtitleUtils
         };
     }
 
+    public static bool IsSubtitle(this Format format)
+        => format switch
+        {
+            Format.Ytt => true,
+            Format.Ass => true,
+            _ => false
+        };
+
     public static void ApplyAssStyles(this Format format, SubtitleDocument sub, long fontSize, bool backgroundEnable, long windowOpacity)
     {
         if (format != Format.Ass)

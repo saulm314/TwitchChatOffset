@@ -1,10 +1,11 @@
 ﻿using TwitchChatOffset.Json;
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
+using TwitchChatOffset.Options.Optimisations;
+using TwitchChatOffset.Subtitles;
 using System;
 using System.IO;
 using Newtonsoft.Json;
-using TwitchChatOffset.Options.Optimisations;
 
 namespace TwitchChatOffset;
 
@@ -39,7 +40,7 @@ public static class BulkTransform
             return Optimisation.SameInputFile;
         if (common0.TransformOptions.Format != common1.TransformOptions.Format)
             return Optimisation.SameOffset;
-        if (common0.TransformOptions.Format == Format.Ytt && common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
+        if (common0.TransformOptions.Format.Value.IsSubtitle() && common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
             return Optimisation.SameOffset;
         if (common0 != common1)
             return Optimisation.SameFormatSameSerializationOptions;
@@ -58,7 +59,7 @@ public static class BulkTransform
             return Optimisation.SameInputFile;
         if (common0.TransformOptions.Format != common1.TransformOptions.Format)
             return Optimisation.SameOffset;
-        if (common0.TransformOptions.Format == Format.Ytt && common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
+        if (common0.TransformOptions.Format.Value.IsSubtitle() && common0.TransformOptions.SubtitleOptions != common1.TransformOptions.SubtitleOptions)
             return Optimisation.SameOffset;
         if (common0 != common1)
             return Optimisation.SameFormatSameSerializationOptions;
