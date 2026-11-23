@@ -53,6 +53,7 @@ public static class CsvSerialization
     {
         Dictionary<string, FieldData> dataMap = [];
         HashSet<FieldData> addedFields = [];
+    Headers:
         foreach (string header in headers)
         {
             foreach (FieldData fieldData in OptionGroup<TOptionGroup>.FieldDatas)
@@ -65,11 +66,10 @@ public static class CsvSerialization
                             throw new CsvContentException.DuplicateOption(header);
                         dataMap.Add(header, fieldData);
                         addedFields.Add(fieldData);
-                        goto Found;
+                        continue Headers;
                     }
                 }
             }
-        Found:;
         }
         return dataMap;
     }
