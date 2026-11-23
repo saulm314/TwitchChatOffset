@@ -43,7 +43,7 @@ TwitchChatOffset is available as a console application only.
 # Installation
 To install the app, first download the latest release [here](https://github.com/saulm314/TwitchChatOffset/releases), and extract the ZIP file.
 
-Then, to run the app, open a terminal and navigate to the folder where you extracted the ZIP file, and run `.\TwitchChatOffset.exe` on Windows or `dotnet TwitchChatOffset.dll` on any operating system. If it doesn't work, you likely don't have the .NET runtime installed. The required .NET version is 10+, so you can download it [here](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime) and once you have it installed try running the app again.
+Then, to run the app, open a terminal and navigate to the folder where you extracted the ZIP file, and run `.\TwitchChatOffset.exe` on Windows or `dotnet TwitchChatOffset.dll` on any operating system. If it doesn't work, you likely don't have the .NET runtime installed. Download [.NET Runtime 11](https://dotnet.microsoft.com/en-us/download/dotnet/11.0) and once you have it installed try running the app again.
 
 If you are on Windows, it is recommended to use [PowerShell](https://github.com/PowerShell/PowerShell/releases) rather than the default terminal app, since the default terminal may not be able to parse the command inputs correctly. In particular, the default terminal does not parse `""` as an empty string but rather it thinks no input was provided at all.
 
@@ -156,7 +156,7 @@ TwitchChatOffset transform-all --start 60 --pattern "*chat*.json" --csv transfor
 ```
 # Build
 ## Prerequisites
-- [.NET SDK 10+](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) (distinct from *.NET runtime* required to run the app)
+- [.NET SDK 11](https://dotnet.microsoft.com/en-us/download/dotnet/11.0) (distinct from *.NET runtime* required to run the app)
 - [Visual Studio 2026+](https://visualstudio.microsoft.com/downloads/) (optional)
 ## Option 1: CLI
 Open the repository's root directory in a terminal, then run one of the following:
