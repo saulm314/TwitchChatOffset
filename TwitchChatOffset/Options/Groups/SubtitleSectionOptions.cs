@@ -25,9 +25,9 @@ public record SubtitleSectionOptions : OptionGroup<SubtitleSectionOptions>
 
     public void Deconstruct(out float scale, out ShadowType? shadow, out byte backgroundOpacity, out Color shadowColor, out Color backgroundColor)
     {
-        scale = (float)SubScale;
+        scale = (float)(double)SubScale;
         shadow = Shadow.Value.Convert();
-        backgroundOpacity = (byte)SubBackgroundOpacity;
+        backgroundOpacity = (byte)(long)SubBackgroundOpacity;
         shadowColor = FromHtml(ShadowColor);
         backgroundColor = FromHtml(SubBackgroundColor);
     }

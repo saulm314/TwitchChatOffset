@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using TwitchChatOffset.Options.Groups;
 
 namespace TwitchChatOffset.Options.Optimisations;
