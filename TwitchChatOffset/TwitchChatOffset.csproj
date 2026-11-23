@@ -2,14 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>3.2.3</Version>
+    <Version>3.3.0</Version>
+    <Copyright>2025-2026 Saulius Markevicius</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0"/>
-    <PackageReference Include="System.IO.Hashing" Version="10.0.1"/>
+    <PackageReference Include="System.CommandLine" Version="3.0.0"/>
+    <PackageReference Include="System.IO.Hashing" Version="11.0.0"/>
     <PackageReference Include="CSVFile" Version="3.2.1"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
   </ItemGroup>
