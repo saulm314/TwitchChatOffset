@@ -42,7 +42,7 @@ public static class SubtitleSerialization
         SubtitleDocument sub = format.NewDocument();
         JArray comments = json.D("comments").As<JArray>();
         Dictionary<string, Color> userColors = [];
-        Queue<ChatMessage> visibleMessages = new((int)options.MaxMessages);
+        Queue<ChatMessage> visibleMessages = new((int)(long)options.MaxMessages);
         foreach (JToken comment in comments)
         {
             ChatMessage chatMessage = GetChatMessage(comment, userColors, options, format);
@@ -77,7 +77,7 @@ public static class SubtitleSerialization
         JToken message = comment.D("message");
         string displayName = comment.D("commenter").D("display_name").As<string>();
         string messageStr = message.D("body").As<string>();
-        GetWrappedMessage(displayName, messageStr, (int)options.MaxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage);
+        GetWrappedMessage(displayName, messageStr, (int)(long)options.MaxCharsPerLine, out string wrappedDisplayName, out string wrappedMessage);
 
         Color userColor = GetUserColor(userColors, displayName, message, options);
 
@@ -96,7 +96,7 @@ public static class SubtitleSerialization
         string? userColorStr = message.D("user_color").AsN<string>()?.Value;
         if (userColorStr == null)
         {
-            color = GetRandomDeterministicColor(user, (int)options.SubColorSeed);
+            color = GetRandomDeterministicColor(user, (int)(long)options.SubColorSeed);
             userColors.Add(user, color);
             return color;
         }
@@ -154,7 +154,7 @@ public static class SubtitleSerialization
 
     private static Line GetLine(Queue<ChatMessage> chatMessages, ChatMessage? nextChatMessage, SubtitleOptions options, Format format)
     {
-        List<Section> sections = new(chatMessages.Count * 3);
+        List<Section> sections = [with(chatMessages.Count * 3)];
         ChatMessage lastChatMessage = default;
         foreach (ChatMessage chatMessage in chatMessages)
         {
@@ -168,6 +168,6 @@ public static class SubtitleSerialization
         DateTime start = SubtitleDocument.TimeBase + lastChatMessage.Time;
         DateTime end = SubtitleDocument.TimeBase + (nextChatMessage?.Time ?? format.GetMaxTimeSpan(lastChatMessage));
         // if any line has the same start and end value, YTSubConverter appears to automatically get rid of that line when saving the YTT file
-        return format.NewLine(start, end, sections, options.Position, (byte)options.WindowOpacity);
+        return format.NewLine(start, end, sections, options.Position, (byte)(long)options.WindowOpacity);
     }
 }
