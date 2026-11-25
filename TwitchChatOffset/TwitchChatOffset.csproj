@@ -19,4 +19,10 @@
     <ProjectReference Include="..\libs\YTSubConverter\YTSubConverter.Shared\YTSubConverter.Shared.csproj"/>
   </ItemGroup>
 
+  <Target Name="TcoPostBuild" AfterTargets="AfterBuild">
+    <Message Importance="High" Text="[TCO:MSBuild] Running post-build..."/>
+    <Exec Command="dotnet $(TargetPath) post-build"/>
+    <Message Importance="High" Text="[TCO:MSBuild] post-build done."/>
+  </Target>
+
 </Project>

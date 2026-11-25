@@ -4,6 +4,7 @@ public static class RootCommand
 {
     static RootCommand()
     {
+        Command.Add(PostBuildCommand.Command);
         Command.Add(TransformCommand.Command);
         Command.Add(TransformManyCommand.Command);
         Command.Add(TransformAllCommand.Command);
