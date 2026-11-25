@@ -19,10 +19,16 @@
     <ProjectReference Include="..\libs\YTSubConverter\YTSubConverter.Shared\YTSubConverter.Shared.csproj"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Force rebuild if templates have been updated -->
+    <CustomAdditionalCompileInputs Include="..\templates\**\*"/> <!-- MSBuild (and Visual Studio) -->
+    <UpToDateCheckInput Include="..\templates\**\*"/> <!-- Visual Studio -->
+  </ItemGroup>
+
   <Target Name="TcoPostBuild" AfterTargets="AfterBuild">
-    <Message Importance="High" Text="[TCO:MSBuild] Running post-build..."/>
-    <Exec Command="dotnet $(TargetPath) post-build"/>
-    <Message Importance="High" Text="[TCO:MSBuild] post-build done."/>
+    <Message Importance="high" Text="[TCO:MSBuild] Running post-build..."/>
+    <Exec Command="dotnet $(TargetPath) post-build" IgnoreStandardErrorWarningFormat="true"/>
+    <Message Importance="high" Text="[TCO:MSBuild] post-build done."/>
   </Target>
 
 </Project>
