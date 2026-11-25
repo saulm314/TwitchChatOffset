@@ -56,6 +56,26 @@ public static class ConsoleOutput
             PrintLine(item, (byte)(indent + 1));
     }
 
+    public static void PrintEnumerableWarning(IEnumerable enumerable, string? heading = null, byte indent = 0, bool quiet = false)
+    {
+        if (quiet)
+            return;
+        if (heading != null)
+            PrintWarning(heading, indent);
+        foreach (object? item in enumerable)
+            PrintWarning(item, (byte)(indent + 1));
+    }
+
+    public static void PrintEnumerableError(IEnumerable enumerable, string? heading = null, byte indent = 0, bool quiet = false)
+    {
+        if (quiet)
+            return;
+        if (heading != null)
+            PrintError(heading, indent);
+        foreach (object? item in enumerable)
+            PrintError(item, (byte)(indent + 1));
+    }
+
     public static void PrintType(Type type, object? obj, string? heading = null, byte indent = 0, bool quiet = false)
     {
         if (quiet)
