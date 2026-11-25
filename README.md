@@ -184,13 +184,7 @@ Open `TwitchChatOffset.slnx` from the repository's root directory with Visual St
 - Find the built files in `TwitchChatOffset\bin\Debug\net11.0`
 ### Release Build
 - In the Solution Explorer on the right, right-click on `TwitchChatOffset` and select `Publish...`
-- In the settings, click `Show all settings` and set the following settings:
-  - Configuration: `Release | Any CPU`
-  - Target framework: `net11.0`
-  - Deployment mode: `Framework-dependent`
-  - Target runtime: `Portable`
-  - Target location: `bin\Release\net11.0\publish\`
-- Click `Publish`
+- Select `TwitchChatOffset.Publish.pubxml` and click `Publish`
 - Find the built files in `TwitchChatOffset\bin\Release\net11.0\publish`
 ### Run Tests
 - In the Solution Explorer on the right, right-click on `TwitchChatOffset` and select `Run Tests`
