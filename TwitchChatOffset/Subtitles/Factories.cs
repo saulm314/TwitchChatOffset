@@ -1,4 +1,5 @@
-﻿using System;
+﻿using TwitchChatOffset.Options.Groups;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using YTSubConverter.Shared;
@@ -42,25 +43,17 @@ public static class Factories
         return assLine;
     }
 
-    public static Section NewSection(this Format format, string text)
-        => format switch
+    public static Section NewSection(this Format format, string text, SubtitleSectionOptions options, Color? color = null)
+    {
+        Section section = format switch
         {
             Format.Ytt => new Section(text),
             Format.Ass => new AssSection(text),
             _ => throw new InternalException($"Internal error: non-subtitle format {format} not allowed")
         };
-
-    public static Section NewSection(this Format format, string text, Color foreColor)
-        => format switch
-        {
-            Format.Ytt => new Section(text)
-            {
-                ForeColor = foreColor
-            },
-            Format.Ass => new AssSection(text)
-            {
-                ForeColor = foreColor
-            },
-            _ => throw new InternalException($"Internal error: non-subtitle format {format} not allowed")
-        };
+        if (color != null)
+            section.ForeColor = (Color)color;
+        section.ApplyOptions(options);
+        return section;
+    }
 }

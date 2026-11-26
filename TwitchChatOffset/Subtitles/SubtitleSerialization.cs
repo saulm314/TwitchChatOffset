@@ -81,10 +81,8 @@ public static class SubtitleSerialization
 
         Color userColor = GetUserColor(userColors, displayName, message, options);
 
-        Section displayNameSection = format.NewSection(wrappedDisplayName, userColor);
-        Section messageSection = format.NewSection(wrappedMessage, FromHtml(options.TextColor));
-        displayNameSection.ApplyOptions(options.SectionOptions);
-        messageSection.ApplyOptions(options.SectionOptions);
+        Section displayNameSection = format.NewSection(wrappedDisplayName, options.SectionOptions, userColor);
+        Section messageSection = format.NewSection(wrappedMessage, options.SectionOptions, FromHtml(options.TextColor));
 
         return new(displayNameSection, messageSection, timeSpan);
     }
@@ -160,9 +158,7 @@ public static class SubtitleSerialization
         {
             sections.Add(chatMessage.Name);
             sections.Add(chatMessage.Message);
-            Section newlineSection = format.NewSection("\n");
-            newlineSection.ApplyOptions(options.SectionOptions);
-            sections.Add(newlineSection);
+            sections.Add(format.NewSection("\n", options.SectionOptions));
             lastChatMessage = chatMessage;
         }
         DateTime start = SubtitleDocument.TimeBase + lastChatMessage.Time;
