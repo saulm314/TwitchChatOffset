@@ -12,11 +12,13 @@ namespace TwitchChatOffset.Json;
 
 public static class JsonUtils
 {
+    // change accordingly
     public static JsonSerializerSettings Settings { get; } = new()
     {
         DateParseHandling = DateParseHandling.None
     };
 
+    // change accordingly
     public static string WriterNewLine { get; } = "\n";
 
     public static JObject Deserialize(string jsonString)
