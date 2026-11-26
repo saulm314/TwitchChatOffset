@@ -64,7 +64,7 @@ public static class SubtitleSerialization
         }
         format.ApplyAssStyles(sub, options.SubFontSize, options.SubBackgroundEnable, options.WindowOpacity);
 
-        StringWriter stringWriter = new();
+        StringWriter stringWriter = new() { NewLine = "\n" };
         sub.Save(stringWriter);
         return stringWriter.ToString();
     }
