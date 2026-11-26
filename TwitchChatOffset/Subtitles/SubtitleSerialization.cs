@@ -160,7 +160,7 @@ public static class SubtitleSerialization
         {
             sections.Add(chatMessage.Name);
             sections.Add(chatMessage.Message);
-            Section newlineSection = format.NewSection("\n"); // for YTT, \n and \r\n work, but for ASS, only \r\n works
+            Section newlineSection = format.NewSection("\n");
             newlineSection.ApplyOptions(options.SectionOptions);
             sections.Add(newlineSection);
             lastChatMessage = chatMessage;
