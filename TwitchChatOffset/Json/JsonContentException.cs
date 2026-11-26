@@ -37,7 +37,7 @@ public abstract class JsonContentException(string? message) : Exception(message)
     public class InvalidValueAssignment(Type type, string path)
         : JsonContentException($"Cannot assign a value of type {type.FullName} to JValue at {path}".AddPathWarning())
     {
-        public Type PType => type;
+        public Type Type => type;
         public string Path => path;
     }
 
