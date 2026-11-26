@@ -72,12 +72,12 @@ and replace `videoID` with the ID obtained in the previous step, e.g.:
 TwitchDownloaderCLI ChatDownload -u 4815162342 -o 4815162342.json
 ```
 # Usage
-## Transform
+For all available commands, see the Root Command [help](help/TwitchChatOffset.txt) menu, or run `TwitchChatOffset --help`.
+## [Transform](help/transform.txt)
 Apply some transformations to a Twitch chat JSON file and output the contents into another file.
 ```
 TwitchChatOffset transform <input-path> <output-path> [options]
 ```
-To see more information about each argument and option, run `TwitchChatOffset transform --help`.
 ### Examples
 Aim: to take a JSON Twitch chat file `chat.json`, cut out all the chat before the 1 hour mark, cut out all the chat after the 3 hour mark, and add 1 minute of delay before the first chat starts, then put the contents in another JSON file with human-readable indentations `transformed-chat.json`. E.g. if the first message after the 1 hour mark was at the 1:00:21 mark, we now want it to be at the 0:01:21 mark.
 ```
@@ -95,13 +95,11 @@ Aim: Same as the first example, but this time we want to convert it to a YouTube
 ```
 TwitchChatOffset transform chat.json transformed-chat.ytt --start 3600 --end 10800 --delay 60 -f ytt --sub-position topright
 ```
-## Transform Many
+## [Transform Many](help/transform-many.txt)
 Using a CSV file with a list of input JSON files and transformations, apply all the listed transformations and create an output file for each, or multiple output files for each. For the CSV file, use the `transform-many.csv` template provided [here](templates).
 ```
 TwitchChatOffset transform-many <csv-path> [options]
 ```
-To see more information about each argument and option, run `TwitchChatOffset transform-many --help`.
-
 Most of the options that are available on the command line are also available in the CSV file with the same alias but without leading hyphens. For example, the `--sub-position` command-line option is also available as a CSV option as `sub-position`. An exhaustive list of all available options in the CSV file is defined [here](TwitchChatOffset/Options/Groups/TransformManyCommonOptions.cs). Options may be specified in any order.
 
 The same option can be specified both in the CSV file and on the command line. In that case, the program uses the value from the CSV file and ignores the one from the command line. A field or an entire column can also be left blank in the CSV file. In that case, for that file, the value provided on the command line is used instead. If no value is provided on the command line, then the hardcoded default value is used (run the `--help` option to see default values).
@@ -125,13 +123,11 @@ Aim: to transform all files in `transform-many.csv`, such that if for any file n
 ```
 TwitchChatOffset transform-many transform-many.csv --sub-position bottomright
 ```
-## Transform All
+## [Transform All](help/transform-all.txt)
 Find all files that have a name with a matching search pattern in a given directory, then apply a transformation or multiple transformations to each of them, and create a new output file (or multiple output files) for each input file.
 ```
 TwitchChatOffset transform-all [options]
 ```
-To see more information about each argument and option, run `TwitchChatOffset transform-all --help`.
-
 Use this command similar to the `transform` command, but if you need to apply the same transformation or set of transformations to all the files in a directory. Use the `-i` option to select the input directory, and the `-o` option to select your output directory. You can also use the `--search-pattern` option to specify which files in the input directory to transform, e.g. `*.json` for all JSON files, or `*chat*.json` for all JSON files with "chat" in their names. Use `*` to represent zero or more characters, or `?` to represent exactly one character, as is documented on [this](https://learn.microsoft.com/en-us/dotnet/api/system.io.directory.getfiles?view=net-10.0) page. You may also find the `--suffix` option particularly useful: by default all output files will keep the same names as their input files, but you can specify a suffix to remove the file's extension and append a new suffix onto it, e.g. `.ytt` or `-transformed.ytt`.
 
 Note that merely running `TwitchChatOffset transform-all` without specifying your input or output directories (`-i`, `-o`) finds all JSON files in the current directory, performs a transformation for each, and then replaces the same file. This is of course dangerous, however if you do accidentally leave the input and output directories the same, the program will give you a warning and ask if you want to proceed. **The program will not give you a warning if the input and output directories are different, even if there are already files that will be overwritten in the output directory!**
