@@ -19,7 +19,7 @@
     <ProjectReference Include="../libs/YTSubConverter/YTSubConverter.Shared/YTSubConverter.Shared.csproj"/>
   </ItemGroup>
 
-  <!-- Force rebuild if post-build files have been updated -->
+  <!-- Force rebuild if manually created files that are checked post-build have been updated -->
   <ItemGroup>
 
     <!-- Visual Studio -->
