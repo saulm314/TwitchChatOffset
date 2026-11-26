@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net11.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>3.3.0</Version>
+    <Version>3.4.0</Version>
     <Copyright>2025-2026 Saulius Markevicius</Copyright>
   </PropertyGroup>
 
