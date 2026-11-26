@@ -17,7 +17,7 @@ public static class JsonUtils
         DateParseHandling = DateParseHandling.None
     };
 
-    public static string NewLine { get; } = "\n";
+    public static string WriterNewLine { get; } = "\n";
 
     public static JObject Deserialize(string jsonString)
         => (JObject)(JsonConvert.DeserializeObject(jsonString, Settings) ?? throw new JsonContentException.Empty());
@@ -27,7 +27,7 @@ public static class JsonUtils
         JsonSerializer jsonSerializer = JsonSerializer.CreateDefault(Settings);
         jsonSerializer.Formatting = formatting;
         StringBuilder builder = new(256);
-        using StringWriter writer = new(builder, CultureInfo.InvariantCulture) { NewLine = NewLine };
+        using StringWriter writer = new(builder, CultureInfo.InvariantCulture) { NewLine = WriterNewLine };
         using JsonTextWriter jsonWriter = new(writer) { Formatting = formatting };
         jsonSerializer.Serialize(jsonWriter, json, null);
         return writer.ToString();
