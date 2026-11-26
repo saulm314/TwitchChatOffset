@@ -2,6 +2,9 @@
 // Wrap: https://gist.github.com/saulm314/bf4c6cd9e4a9b045b52ad123a80a5c39
 
 using System;
+using System.Globalization;
+using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -14,10 +17,21 @@ public static class JsonUtils
         DateParseHandling = DateParseHandling.None
     };
 
+    public static string NewLine { get; } = "\n";
+
     public static JObject Deserialize(string jsonString)
         => (JObject)(JsonConvert.DeserializeObject(jsonString, Settings) ?? throw new JsonContentException.Empty());
 
-    public static string Serialize(JToken json, Formatting formatting = Formatting.None) => JsonConvert.SerializeObject(json, formatting, Settings);
+    public static string Serialize(JToken json, Formatting formatting = Formatting.None)
+    {
+        JsonSerializer jsonSerializer = JsonSerializer.CreateDefault(Settings);
+        jsonSerializer.Formatting = formatting;
+        StringBuilder builder = new(256);
+        using StringWriter writer = new(builder, CultureInfo.InvariantCulture) { NewLine = NewLine };
+        using JsonTextWriter jsonWriter = new(writer) { Formatting = formatting };
+        jsonSerializer.Serialize(jsonWriter, json, null);
+        return writer.ToString();
+    }
 
     public static T As<T>(this JToken jtoken) where T : notnull
     {
