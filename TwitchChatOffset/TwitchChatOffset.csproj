@@ -16,13 +16,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\libs\YTSubConverter\YTSubConverter.Shared\YTSubConverter.Shared.csproj"/>
+    <ProjectReference Include="../libs/YTSubConverter/YTSubConverter.Shared/YTSubConverter.Shared.csproj"/>
   </ItemGroup>
 
+  <!-- Force rebuild if post-build files have been updated -->
   <ItemGroup>
-    <!-- Force rebuild if templates have been updated -->
-    <CustomAdditionalCompileInputs Include="..\templates\**\*"/> <!-- MSBuild (and Visual Studio) -->
-    <UpToDateCheckInput Include="..\templates\**\*"/> <!-- Visual Studio -->
+
+    <!-- Visual Studio -->
+    <UpToDateCheckInput Include="../templates/**/*"/>
+
+    <!-- MSBuild (and Visual Studio) -->
+    <CustomAdditionalCompileInputs Include="../templates/**/*"/>
   </ItemGroup>
 
   <Target Name="TcoPostBuild" AfterTargets="AfterBuild">

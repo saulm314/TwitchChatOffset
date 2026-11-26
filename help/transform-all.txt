@@ -1,0 +1,34 @@
+Description:
+  Transform all files in a directory whose name matches a search pattern
+
+Usage:
+  TwitchChatOffset transform-all [options]
+
+Options:
+  --start <start>                                                                                                Starting point in seconds before which to dismiss chat messages (optional) [default: 0]
+  --end <end>                                                                                                    Ending point in seconds after which to dismiss chat messages, or any negative number for no ending point (optional) [default: -1]
+  --delay <delay>                                                                                                Delay in seconds to apply to all messages after cutting out unneeded messages (optional) [default: 0]
+  -f, --format, --formatting <Ass|Json|JsonIndented|Plaintext|Ytt>                                               Format for the output file (optional) [default: Json]
+  --sub-position <BottomCenter|BottomLeft|BottomRight|Center|MiddleLeft|MiddleRight|TopCenter|TopLeft|TopRight>  [YTT|ASS] Position on the screen for subtitles (optional) [default: TopLeft]
+  --sub-max-messages <sub-max-messages>                                                                          [YTT|ASS] Maximum number of messages to display at once for subtitles (must be at least 1) (optional) [default: 4]
+  --sub-max-chars, --sub-max-chars-per-line <sub-max-chars-per-line>                                             [YTT|ASS] Maximum number of characters to display in a single subtitle line before it wraps to a New line (optional) [default: 40]
+  --sub-window-opacity <sub-window-opacity>                                                                      [YTT|ASS] Window opacity for subtitles (the text box containing the subtitles), ranging from 0 (fully transparent) to 255 (fully opaque) (optional) [default: 0]
+  --sub-text-color <sub-text-color>                                                                              [YTT|ASS] Text color for subtitles, (e.g. "white", "#B0B0B0", etc.) (optional) [default: white]
+  --sub-font-size <sub-font-size>                                                                                [ASS] ASS subtitle font size (e.g. 18, 15, 25, etc.) (must be a positive integer) (ASS only) (optional) [default: 18]
+  --sub-background-enable, --sub-bg-enable                                                                       [ASS] Enable black opaque background for ASS subtitles (the text only, not the entire text box, overrides sub-window-opacity to 0) (ASS only) (optional)
+  --sub-outline-disable                                                                                          [ASS] Disable outline for ASS subtitles (ASS only) (optional)
+  --sub-color-seed <sub-color-seed>                                                                              [YTT|ASS] Seed for generating deterministic colors for users with no specified color (positive or negative integer) (optional) [default: 0]
+  --sub-scale <sub-scale>                                                                                        [YTT] YTT subtitle size (e.g. 0, 0.5, 1.5, etc.) (must be at least 0) (YTT only) (optional) [default: 0]
+  --sub-shadow <Bevel|Glow|HardShadow|None|SoftShadow>                                                           [YTT] YTT Shadow type (or none) for subtitles (YTT only) (optional) [default: Glow]
+  --sub-background-opacity, --sub-bg-opacity <sub-background-opacity>                                            [YTT] Background opacity for YTT subtitles (the text only, not the entire text box), ranging from 0 (fully transparent) to 254 (fully opaque) (YTT only) (optional) [default: 0]
+  --sub-shadow-color <sub-shadow-color>                                                                          [YTT|ASS] Shadow color for subtitles, (e.g. "black", "#B0B0B0", etc.) (optional) [default: black]
+  --sub-background-color, --sub-bg-color <sub-background-color>                                                  [YTT] Background color for YTT subtitles, (e.g. "black", "#B0B0B0", etc.) (YTT only) (optional) [default: black]
+  -i, --input, --input-dir, --input-directory <input-dir>                                                        Input directory (optional) [default: .]
+  --pattern, --search-pattern <search-pattern>                                                                   Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional) [default: *.json]
+  -o, --output, --output-dir, --output-directory <output-directory>                                              Output directory (will create if doesn't exist) (optional) [default: .]
+  --suffix <suffix>                                                                                              Suffix override for output file, e.g. ".json", ".ytt", "-transformed.json", etc., or "/auto" for no suffix override (optional) [default: /auto]
+  -q, --quiet                                                                                                    Do not print a message for intermediate steps such as individual files being written (optional)
+  --response <Cancel|Manual|No|Yes>                                                                              Set automatic response to any prompts (optional) [default: Manual]
+  --csv, --csv-path <csv-path>                                                                                   CSV path to specify options for multiple outputs per input (optional)
+  -?, -h, --help                                                                                                 Show help and usage information
+

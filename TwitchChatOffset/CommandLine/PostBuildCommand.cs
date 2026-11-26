@@ -2,6 +2,7 @@
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
 using System.CommandLine;
+using System.IO;
 using System.Linq;
 using CSVFile;
 
@@ -17,6 +18,32 @@ public static class PostBuildCommand
     }
 
     private static void Execute(ParseResult parseResult)
+    {
+        GenerateHelpMenus();
+        CheckCsvTemplates();
+    }
+
+    private static void GenerateHelpMenus()
+    {
+        if (Directory.Exists("../help"))
+            Directory.Delete("../help", true);
+        Directory.CreateDirectory("../help");
+        GenerateHelpMenus(RootCommand.Command);
+    }
+
+    private static void GenerateHelpMenus(Command command)
+    {
+        PrintLine($"Generating help menu for command {command.Name}...");
+        StringWriter stringWriter = new();
+        command.Parse("--help").Invoke(new() { Output = stringWriter } );
+        string helpText = stringWriter.ToString();
+        File.WriteAllText($"../help/{command.Name}.txt", helpText);
+
+        foreach (Command subcommand in command.Subcommands.Where(command => !command.Hidden))
+            GenerateHelpMenus(subcommand);
+    }
+
+    private static void CheckCsvTemplates()
     {
         CheckCsvTemplate<TransformManyCommonOptions>("transform-many");
         CheckCsvTemplate<TransformAllCommonOptions>("transform-all");

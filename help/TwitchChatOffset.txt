@@ -1,0 +1,15 @@
+Description:
+  Tools for handling Twitch chat JSON files
+
+Usage:
+  TwitchChatOffset [command] [options]
+
+Options:
+  -?, -h, --help  Show help and usage information
+  --version       Show version information
+
+Commands:
+  transform <input-path> <output-path>  Transform a JSON Twitch chat file and put the new contents in a new file
+  transform-many <csv-path>             Perform many JSON Twitch chat file transformations and generate new files
+  transform-all                         Transform all files in a directory whose name matches a search pattern
+
