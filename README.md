@@ -71,8 +71,7 @@ and replace `videoID` with the ID obtained in the previous step, e.g.:
 ```
 TwitchDownloaderCLI ChatDownload -u 4815162342 -o 4815162342.json
 ```
-# Usage
-For all available commands, see the Root Command [help](help/TwitchChatOffset.txt) menu, or run `TwitchChatOffset --help`.
+# [Usage](help/TwitchChatOffset.txt)
 ## [Transform](help/transform.txt)
 Apply some transformations to a Twitch chat JSON file and output the contents into another file.
 ```
