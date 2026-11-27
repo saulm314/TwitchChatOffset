@@ -183,37 +183,9 @@ public static class BulkTransform
             PrintError(e.Message, 2, true);
             break;
         case Exception:
-            PrintError($"JSON file {inputPath} parsed successfully but an error occurred, possibly internal", 2, true);
+            PrintError($"JSON file {inputPath} parsed successfully but an error occurred", 2, true);
             PrintError(e, 2, true);
             break;
         }
-    }
-
-    public static string? TryTransform(string inputFile, string input, TransformCommonOptions options)
-    {
-        string output;
-        try
-        {
-            output = Transform.DoTransform(input, options);
-        }
-        catch (JsonException e)
-        {
-            PrintError($"Could not parse JSON file {inputFile}", 2, true);
-            PrintError(e.Message, 2, true);
-            return null;
-        }
-        catch (JsonContentException e)
-        {
-            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2, true);
-            PrintError(e.Message, 2, true);
-            return null;
-        }
-        catch (Exception e)
-        {
-            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2, true);
-            PrintError(e.Message, 2, true);
-            return null;
-        }
-        return output;
     }
 }
