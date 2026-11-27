@@ -26,17 +26,19 @@ public static class TransformManyCommand
     {
         string csvPath = parseResult.GetValue(CsvArgument)!;
         TransformManyCliOptions cliOptions = parseResult.ParseOptions<TransformManyCliOptions>();
+        Quiet = cliOptions.Quiet;
+        Suppress = cliOptions.Suppress;
 
-        PrintLine("Reading CSV data...", 0, cliOptions.Quiet);
+        PrintLine("Reading CSV data...", 0, true);
         using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
         List<TransformManyCommonOptions> commonOptionsList = [];
         foreach (TransformManyCommonOptions commonOptions in CsvSerialization.Deserialize<TransformManyCommonOptions>(reader))
             commonOptionsList.Add(BulkTransform.ResolveConflicts(commonOptions, cliOptions.CommonOptions));
 
-        PrintLine("Sorting CSV data...", 0, cliOptions.Quiet);
+        PrintLine("Sorting CSV data...", 0, true);
         commonOptionsList.Sort(TransformManyCommonOptionsComparer.Instance);
 
-        PrintLine("Writing files...", 0, cliOptions.Quiet);
+        PrintLine("Writing files...", 0, true);
         TransformManyData data = new();
         foreach (TransformManyCommonOptions commonOptions in commonOptionsList)
         {
@@ -74,7 +76,7 @@ public static class TransformManyCommand
             //   (or the one before that if there was an error, but that data will still be there)
             // if in the previous transformation there was an error,
             //   then data.MaxOptimisation is set up so that the step with the error doesn't get optimised away in the next iteration
-            PrintLine(outputPath, 1, cliOptions.Quiet);
+            PrintLine(outputPath, 1, true);
             _ = Directory.CreateDirectory(commonOptions.OutputDir);
             data.CommonOptions = commonOptions;
             if (optimisation < Optimisation.SameInputFile)

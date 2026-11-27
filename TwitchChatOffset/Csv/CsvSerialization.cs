@@ -130,7 +130,8 @@ public static class CsvSerialization
         }
         catch
         {
-            PrintWarning($"Cannot convert \"{field}\" to type {fieldData.FieldPath[^1].FieldType.GenericTypeArguments[0].FullName}; treating as an empty field...", 1);
+            PrintWarning($"Cannot convert \"{field}\" to type {fieldData.FieldPath[^1].FieldType.GenericTypeArguments[0].FullName}; treating as an empty field...",
+                1, true);
             return;
         }
         Type plicitType = fieldData.FieldPath[^1].FieldType;

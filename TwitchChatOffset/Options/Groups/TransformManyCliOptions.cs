@@ -9,6 +9,9 @@ public record TransformManyCliOptions : OptionGroup<TransformManyCliOptions>
     [CliOption(nameof(CliOptions.Quiet))]
     public Plicit<bool> Quiet;
 
+    [CliOption(nameof(CliOptions.Suppress))]
+    public Plicit<bool> Suppress;
+
     [CliOption(nameof(CliOptions.MultiResponse))]
     public Plicit<CliMultiResponse> Response;
 }

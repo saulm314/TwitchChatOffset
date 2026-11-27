@@ -28,6 +28,7 @@ Options:
   -o, --output, --output-dir, --output-directory <output-directory>                                              Output directory (will create if doesn't exist) (optional) [default: .]
   --suffix <suffix>                                                                                              Suffix override for output file, e.g. ".json", ".ytt", "-transformed.json", etc., or "/auto" for no suffix override (optional) [default: /auto]
   -q, --quiet                                                                                                    Do not print a message for intermediate steps such as individual files being written (optional)
+  -Q, --suppress                                                                                                 Suppress warnings and errors (except essential) (optional)
   --response <Cancel|Manual|No|Yes>                                                                              Set automatic response to any prompts (optional) [default: Manual]
   --csv, --csv-path <csv-path>                                                                                   CSV path to specify options for multiple outputs per input (optional)
   -?, -h, --help                                                                                                 Show help and usage information

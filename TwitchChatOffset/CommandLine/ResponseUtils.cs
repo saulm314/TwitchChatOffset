@@ -16,9 +16,9 @@ public static class ResponseUtils
             GetResponseInputOutputWarning(outputPath) :
             (Response)cliResponse;
         if (response == Response.No)
-            PrintWarning($"Skipping {outputPath}...", 1);
+            PrintWarning($"Skipping {outputPath}...", 1, true);
         else
-            PrintWarning($"Overwriting {outputPath}...", 1);
+            PrintWarning($"Overwriting {outputPath}...", 1, true);
         return response;
     }
 
@@ -31,12 +31,12 @@ public static class ResponseUtils
             return Response.Yes;
         if (response == MultiResponse.NoToAll)
         {
-            PrintWarning($"Skipping {outputPath}...", 1);
+            PrintWarning($"Skipping {outputPath}...", 1, true);
             return Response.No;
         }
         if (response == MultiResponse.YesToAll)
         {
-            PrintWarning($"Overwriting {outputPath}...", 1);
+            PrintWarning($"Overwriting {outputPath}...", 1, true);
             return Response.Yes;
         }
         response =
@@ -45,15 +45,15 @@ public static class ResponseUtils
             (MultiResponse)cliResponse;
         if (response == MultiResponse.Cancel)
         {
-            PrintError($"Cancelling on {outputPath}...", 2);
+            PrintError($"Cancelling on {outputPath}...", 2, true);
             return null;
         }
         if (response == MultiResponse.No || response == MultiResponse.NoToAll)
         {
-            PrintWarning($"Skipping {outputPath}...", 1);
+            PrintWarning($"Skipping {outputPath}...", 1, true);
             return Response.No;
         }
-        PrintWarning($"Overwriting {outputPath}...", 1);
+        PrintWarning($"Overwriting {outputPath}...", 1, true);
         return Response.Yes;
     }
 

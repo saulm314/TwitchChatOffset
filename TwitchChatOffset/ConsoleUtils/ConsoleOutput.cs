@@ -6,9 +6,12 @@ namespace TwitchChatOffset.ConsoleUtils;
 
 public static class ConsoleOutput
 {
-    public static void PrintLine(object? message, byte indent = 0, bool quiet = false)
+    public static bool Quiet;
+    public static bool Suppress;
+
+    public static void PrintLine(object? message, byte indent = 0, bool checkQuiet = false)
     {
-        if (quiet)
+        if (checkQuiet && Quiet)
             return;
         Span<char> indentChars = stackalloc char[indent];
         indentChars.Fill('\t');
@@ -16,9 +19,9 @@ public static class ConsoleOutput
         Console.WriteLine(indentStr + message);
     }
 
-    public static void Print(object? message, byte indent = 0, bool quiet = false)
+    public static void Print(object? message, byte indent = 0, bool checkQuiet = false)
     {
-        if (quiet)
+        if (checkQuiet && Quiet)
             return;
         Span<char> indentChars = stackalloc char[indent];
         indentChars.Fill('\t');
@@ -26,19 +29,9 @@ public static class ConsoleOutput
         Console.Write(indentStr + message);
     }
 
-    public static void PrintError(object? message, byte indent = 0, bool quiet = false)
+    public static void PrintWarning(object? message, byte indent = 0, bool checkSuppress = false)
     {
-        if (quiet)
-            return;
-        ConsoleColor originalColor = Console.ForegroundColor;
-        Console.ForegroundColor = ConsoleColor.Red;
-        PrintLine(message, indent);
-        Console.ForegroundColor = originalColor;
-    }
-
-    public static void PrintWarning(object? message, byte indent = 0, bool quiet = false)
-    {
-        if (quiet)
+        if (checkSuppress && Suppress)
             return;
         ConsoleColor originalColor = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -46,9 +39,19 @@ public static class ConsoleOutput
         Console.ForegroundColor = originalColor;
     }
 
-    public static void PrintEnumerable(IEnumerable enumerable, string? heading = null, byte indent = 0, bool quiet = false)
+    public static void PrintError(object? message, byte indent = 0, bool checkSuppress = false)
     {
-        if (quiet)
+        if (checkSuppress && Suppress)
+            return;
+        ConsoleColor originalColor = Console.ForegroundColor;
+        Console.ForegroundColor = ConsoleColor.Red;
+        PrintLine(message, indent);
+        Console.ForegroundColor = originalColor;
+    }
+
+    public static void PrintEnumerable(IEnumerable enumerable, string? heading = null, byte indent = 0, bool checkQuiet = false)
+    {
+        if (checkQuiet && Quiet)
             return;
         if (heading != null)
             PrintLine(heading, indent);
@@ -56,9 +59,9 @@ public static class ConsoleOutput
             PrintLine(item, (byte)(indent + 1));
     }
 
-    public static void PrintEnumerableWarning(IEnumerable enumerable, string? heading = null, byte indent = 0, bool quiet = false)
+    public static void PrintEnumerableWarning(IEnumerable enumerable, string? heading = null, byte indent = 0, bool checkSuppress = false)
     {
-        if (quiet)
+        if (checkSuppress && Suppress)
             return;
         if (heading != null)
             PrintWarning(heading, indent);
@@ -66,9 +69,9 @@ public static class ConsoleOutput
             PrintWarning(item, (byte)(indent + 1));
     }
 
-    public static void PrintEnumerableError(IEnumerable enumerable, string? heading = null, byte indent = 0, bool quiet = false)
+    public static void PrintEnumerableError(IEnumerable enumerable, string? heading = null, byte indent = 0, bool checkSuppress = false)
     {
-        if (quiet)
+        if (checkSuppress && Suppress)
             return;
         if (heading != null)
             PrintError(heading, indent);
@@ -76,9 +79,9 @@ public static class ConsoleOutput
             PrintError(item, (byte)(indent + 1));
     }
 
-    public static void PrintType(Type type, object? obj, string? heading = null, byte indent = 0, bool quiet = false)
+    public static void PrintType(Type type, object? obj, string? heading = null, byte indent = 0, bool checkQuiet = false)
     {
-        if (quiet)
+        if (checkQuiet && Quiet)
             return;
         if (heading != null)
             PrintLine(heading, indent);
@@ -102,9 +105,9 @@ public static class ConsoleOutput
         }
     }
 
-    public static void PrintObjectMembers(object obj, string? heading = null, byte indent = 0, bool quiet = false)
+    public static void PrintObjectMembers(object obj, string? heading = null, byte indent = 0, bool checkQuiet = false)
     {
-        if (quiet)
+        if (checkQuiet && Quiet)
             return;
         PrintType(obj.GetType(), obj, heading, indent);
     }

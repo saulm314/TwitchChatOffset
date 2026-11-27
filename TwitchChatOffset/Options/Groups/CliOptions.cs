@@ -102,6 +102,10 @@ public static class CliOptions
         "Do not print a message for intermediate steps such as individual files being written (optional)",
         _ => false);
 
+    public static CliOptionContainer<bool> Suppress { get; } = new("--suppress", Aliases.Suppress,
+        "Suppress warnings and errors (except essential) (optional)",
+        _ => false);
+
     public static CliOptionContainer<string> SearchPattern { get; } = new("--search-pattern", Aliases.SearchPattern,
         "Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional)",
         _ => "*.json");

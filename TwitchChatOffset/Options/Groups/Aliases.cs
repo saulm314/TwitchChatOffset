@@ -26,6 +26,7 @@ public static class Aliases
     public static AliasesContainer OutputDir { get; } = new(["--output-directory", "--output-dir", "--output", "-o"]);
     public static AliasesContainer Suffix { get; } = new(["--suffix"]);
     public static AliasesContainer Quiet { get; } = new(["--quiet", "-q"]);
+    public static AliasesContainer Suppress { get; } = new(["--suppress", "-Q"]);
     public static AliasesContainer SearchPattern { get; } = new(["--search-pattern", "--pattern"]);
     public static AliasesContainer Response { get; } = new(["--response"]);
     public static AliasesContainer MultiResponse { get; } = new(["--response"]);

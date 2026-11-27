@@ -19,19 +19,22 @@ public static class SubtitleSerialization
     {
         if (options.MaxMessages < 1)
         {
-            PrintWarning("Warning: sub-max-messages is less than 1 which is not supported; treating it as 1 instead");
+            PrintWarning("Warning: sub-max-messages is less than 1 which is not supported; treating it as 1 instead",
+                0, true);
             options.MaxMessages.Value = 1;
         }
         SubtitleUtils.NormaliseByte(ref options.WindowOpacity);
         SubtitleUtils.NormaliseByte(ref options.SectionOptions.SubBackgroundOpacity);
         if (format == Format.Ytt && options.WindowOpacity == 255)
         {
-            PrintWarning("Warning: sub-window-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
+            PrintWarning("Warning: sub-window-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead",
+                0, true);
             options.WindowOpacity.Value = 254;
         }
         if (options.SectionOptions.SubBackgroundOpacity == 255)
         {
-            PrintWarning("Warning: ytt-background-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead");
+            PrintWarning("Warning: ytt-background-opacity is 255 which for some reason may get overridden in the YouTube player, treating it as 254 instead",
+                0, true);
             options.SectionOptions.SubBackgroundOpacity.Value = 254;
         }
         if (format != Format.Ytt)

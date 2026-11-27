@@ -8,7 +8,7 @@ public static class IOUtils
     {
         if (!string.IsNullOrEmpty(inputFile))
             return true;
-        PrintError("Input file name must not be empty; skipping...", 2);
+        PrintError("Input file name must not be empty; skipping...", 2, true);
         return false;
     }
 
@@ -16,7 +16,7 @@ public static class IOUtils
     {
         if (!string.IsNullOrEmpty(outputFile))
             return true;
-        PrintError("Output file name must not be empty; skipping...", 2);
+        PrintError("Output file name must not be empty; skipping...", 2, true);
         return false;
     }
 
@@ -26,7 +26,7 @@ public static class IOUtils
         {
             if (File.Exists(inputPath))
                 return true;
-            PrintError($"Input file {inputPath} could not be found", 2);
+            PrintError($"Input file {inputPath} could not be found", 2, true);
             return false;
         }
     }

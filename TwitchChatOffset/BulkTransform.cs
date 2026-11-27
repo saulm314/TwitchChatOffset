@@ -76,7 +76,7 @@ public static class BulkTransform
         catch (Exception e)
         {
             ProcessException(e, inputPath);
-            PrintWarning($"Warning: skipping input file {inputPath}...", 2);
+            PrintWarning($"Warning: skipping input file {inputPath}...", 2, true);
             data.SkipFile = true;
             return false;
         }
@@ -94,7 +94,7 @@ public static class BulkTransform
         catch (Exception e)
         {
             ProcessException(e, inputPath);
-            PrintWarning($"Warning: skipping input file {inputPath}...", 2);
+            PrintWarning($"Warning: skipping input file {inputPath}...", 2, true);
             data.SkipFile = true;
             return false;
         }
@@ -112,7 +112,7 @@ public static class BulkTransform
         catch (Exception e)
         {
             ProcessException(e, inputPath);
-            PrintWarning($"Warning: skipping output file {outputPath}...", 2);
+            PrintWarning($"Warning: skipping output file {outputPath}...", 2, true);
             return false;
         }
         data.MaxOptimisation = Optimisation.Same;
@@ -129,7 +129,7 @@ public static class BulkTransform
         catch (Exception e)
         {
             ProcessException(e, inputPath);
-            PrintWarning($"Warning: skipping output file {outputPath}...", 2);
+            PrintWarning($"Warning: skipping output file {outputPath}...", 2, true);
             return false;
         }
         data.MaxOptimisation = Optimisation.Same;
@@ -146,7 +146,7 @@ public static class BulkTransform
         catch (Exception e)
         {
             ProcessException(e, inputPath);
-            PrintWarning($"Warning: skipping output file {outputPath}...", 2);
+            PrintWarning($"Warning: skipping output file {outputPath}...", 2, true);
             return false;
         }
         data.MaxOptimisation = Optimisation.Same;
@@ -163,7 +163,7 @@ public static class BulkTransform
         catch (Exception e)
         {
             ProcessException(e, inputPath);
-            PrintWarning($"Warning: skipping output file {outputPath}...", 2);
+            PrintWarning($"Warning: skipping output file {outputPath}...", 2, true);
             return false;
         }
         data.MaxOptimisation = Optimisation.Same;
@@ -175,16 +175,16 @@ public static class BulkTransform
         switch (e)
         {
         case JsonException:
-            PrintError($"Could not parse JSON file {inputPath}", 2);
-            PrintError(e.Message, 2);
+            PrintError($"Could not parse JSON file {inputPath}", 2, true);
+            PrintError(e.Message, 2, true);
             break;
         case JsonContentException:
-            PrintError($"JSON file {inputPath} parsed successfully but the contents were unexpected", 2);
-            PrintError(e.Message, 2);
+            PrintError($"JSON file {inputPath} parsed successfully but the contents were unexpected", 2, true);
+            PrintError(e.Message, 2, true);
             break;
         case Exception:
-            PrintError($"JSON file {inputPath} parsed successfully but an error occurred, possibly internal", 2);
-            PrintError(e, 2);
+            PrintError($"JSON file {inputPath} parsed successfully but an error occurred, possibly internal", 2, true);
+            PrintError(e, 2, true);
             break;
         }
     }
@@ -198,20 +198,20 @@ public static class BulkTransform
         }
         catch (JsonException e)
         {
-            PrintError($"Could not parse JSON file {inputFile}", 2);
-            PrintError(e.Message, 2);
+            PrintError($"Could not parse JSON file {inputFile}", 2, true);
+            PrintError(e.Message, 2, true);
             return null;
         }
         catch (JsonContentException e)
         {
-            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
-            PrintError(e.Message, 2);
+            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2, true);
+            PrintError(e.Message, 2, true);
             return null;
         }
         catch (Exception e)
         {
-            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2);
-            PrintError(e.Message, 2);
+            PrintError($"JSON file {inputFile} parsed successfully but the contents were unexpected", 2, true);
+            PrintError(e.Message, 2, true);
             return null;
         }
         return output;

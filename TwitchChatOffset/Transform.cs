@@ -42,12 +42,12 @@ public static class Transform
         (long start, long end, long delay) = options;
         if (delay < 0)
         {
-            PrintWarning("Warning: delay value is less than zero which is not supported; treating it as zero instead");
+            PrintWarning("Warning: delay value is less than zero which is not supported; treating it as zero instead", 0, true);
             delay = options.Delay.Value = 0;
         }
         if (end >= 0 && end < start)
         {
-            PrintWarning("Warning: end value is less than start value, so all comments will get deleted");
+            PrintWarning("Warning: end value is less than start value, so all comments will get deleted", 0, true);
             json.Set("comments", new JArray());
             return;
         }

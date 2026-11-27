@@ -24,11 +24,13 @@ public static class TransformAllCommand
     private static void Execute(ParseResult parseResult)
     {
         TransformAllCliOptions cliOptions = parseResult.ParseOptions<TransformAllCliOptions>();
+        Quiet = cliOptions.Quiet;
+        Suppress = cliOptions.Suppress;
 
         List<TransformAllCommonOptions> commonOptionsList;
         if (cliOptions.CsvPath != string.Empty)
         {
-            PrintLine("Reading CSV data...", 0, cliOptions.Quiet);
+            PrintLine("Reading CSV data...", 0, true);
             using CSVReader reader = CSVReader.FromFile(cliOptions.CsvPath, CsvUtils.CsvSettings);
             commonOptionsList = [];
             foreach (TransformAllCommonOptions commonOptions in CsvSerialization.Deserialize<TransformAllCommonOptions>(reader))
@@ -38,7 +40,7 @@ public static class TransformAllCommand
                 commonOptionsList.Add(winnerCommonOptions);
             }
 
-            PrintLine("Sorting CSV data...", 0, cliOptions.Quiet);
+            PrintLine("Sorting CSV data...", 0, true);
             commonOptionsList.Sort(TransformAllCommonOptionsComparer.Instance);
         }
         else
@@ -56,9 +58,9 @@ public static class TransformAllCommand
             foreach (string inputPath_ in inputPaths_)
                 inputDirAndPaths.Add(new(commonOptions.InputDir, inputPath_));
         }
-        PrintEnumerable(inputDirAndPaths.Select(inputDirAndPath => inputDirAndPath.InputPath), "Input files found", 0, cliOptions.Quiet);
+        PrintEnumerable(inputDirAndPaths.Select(inputDirAndPath => inputDirAndPath.InputPath), "Input files found", 0, true);
 
-        PrintLine("Writing files...", 0, cliOptions.Quiet);
+        PrintLine("Writing files...", 0, true);
         TransformAllData data = new();
         foreach (InputDirAndPath inputDirAndPath in inputDirAndPaths)
         {
@@ -96,7 +98,7 @@ public static class TransformAllCommand
                 //   (or the one before that if there was an error, but that data will still be there)
                 // if in the previous transformation there was an error,
                 //   then data.MaxOptimisation is set up so that the step with the error doesn't get optimised away in the next iteration
-                PrintLine(outputPath, 1, cliOptions.Quiet);
+                PrintLine(outputPath, 1, true);
                 _ = Directory.CreateDirectory(commonOptions.OutputDir);
                 data.CommonOptions = commonOptions;
                 data.InputPath = inputPath;
