@@ -1,4 +1,5 @@
-﻿using TwitchChatOffset.ConsoleUtils;
+﻿using static TwitchChatOffset.CommandLine.Arguments;
+using TwitchChatOffset.ConsoleUtils;
 using TwitchChatOffset.Csv;
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Optimisations;
@@ -7,7 +8,6 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
 using CSVFile;
-using static TwitchChatOffset.CommandLine.Arguments;
 
 namespace TwitchChatOffset.CommandLine;
 

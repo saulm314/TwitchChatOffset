@@ -1,9 +1,9 @@
-﻿using TwitchChatOffset.ConsoleUtils;
+﻿using static TwitchChatOffset.CommandLine.Arguments;
+using TwitchChatOffset.ConsoleUtils;
 using TwitchChatOffset.Options;
 using TwitchChatOffset.Options.Groups;
 using System.CommandLine;
 using System.IO;
-using static TwitchChatOffset.CommandLine.Arguments;
 
 namespace TwitchChatOffset.CommandLine;
 

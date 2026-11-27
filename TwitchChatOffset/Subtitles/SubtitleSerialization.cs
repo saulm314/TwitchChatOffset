@@ -1,4 +1,5 @@
-﻿using TwitchChatOffset.Json;
+﻿using static System.Drawing.ColorTranslator;
+using TwitchChatOffset.Json;
 using TwitchChatOffset.Options.Groups;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using YTSubConverter.Shared;
 using YTSubConverter.Shared.Formats;
-using static System.Drawing.ColorTranslator;
 
 namespace TwitchChatOffset.Subtitles;
 

@@ -1,5 +1,5 @@
-﻿using YTSubConverter.Shared;
-using static TwitchChatOffset.Options.Groups.CliOptions;
+﻿using static TwitchChatOffset.Options.Groups.CliOptions;
+using YTSubConverter.Shared;
 
 namespace TwitchChatOffset.Options.Groups;
 

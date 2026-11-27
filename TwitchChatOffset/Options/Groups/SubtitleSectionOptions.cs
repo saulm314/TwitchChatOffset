@@ -1,8 +1,8 @@
-﻿using TwitchChatOffset.Subtitles;
+﻿using static TwitchChatOffset.Options.Groups.CliOptions;
+using static System.Drawing.ColorTranslator;
+using TwitchChatOffset.Subtitles;
 using System.Drawing;
 using YTSubConverter.Shared;
-using static TwitchChatOffset.Options.Groups.CliOptions;
-using static System.Drawing.ColorTranslator;
 
 namespace TwitchChatOffset.Options.Groups;
 
