@@ -17,7 +17,7 @@ public static class CsvSerialization
         ThrowIfDuplicateAliases<TOptionGroup>();
         List<HeaderGroup> headerGroups = GetHeaderGroups<TOptionGroup>(reader.Headers);
         foreach (string[] line in reader.Lines())
-            foreach (TOptionGroup data in WriteLine<TOptionGroup>(reader.Headers, headerGroups, line))
+            foreach (TOptionGroup data in ReadLine<TOptionGroup>(reader.Headers, headerGroups, line))
                 yield return data;
     }
 
@@ -88,7 +88,7 @@ public static class CsvSerialization
         }
     }
 
-    private static IEnumerable<TOptionGroup> WriteLine<TOptionGroup>(string[] allHeaders, List<HeaderGroup> headerGroups, string[] wholeLine)
+    private static IEnumerable<TOptionGroup> ReadLine<TOptionGroup>(string[] allHeaders, List<HeaderGroup> headerGroups, string[] wholeLine)
         where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         TOptionGroup? previousData = null;
@@ -106,13 +106,13 @@ public static class CsvSerialization
                 line = wholeLine.AsSpan()[range];
             int fieldCount = int.Min(line.Length, headers.Length);
             for (int i = 0; i < fieldCount; i++)
-                WriteField(data, line[i], headers[i], dataMap);
+                ReadField(data, line[i], headers[i], dataMap);
             previousData = data;
             yield return data;
         }
     }
 
-    private static void WriteField<TOptionGroup>(TOptionGroup data, string field, string header, Dictionary<string, FieldData> dataMap)
+    private static void ReadField<TOptionGroup>(TOptionGroup data, string field, string header, Dictionary<string, FieldData> dataMap)
         where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         if (!dataMap.TryGetValue(header, out FieldData? fieldData))
