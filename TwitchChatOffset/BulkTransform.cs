@@ -174,18 +174,18 @@ public static class BulkTransform
     {
         switch (e)
         {
-            case JsonException:
-                PrintError($"Could not parse JSON file {inputPath}", 2);
-                PrintError(e.Message, 2);
-                break;
-            case JsonContentException:
-                PrintError($"JSON file {inputPath} parsed successfully but the contents were unexpected", 2);
-                PrintError(e.Message, 2);
-                break;
-            case Exception:
-                PrintError($"JSON file {inputPath} parsed successfully but an error occurred, possibly internal", 2);
-                PrintError(e, 2);
-                break;
+        case JsonException:
+            PrintError($"Could not parse JSON file {inputPath}", 2);
+            PrintError(e.Message, 2);
+            break;
+        case JsonContentException:
+            PrintError($"JSON file {inputPath} parsed successfully but the contents were unexpected", 2);
+            PrintError(e.Message, 2);
+            break;
+        case Exception:
+            PrintError($"JSON file {inputPath} parsed successfully but an error occurred, possibly internal", 2);
+            PrintError(e, 2);
+            break;
         }
     }
 

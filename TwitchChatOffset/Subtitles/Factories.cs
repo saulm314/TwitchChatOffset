@@ -19,17 +19,29 @@ public static class Factories
         };
 
     public static Line NewLine(this Format format, DateTime start, DateTime end, IEnumerable<Section> sections, AnchorPoint anchorPoint, byte windowOpacity)
-        => format switch
+    {
+        switch (format)
         {
-            Format.Ytt => new Line(start, end, sections)
+        case Format.Ytt:
+            return new(start, end, sections)
             {
                 AndroidDarkTextHackAllowed = false,
                 AnchorPoint = anchorPoint,
                 WindowOpacity = windowOpacity
-            },
-            Format.Ass => NewAssLine(start, end, sections, anchorPoint, windowOpacity),
-            _ => throw new InternalException($"Internal error: non-subtitle format {format} not allowed")
-        };
+            };
+        case Format.Ass:
+            AssLine assLine = new(start, end)
+            {
+                AndroidDarkTextHackAllowed = false,
+                AnchorPoint = anchorPoint,
+                Alpha = windowOpacity
+            };
+            assLine.Sections.AddRange(sections);
+            return assLine;
+        default:
+            throw new InternalException($"Internal error: non-subtitle format {format} not allowed");
+        }
+    }
 
     public static AssLine NewAssLine(DateTime start, DateTime end, IEnumerable<Section> sections, AnchorPoint anchorPoint, byte windowOpacity)
     {
