@@ -101,6 +101,7 @@ public static class CsvSerialization
         where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         TOptionGroup? previousData = null;
+        string? previousArrayDelimiter = null;
         foreach (HeaderGroup headerGroup in headerGroups)
         {
             (Range range, Dictionary<string, FieldData> dataMap, int? arrayDelimiterIndex) = headerGroup;
@@ -115,8 +116,10 @@ public static class CsvSerialization
                 line = wholeLine.AsSpan()[range];
             int fieldCount = int.Min(line.Length, headers.Length);
             string arrayDelimiter = cliCsvArrayDelimiter;
+            if (previousArrayDelimiter != null)
+                arrayDelimiter = previousArrayDelimiter;
             if (arrayDelimiterIndex != null && line[(int)arrayDelimiterIndex] != string.Empty)
-                arrayDelimiter = line[(int)arrayDelimiterIndex];
+                arrayDelimiter = previousArrayDelimiter = line[(int)arrayDelimiterIndex];
             for (int i = 0; i < fieldCount; i++)
                 ReadField(data, line[i], headers[i], dataMap, arrayDelimiter);
             previousData = data;
