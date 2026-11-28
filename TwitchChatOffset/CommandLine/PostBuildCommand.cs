@@ -52,8 +52,8 @@ public static class PostBuildCommand
     private static void CheckCsvTemplate<TOptionGroup>(string templateName) where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         PrintLine($"Checking CSV template {templateName}.csv...");
-        using CSVReader reader = CSVReader.FromFile($"../templates/{templateName}.csv", CsvUtils.CsvSettings);
-        TOptionGroup options = CsvSerialization.Deserialize<TOptionGroup>(reader).First();
+        using CSVReader reader = CsvSerialization.CreateReader($"../templates/{templateName}.csv", ',');
+        TOptionGroup options = CsvSerialization.Deserialize<TOptionGroup>(reader, ";").First();
         foreach (FieldData fieldData in OptionGroup<TOptionGroup>.FieldDatas)
         {
             IPlicit plicit = options.ReadField(fieldData);

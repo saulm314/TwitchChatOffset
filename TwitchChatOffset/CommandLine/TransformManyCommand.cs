@@ -32,7 +32,8 @@ public static class TransformManyCommand
         PrintLine("Reading CSV data...", 0, true);
         using CSVReader reader = CsvSerialization.CreateReader(csvPath, cliOptions.CsvFieldDelimiter);
         List<TransformManyCommonOptions> commonOptionsList = [];
-        foreach (TransformManyCommonOptions commonOptions in CsvSerialization.Deserialize<TransformManyCommonOptions>(reader))
+        var csvOptionsSequence = CsvSerialization.Deserialize<TransformManyCommonOptions>(reader, cliOptions.CommonOptions.CsvArrayDelimiter.Value);
+        foreach (TransformManyCommonOptions commonOptions in csvOptionsSequence)
             commonOptionsList.Add(BulkTransform.ResolveConflicts(commonOptions, cliOptions.CommonOptions));
 
         PrintLine("Sorting CSV data...", 0, true);

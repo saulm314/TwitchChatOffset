@@ -8,4 +8,7 @@ public record TransformOptions : OptionGroup<TransformOptions>
 
     [CliOption(nameof(CliOptions.Response))]
     public Plicit<CliResponse> Response;
+
+    [CliOption(nameof(CliOptions.CliDelimiter))]
+    public Plicit<string> CliDelimiter;
 }

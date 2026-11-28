@@ -1,11 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TwitchChatOffset;
 
 public static class ArrayParser
 {
-    public static bool TryParseArray(string input, string delimiter, Type elementType, TypeConverter converter, out Array? output)
+    public static bool TryParseArray(string input, string delimiter, Type elementType, TypeConverter converter, [MaybeNullWhen(false)] out Array output)
     {
         output = null;
         string[] unparsedArray = input.Split(delimiter);

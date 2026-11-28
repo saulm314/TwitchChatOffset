@@ -1,4 +1,5 @@
 ﻿using TwitchChatOffset.Options;
+using TwitchChatOffset.Options.Groups;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,12 +15,13 @@ public static class CsvSerialization
     // deserialize CSV content into fields in a class TOptionGroup that implements IOptionGroup
     // type TOptionGroup may not have any duplicate aliases (across multiple fields or in the same field), or an internal exception will be thrown
     // if no data for a field is found, then it is left with its default value and explicit is set to false, else explicit is set to true
-    public static IEnumerable<TOptionGroup> Deserialize<TOptionGroup>(CSVReader reader) where TOptionGroup : OptionGroup<TOptionGroup>, new()
+    public static IEnumerable<TOptionGroup> Deserialize<TOptionGroup>(CSVReader reader, string cliCsvArrayDelimiter)
+        where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         ThrowIfDuplicateAliases<TOptionGroup>();
         List<HeaderGroup> headerGroups = GetHeaderGroups<TOptionGroup>(reader.Headers);
         foreach (string[] line in reader.Lines())
-            foreach (TOptionGroup data in ReadLine<TOptionGroup>(reader.Headers, headerGroups, line))
+            foreach (TOptionGroup data in ReadLine<TOptionGroup>(reader.Headers, headerGroups, line, cliCsvArrayDelimiter))
                 yield return data;
     }
 
@@ -36,40 +38,45 @@ public static class CsvSerialization
 
     private static readonly MethodInfo _deserializeDummyMethod =
         typeof(CsvSerialization).GetMethod(nameof(Deserialize_), BindingFlags.NonPublic | BindingFlags.Static)!;
-    private static IEnumerable<TOptionGroup> Deserialize_<TOptionGroup>(CSVReader reader) where TOptionGroup : OptionGroup<TOptionGroup>, new()
-        => Deserialize<TOptionGroup>(reader);
+    private static IEnumerable<TOptionGroup> Deserialize_<TOptionGroup>(CSVReader reader, string cliCsvArrayDelimiter)
+        where TOptionGroup : OptionGroup<TOptionGroup>, new()
+        => Deserialize<TOptionGroup>(reader, cliCsvArrayDelimiter);
 
     private static List<HeaderGroup> GetHeaderGroups<TOptionGroup>(ReadOnlySpan<string> headers) where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
+        OptionGroup<TOptionGroup>.InitFieldDatas();
         List<HeaderGroup> headerGroups = [];
         foreach (Range range in headers.Split("/next"))
         {
-            ReadOnlySpan<string> headerGroup = headers[range];
-            Dictionary<string, FieldData> dataMap = GetDataMap<TOptionGroup>(headerGroup);
-            headerGroups.Add(new(range, dataMap));
+            Dictionary<string, FieldData> dataMap = GetDataMap<TOptionGroup>(headers, range, out int? arrayDelimiterIndex);
+            headerGroups.Add(new(range, dataMap, arrayDelimiterIndex));
         }
         return headerGroups;
     }
 
-    private static Dictionary<string, FieldData> GetDataMap<TOptionGroup>(ReadOnlySpan<string> headers) where TOptionGroup : OptionGroup<TOptionGroup>, new()
+    private static Dictionary<string, FieldData> GetDataMap<TOptionGroup>(ReadOnlySpan<string> headers, Range range, out int? arrayDelimiterIndex)
+        where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         Dictionary<string, FieldData> dataMap = [];
         HashSet<FieldData> addedFields = [];
+        arrayDelimiterIndex = null;
     Headers:
-        foreach (string header in headers)
+        for (int i = range.Start.Value; i < range.End.Value; i++)
         {
+            string header = headers[i];
             foreach (FieldData fieldData in OptionGroup<TOptionGroup>.FieldDatas)
             {
                 foreach (string alias in fieldData.Attribute.AliasesContainer.StrippedAliases)
                 {
-                    if (alias == header)
-                    {
-                        if (addedFields.Contains(fieldData))
-                            throw new CsvContentException.DuplicateOption(header);
-                        dataMap.Add(header, fieldData);
-                        addedFields.Add(fieldData);
-                        continue Headers;
-                    }
+                    if (alias != header)
+                        continue;
+                    if (addedFields.Contains(fieldData))
+                        throw new CsvContentException.DuplicateOption(header);
+                    dataMap.Add(header, fieldData);
+                    addedFields.Add(fieldData);
+                    if (Aliases.CsvArrayDelimiter.FieldData.Value == fieldData)
+                        arrayDelimiterIndex = i;
+                    continue Headers;
                 }
             }
         }
@@ -90,13 +97,14 @@ public static class CsvSerialization
         }
     }
 
-    private static IEnumerable<TOptionGroup> ReadLine<TOptionGroup>(string[] allHeaders, List<HeaderGroup> headerGroups, string[] wholeLine)
+    private static IEnumerable<TOptionGroup> ReadLine<TOptionGroup>(string[] allHeaders, List<HeaderGroup> headerGroups, string[] wholeLine,
+        string cliCsvArrayDelimiter)
         where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         TOptionGroup? previousData = null;
         foreach (HeaderGroup headerGroup in headerGroups)
         {
-            (Range range, Dictionary<string, FieldData> dataMap) = headerGroup;
+            (Range range, Dictionary<string, FieldData> dataMap, int? arrayDelimiterIndex) = headerGroup;
             TOptionGroup data = previousData?.DeepClone() ?? new();
             ReadOnlySpan<string> headers = allHeaders.AsSpan()[range];
             ReadOnlySpan<string> line;
@@ -107,38 +115,68 @@ public static class CsvSerialization
             else
                 line = wholeLine.AsSpan()[range];
             int fieldCount = int.Min(line.Length, headers.Length);
+
+            string arrayDelimiter;
+            if (arrayDelimiterIndex != null)
+            {
+                (FieldData fieldData, IPlicit plicit) = ReadField(line[(int)arrayDelimiterIndex], headers[(int)arrayDelimiterIndex], dataMap, null)!.Value;
+                arrayDelimiter = (Plicit<string>)plicit;
+            }
+            else
+                arrayDelimiter = cliCsvArrayDelimiter;
+
             for (int i = 0; i < fieldCount; i++)
-                ReadField(data, line[i], headers[i], dataMap);
+            {
+                (FieldData, IPlicit)? fieldValue = ReadField(line[i], headers[i], dataMap, arrayDelimiter);
+                if (fieldValue == null)
+                    continue;
+                (FieldData fieldData, IPlicit plicit) = fieldValue.Value;
+                data.WriteField(fieldData, plicit);
+            }
+
             previousData = data;
             yield return data;
         }
     }
 
-    private static void ReadField<TOptionGroup>(TOptionGroup data, string field, string header, Dictionary<string, FieldData> dataMap)
-        where TOptionGroup : OptionGroup<TOptionGroup>, new()
+    private static (FieldData, IPlicit)? ReadField(string field, string header, Dictionary<string, FieldData> dataMap, string? arrayDelimiter)
     {
         if (!dataMap.TryGetValue(header, out FieldData? fieldData))
-            return;
+            return null;
         if (field == string.Empty)
-            return;
+            return null;
 
-        // we do not bother with a fieldData.converter.IsValid(field) call, for two reasons:
-        // 1. this method is case sensitive, meaning it does not accept an enum if the case doesn't match exactly
-        // 2. this method just does a try catch anyway, also catching all types of exception
         object rawValue;
-        try
+        if (fieldData.Type.IsArray)
         {
-            rawValue = fieldData.Converter.ConvertFromString(field)!;
+            if (!ArrayParser.TryParseArray(field, arrayDelimiter!, fieldData.ElementType, fieldData.Converter, out Array? array))
+            {
+                PrintEnumerableWarning(fieldData.Attribute.AliasesContainer.StrippedAliases,
+                    $"Couldn't parse CSV option with value {field} and the following aliases into array:", 1, true);
+                PrintWarning("Treating as an empty field...");
+                return null;
+            }
+            rawValue = array;
         }
-        catch
+        else
         {
-            PrintWarning($"Cannot convert \"{field}\" to type {fieldData.FieldPath[^1].FieldType.GenericTypeArguments[0].FullName}; treating as an empty field...",
-                1, true);
-            return;
+            // we do not bother with a fieldData.converter.IsValid(field) call, for two reasons:
+            // 1. this method is case sensitive, meaning it does not accept an enum if the case doesn't match exactly
+            // 2. this method just does a try catch anyway, also catching all types of exception
+            try
+            {
+                rawValue = fieldData.Converter.ConvertFromString(field)!;
+            }
+            catch
+            {
+                PrintWarning($"Cannot convert \"{field}\" to type {fieldData.FieldPath[^1].FieldType.GenericTypeArguments[0].FullName}; treating as an empty field...",
+                    1, true);
+                return null;
+            }
         }
-        Type plicitType = fieldData.FieldPath[^1].FieldType;
-        ConstructorInfo plicitConstructor = plicitType.GetConstructor([fieldData.FieldPath[^1].FieldType.GenericTypeArguments[0], typeof(bool)])!;
+
+        ConstructorInfo plicitConstructor = fieldData.PlicitType.GetConstructor([fieldData.Type, typeof(bool)])!;
         IPlicit plicit = (IPlicit)plicitConstructor.Invoke([rawValue, true]);
-        data.WriteField(fieldData, plicit);
+        return (fieldData, plicit);
     }
 }

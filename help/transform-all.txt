@@ -23,7 +23,6 @@ Options:
   --sub-background-opacity, --sub-bg-opacity <sub-background-opacity>                                            [YTT] Background opacity for YTT subtitles (the text only, not the entire text box), ranging from 0 (fully transparent) to 254 (fully opaque) (YTT only) (optional) [default: 0]
   --sub-shadow-color <sub-shadow-color>                                                                          [YTT|ASS] Shadow color for subtitles, (e.g. "black", "#B0B0B0", etc.) (optional) [default: black]
   --sub-background-color, --sub-bg-color <sub-background-color>                                                  [YTT] Background color for YTT subtitles, (e.g. "black", "#B0B0B0", etc.) (YTT only) (optional) [default: black]
-  --cli-delimiter <cli-delimiter>                                                                                Delimiter for separating arrays specified on the CLI (one or more characters) (optional) [default: ,]
   -i, --input, --input-dir, --input-directory <input-dir>                                                        Input directory (optional) [default: .]
   --pattern, --search-pattern <search-pattern>                                                                   Filter which files to transform by name; may contain wildcards '*' (zero or more characters) and '?' (exactly one character) (optional) [default: *.json]
   -o, --output, --output-dir, --output-directory <output-directory>                                              Output directory (will create if doesn't exist) (optional) [default: .]
@@ -33,6 +32,7 @@ Options:
   -Q, --suppress                                                                                                 Suppress warnings and errors (except essential) (optional)
   --response <Cancel|Manual|No|Yes>                                                                              Set automatic response to any prompts (optional) [default: Manual]
   --csv, --csv-path <csv-path>                                                                                   CSV path to specify options for multiple outputs per input (optional)
+  --cli-delimiter <cli-delimiter>                                                                                Delimiter for separating arrays specified on the CLI (one or more characters) (optional) [default: ,]
   --csv-field-delimiter <csv-field-delimiter>                                                                    CSV field delimiter (exactly one character) (optional) [default: ,]
   -?, -h, --help                                                                                                 Show help and usage information
 

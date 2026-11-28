@@ -33,7 +33,8 @@ public static class TransformAllCommand
             PrintLine("Reading CSV data...", 0, true);
             using CSVReader reader = CsvSerialization.CreateReader(cliOptions.CsvPath, cliOptions.CsvFieldDelimiter);
             commonOptionsList = [];
-            foreach (TransformAllCommonOptions commonOptions in CsvSerialization.Deserialize<TransformAllCommonOptions>(reader))
+            var csvOptionsSequence = CsvSerialization.Deserialize<TransformAllCommonOptions>(reader, cliOptions.CommonOptions.CsvArrayDelimiter);
+            foreach (TransformAllCommonOptions commonOptions in csvOptionsSequence)
             {
                 TransformAllCommonOptions winnerCommonOptions = BulkTransform.ResolveConflicts(commonOptions, cliOptions.CommonOptions);
                 winnerCommonOptions.InputDir.Value = Path.GetRelativePath(".", winnerCommonOptions.InputDir.Value);

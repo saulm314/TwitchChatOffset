@@ -4,4 +4,4 @@ using System.Collections.Generic;
 
 namespace TwitchChatOffset.Csv;
 
-public readonly record struct HeaderGroup(Range HeaderRange, Dictionary<string, FieldData> DataMap);
+public readonly record struct HeaderGroup(Range HeaderRange, Dictionary<string, FieldData> DataMap, int? ArrayDelimiterIndex);

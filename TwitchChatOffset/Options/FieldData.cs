@@ -40,10 +40,10 @@ public class FieldData
             if (!ArrayParser.TryParseArray((string)rawValue, cliDelimiter!, ElementType, Converter, out Array? array))
             {
                 PrintEnumerableError(Attribute.AliasesContainer.StrippedAliases,
-                    $"Couldn't parse option with value {rawValue} and the following aliases into array:");
+                    $"Couldn't parse CLI option with value {rawValue} and the following aliases into array:");
                 throw new CliException();
             }
-            rawValue = array!;
+            rawValue = array;
         }
         bool @explicit = !parseResult.GetResult(attribute.Option)!.Implicit;
         ConstructorInfo plicitConstructor = PlicitType.GetConstructor([Type, typeof(bool)])!;
