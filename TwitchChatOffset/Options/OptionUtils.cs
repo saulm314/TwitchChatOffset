@@ -18,7 +18,7 @@ public static class OptionUtils
     {
         // we need to parse the CLI delimiter first, since parsing the other options may rely on knowing the CLI delimiter
         OptionGroup<TOptionGroup>.InitFieldDatas();
-        string? cliDelimiter = (Plicit<string>?)CliOptions.CliDelimiter.AliasesContainer.FieldData.Value?.GetValue(parseResult, null);
+        string? cliDelimiter = (Plicit<string>?)Aliases.CliDelimiter.FieldData.Value?.GetValue(parseResult, null);
 
         TOptionGroup options = new();
         foreach (FieldData fieldData in OptionGroup<TOptionGroup>.FieldDatas)
