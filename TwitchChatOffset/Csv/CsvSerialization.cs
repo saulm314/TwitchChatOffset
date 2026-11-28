@@ -135,33 +135,11 @@ public static class CsvSerialization
         if (field == string.Empty)
             return;
 
-        object rawValue;
-        if (fieldData.Type.IsArray)
+        object? rawValue = Parser.TryParse(field, arrayDelimiter, fieldData.Type, fieldData.ElementType, fieldData.ElementConverter, null);
+        if (rawValue == null)
         {
-            if (!ArrayParser.TryParseArray(field, arrayDelimiter, fieldData.ElementType, fieldData.Converter, out Array? array))
-            {
-                PrintEnumerableWarning(fieldData.Attribute.AliasesContainer.StrippedAliases,
-                    $"Couldn't parse CSV option with value {field} and the following aliases into array:", 1, true);
-                PrintWarning("Treating as an empty field...");
-                return;
-            }
-            rawValue = array;
-        }
-        else
-        {
-            // we do not bother with a fieldData.converter.IsValid(field) call, for two reasons:
-            // 1. this method is case sensitive, meaning it does not accept an enum if the case doesn't match exactly
-            // 2. this method just does a try catch anyway, also catching all types of exception
-            try
-            {
-                rawValue = fieldData.Converter.ConvertFromString(field)!;
-            }
-            catch
-            {
-                PrintWarning($"Cannot convert \"{field}\" to type {fieldData.FieldPath[^1].FieldType.GenericTypeArguments[0].FullName}; treating as an empty field...",
-                    1, true);
-                return;
-            }
+            PrintWarning("Treating as an empty field...", 1, true);
+            return;
         }
 
         ConstructorInfo plicitConstructor = fieldData.PlicitType.GetConstructor([fieldData.Type, typeof(bool)])!;

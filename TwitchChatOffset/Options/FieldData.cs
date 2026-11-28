@@ -17,7 +17,7 @@ public class FieldData
         ElementType = Type;
         if (ElementType.IsArray)
             ElementType = ElementType.GetElementType()!;
-        Converter = TypeDescriptor.GetConverter(ElementType);
+        ElementConverter = TypeDescriptor.GetConverter(ElementType);
         attribute.AliasesContainer.FieldData.Value = this;
         if (attribute is not CliOptionAttribute cliAttribute)
             return;
@@ -29,22 +29,14 @@ public class FieldData
     public readonly Type PlicitType;
     public readonly Type Type; // possibly array
     public readonly Type ElementType; // not array
-    public readonly TypeConverter Converter; // corresponding to the element type
+    public readonly TypeConverter ElementConverter;
 
     public IPlicit GetValue(ParseResult parseResult, string? cliDelimiter)
     {
         CliOptionAttribute attribute = (CliOptionAttribute)Attribute;
-        object rawValue = _parseResultGetValueMethod!.Invoke(parseResult, [attribute.Option])!;
+        object rawValue = GetCliOptionValue(parseResult, attribute.Option);
         if (Type.IsArray)
-        {
-            if (!ArrayParser.TryParseArray((string)rawValue, cliDelimiter!, ElementType, Converter, out Array? array))
-            {
-                PrintEnumerableError(Attribute.AliasesContainer.StrippedAliases,
-                    $"Couldn't parse CLI option with value {rawValue} and the following aliases into array:");
-                throw new CliException();
-            }
-            rawValue = array;
-        }
+            rawValue = Parser.ParseArray((string)rawValue, cliDelimiter!, ElementType, ElementConverter, null);
         bool @explicit = !parseResult.GetResult(attribute.Option)!.Implicit;
         ConstructorInfo plicitConstructor = PlicitType.GetConstructor([Type, typeof(bool)])!;
         IPlicit plicit = (IPlicit)plicitConstructor.Invoke([rawValue, @explicit]);
@@ -72,5 +64,7 @@ public class FieldData
 
     public static readonly MethodInfo ParseResultGetValueMethodDefinition;
 
-    private readonly MethodInfo? _parseResultGetValueMethod;
+    private readonly MethodInfo _parseResultGetValueMethod;
+
+    private object GetCliOptionValue(ParseResult parseResult, Option option) => _parseResultGetValueMethod.Invoke(parseResult, [option])!;
 }
