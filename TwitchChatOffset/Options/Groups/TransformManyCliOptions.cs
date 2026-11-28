@@ -14,4 +14,7 @@ public record TransformManyCliOptions : OptionGroup<TransformManyCliOptions>
 
     [CliOption(nameof(CliOptions.MultiResponse))]
     public Plicit<CliMultiResponse> Response;
+
+    [CliOption(nameof(CliOptions.CsvFieldDelimiter))]
+    public Plicit<char> CsvFieldDelimiter;
 }

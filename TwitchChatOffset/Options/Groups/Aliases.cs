@@ -31,4 +31,7 @@ public static class Aliases
     public static AliasesContainer Response { get; } = new(["--response"]);
     public static AliasesContainer MultiResponse { get; } = new(["--response"]);
     public static AliasesContainer CsvPath { get; } = new(["--csv-path", "--csv"]);
+    public static AliasesContainer CliDelimiter { get; } = new(["--cli-delimiter"]);
+    public static AliasesContainer CsvArrayDelimiter { get; } = new(["--csv-array-delimiter"]);
+    public static AliasesContainer CsvFieldDelimiter { get; } = new(["--csv-field-delimiter"]);
 }

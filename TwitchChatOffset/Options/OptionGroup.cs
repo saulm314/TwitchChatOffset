@@ -34,6 +34,9 @@ public abstract record OptionGroup<TOptionGroup> : ICloneable where TOptionGroup
         }
     }
 
+    // this ensures that each FieldData is placed into its corresponding AliasesContainer
+    public static void InitFieldDatas() => _ = FieldDatas;
+
     public TOptionGroup DeepClone()
     {
         TOptionGroup clone = new();

@@ -1,6 +1,6 @@
 ﻿namespace TwitchChatOffset.Options;
 
-public readonly struct AliasesContainer
+public readonly record struct AliasesContainer
 {
     public AliasesContainer(string[] aliases)
     {
@@ -12,4 +12,5 @@ public readonly struct AliasesContainer
 
     public readonly string[] Aliases;
     public readonly string[] StrippedAliases;
+    public readonly Box<FieldData?> FieldData = new(null); // will break if multiple fieldDatas in the same execution point to the same AliasesContainer
 }

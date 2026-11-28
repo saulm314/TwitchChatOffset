@@ -16,6 +16,9 @@ public record TransformCommonOptions : OptionGroup<TransformCommonOptions>
 
     public SubtitleOptions SubtitleOptions = new();
 
+    [CliOption(nameof(CliOptions.CliDelimiter))]
+    public Plicit<string> CliDelimiter;
+
     public void Deconstruct(out long start, out long end, out long delay)
     {
         start = Start;

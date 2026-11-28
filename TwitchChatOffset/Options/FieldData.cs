@@ -1,4 +1,5 @@
-﻿using System;
+﻿using TwitchChatOffset.CommandLine;
+using System;
 using System.CommandLine;
 using System.ComponentModel;
 using System.Reflection;
@@ -11,24 +12,41 @@ public class FieldData
     {
         FieldPath = fieldPath;
         Attribute = attribute;
-        Converter = TypeDescriptor.GetConverter(fieldPath[^1].FieldType.GenericTypeArguments[0]);
+        PlicitType = fieldPath[^1].FieldType;
+        Type = PlicitType.GenericTypeArguments[0];
+        ElementType = Type;
+        if (ElementType.IsArray)
+            ElementType = ElementType.GetElementType()!;
+        Converter = TypeDescriptor.GetConverter(ElementType);
+        attribute.AliasesContainer.FieldData.Value = this;
         if (attribute is not CliOptionAttribute cliAttribute)
             return;
         _parseResultGetValueMethod = ParseResultGetValueMethodDefinition.MakeGenericMethod(cliAttribute.Option.ValueType);
-
     }
 
     public readonly FieldInfo[] FieldPath;
     public readonly AliasesAttribute Attribute;
-    public readonly TypeConverter Converter;
+    public readonly Type PlicitType;
+    public readonly Type Type; // possibly array
+    public readonly Type ElementType; // not array
+    public readonly TypeConverter Converter; // corresponding to the element type
 
-    public IPlicit GetValue(ParseResult parseResult)
+    public IPlicit GetValue(ParseResult parseResult, string? cliDelimiter)
     {
         CliOptionAttribute attribute = (CliOptionAttribute)Attribute;
         object rawValue = _parseResultGetValueMethod!.Invoke(parseResult, [attribute.Option])!;
+        if (Type.IsArray)
+        {
+            if (!ArrayParser.TryParseArray((string)rawValue, cliDelimiter!, ElementType, Converter, out Array? array))
+            {
+                PrintEnumerableError(Attribute.AliasesContainer.StrippedAliases,
+                    $"Couldn't parse option with value {rawValue} and the following aliases into array:");
+                throw new CliException();
+            }
+            rawValue = array!;
+        }
         bool @explicit = !parseResult.GetResult(attribute.Option)!.Implicit;
-        Type plicitType = PlicitTypeDefinition.MakeGenericType(attribute.Option.ValueType);
-        ConstructorInfo plicitConstructor = plicitType.GetConstructor([attribute.Option.ValueType, typeof(bool)])!;
+        ConstructorInfo plicitConstructor = PlicitType.GetConstructor([Type, typeof(bool)])!;
         IPlicit plicit = (IPlicit)plicitConstructor.Invoke([rawValue, @explicit]);
         return plicit;
     }
@@ -55,6 +73,4 @@ public class FieldData
     public static readonly MethodInfo ParseResultGetValueMethodDefinition;
 
     private readonly MethodInfo? _parseResultGetValueMethod;
-
-    public static readonly Type PlicitTypeDefinition = typeof(Plicit<long>).GetGenericTypeDefinition();
 }

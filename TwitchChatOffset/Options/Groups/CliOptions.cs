@@ -121,4 +121,16 @@ public static class CliOptions
     public static CliOptionContainer<string> CsvPath { get; } = new("--csv-path", Aliases.CsvPath,
         "CSV path to specify options for multiple outputs per input (optional)",
         _ => string.Empty);
+
+    public static CliOptionContainer<string> CliDelimiter { get; } = new("--cli-delimiter", Aliases.CliDelimiter,
+        "Delimiter for separating arrays specified on the CLI (one or more characters) (optional)",
+        _ => ",");
+
+    public static CliOptionContainer<string> CsvArrayDelimiter { get; } = new("--csv-array-delimiter", Aliases.CsvArrayDelimiter,
+        "Delimiter for separating any array specified within a CSV field (one or more characters) (optional)",
+        _ => ";");
+
+    public static CliOptionContainer<char> CsvFieldDelimiter { get; } = new("--csv-field-delimiter", Aliases.CsvFieldDelimiter,
+        "CSV field delimiter (exactly one character) (optional)",
+        _ => ',');
 }

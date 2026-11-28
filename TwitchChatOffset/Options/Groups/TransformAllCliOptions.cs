@@ -17,4 +17,7 @@ public record TransformAllCliOptions : OptionGroup<TransformAllCliOptions>
 
     [CliOption(nameof(CliOptions.CsvPath))]
     public Plicit<string> CsvPath;
+
+    [CliOption(nameof(CliOptions.CsvFieldDelimiter))]
+    public Plicit<char> CsvFieldDelimiter;
 }

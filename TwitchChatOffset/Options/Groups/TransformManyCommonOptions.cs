@@ -18,4 +18,7 @@ public record TransformManyCommonOptions : OptionGroup<TransformManyCommonOption
 
     [CliOption(nameof(CliOptions.Suffix))]
     public Plicit<string> Suffix;
+
+    [CliOption(nameof(CliOptions.CsvArrayDelimiter))]
+    public Plicit<string> CsvArrayDelimiter;
 }
