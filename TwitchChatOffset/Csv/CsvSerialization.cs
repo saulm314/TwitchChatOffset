@@ -115,46 +115,33 @@ public static class CsvSerialization
             else
                 line = wholeLine.AsSpan()[range];
             int fieldCount = int.Min(line.Length, headers.Length);
-
-            string arrayDelimiter;
-            if (arrayDelimiterIndex != null)
-            {
-                (FieldData fieldData, IPlicit plicit) = ReadField(line[(int)arrayDelimiterIndex], headers[(int)arrayDelimiterIndex], dataMap, null)!.Value;
-                arrayDelimiter = (Plicit<string>)plicit;
-            }
-            else
-                arrayDelimiter = cliCsvArrayDelimiter;
-
+            string arrayDelimiter = cliCsvArrayDelimiter;
+            if (arrayDelimiterIndex != null && line[(int)arrayDelimiterIndex] != string.Empty)
+                arrayDelimiter = line[(int)arrayDelimiterIndex];
             for (int i = 0; i < fieldCount; i++)
-            {
-                (FieldData, IPlicit)? fieldValue = ReadField(line[i], headers[i], dataMap, arrayDelimiter);
-                if (fieldValue == null)
-                    continue;
-                (FieldData fieldData, IPlicit plicit) = fieldValue.Value;
-                data.WriteField(fieldData, plicit);
-            }
-
+                ReadField(data, line[i], headers[i], dataMap, arrayDelimiter);
             previousData = data;
             yield return data;
         }
     }
 
-    private static (FieldData, IPlicit)? ReadField(string field, string header, Dictionary<string, FieldData> dataMap, string? arrayDelimiter)
+    private static void ReadField<TOptionGroup>(TOptionGroup data, string field, string header, Dictionary<string, FieldData> dataMap, string arrayDelimiter)
+        where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         if (!dataMap.TryGetValue(header, out FieldData? fieldData))
-            return null;
+            return;
         if (field == string.Empty)
-            return null;
+            return;
 
         object rawValue;
         if (fieldData.Type.IsArray)
         {
-            if (!ArrayParser.TryParseArray(field, arrayDelimiter!, fieldData.ElementType, fieldData.Converter, out Array? array))
+            if (!ArrayParser.TryParseArray(field, arrayDelimiter, fieldData.ElementType, fieldData.Converter, out Array? array))
             {
                 PrintEnumerableWarning(fieldData.Attribute.AliasesContainer.StrippedAliases,
                     $"Couldn't parse CSV option with value {field} and the following aliases into array:", 1, true);
                 PrintWarning("Treating as an empty field...");
-                return null;
+                return;
             }
             rawValue = array;
         }
@@ -171,12 +158,12 @@ public static class CsvSerialization
             {
                 PrintWarning($"Cannot convert \"{field}\" to type {fieldData.FieldPath[^1].FieldType.GenericTypeArguments[0].FullName}; treating as an empty field...",
                     1, true);
-                return null;
+                return;
             }
         }
 
         ConstructorInfo plicitConstructor = fieldData.PlicitType.GetConstructor([fieldData.Type, typeof(bool)])!;
         IPlicit plicit = (IPlicit)plicitConstructor.Invoke([rawValue, true]);
-        return (fieldData, plicit);
+        data.WriteField(fieldData, plicit);
     }
 }
