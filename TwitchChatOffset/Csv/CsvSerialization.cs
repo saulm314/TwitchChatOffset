@@ -9,6 +9,8 @@ namespace TwitchChatOffset.Csv;
 
 public static class CsvSerialization
 {
+    public static CSVReader CreateReader(string path, char fieldDelimiter) => CSVReader.FromFile(path, new CSVSettings() { FieldDelimiter = fieldDelimiter });
+
     // deserialize CSV content into fields in a class TOptionGroup that implements IOptionGroup
     // type TOptionGroup may not have any duplicate aliases (across multiple fields or in the same field), or an internal exception will be thrown
     // if no data for a field is found, then it is left with its default value and explicit is set to false, else explicit is set to true

@@ -31,7 +31,7 @@ public static class TransformAllCommand
         if (cliOptions.CsvPath != string.Empty)
         {
             PrintLine("Reading CSV data...", 0, true);
-            using CSVReader reader = CSVReader.FromFile(cliOptions.CsvPath, CsvUtils.CsvSettings);
+            using CSVReader reader = CsvSerialization.CreateReader(cliOptions.CsvPath, cliOptions.CsvFieldDelimiter);
             commonOptionsList = [];
             foreach (TransformAllCommonOptions commonOptions in CsvSerialization.Deserialize<TransformAllCommonOptions>(reader))
             {

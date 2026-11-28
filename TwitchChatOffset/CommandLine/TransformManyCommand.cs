@@ -30,7 +30,7 @@ public static class TransformManyCommand
         Suppress = cliOptions.Suppress;
 
         PrintLine("Reading CSV data...", 0, true);
-        using CSVReader reader = CSVReader.FromFile(csvPath, CsvUtils.CsvSettings);
+        using CSVReader reader = CsvSerialization.CreateReader(csvPath, cliOptions.CsvFieldDelimiter);
         List<TransformManyCommonOptions> commonOptionsList = [];
         foreach (TransformManyCommonOptions commonOptions in CsvSerialization.Deserialize<TransformManyCommonOptions>(reader))
             commonOptionsList.Add(BulkTransform.ResolveConflicts(commonOptions, cliOptions.CommonOptions));
