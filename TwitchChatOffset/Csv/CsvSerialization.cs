@@ -42,6 +42,19 @@ public static class CsvSerialization
         where TOptionGroup : OptionGroup<TOptionGroup>, new()
         => Deserialize<TOptionGroup>(reader, cliCsvArrayDelimiter);
 
+    private static void ThrowIfDuplicateAliases<TOptionGroup>() where TOptionGroup : OptionGroup<TOptionGroup>, new()
+    {
+        HashSet<string> aliases = [];
+        foreach (FieldData fieldData in OptionGroup<TOptionGroup>.FieldDatas)
+        {
+            foreach (string alias in fieldData.Attribute.AliasesContainer.StrippedAliases)
+            {
+                if (!aliases.Add(alias))
+                    throw new CsvSerializationInternalException.DuplicateAlias<TOptionGroup>(alias);
+            }
+        }
+    }
+
     private static List<HeaderGroup> GetHeaderGroups<TOptionGroup>(ReadOnlySpan<string> headers) where TOptionGroup : OptionGroup<TOptionGroup>, new()
     {
         OptionGroup<TOptionGroup>.InitFieldDatas();
@@ -81,20 +94,6 @@ public static class CsvSerialization
             }
         }
         return dataMap;
-    }
-
-    private static void ThrowIfDuplicateAliases<TOptionGroup>() where TOptionGroup : OptionGroup<TOptionGroup>, new()
-    {
-        HashSet<string> aliases = [];
-        foreach (FieldData fieldData in OptionGroup<TOptionGroup>.FieldDatas)
-        {
-            foreach (string alias in fieldData.Attribute.AliasesContainer.StrippedAliases)
-            {
-                if (aliases.Contains(alias))
-                    throw new CsvSerializationInternalException.DuplicateAlias<TOptionGroup>(alias);
-                aliases.Add(alias);
-            }
-        }
     }
 
     private static IEnumerable<TOptionGroup> ReadLine<TOptionGroup>(string[] allHeaders, List<HeaderGroup> headerGroups, string[] wholeLine,
