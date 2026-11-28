@@ -64,7 +64,7 @@ public class FieldData
 
     public static readonly MethodInfo ParseResultGetValueMethodDefinition;
 
-    private readonly MethodInfo _parseResultGetValueMethod;
+    private readonly MethodInfo? _parseResultGetValueMethod;
 
-    private object GetCliOptionValue(ParseResult parseResult, Option option) => _parseResultGetValueMethod.Invoke(parseResult, [option])!;
+    private object GetCliOptionValue(ParseResult parseResult, Option option) => _parseResultGetValueMethod!.Invoke(parseResult, [option])!;
 }
