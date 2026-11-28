@@ -1,5 +1,4 @@
-﻿using TwitchChatOffset.CommandLine;
-using System;
+﻿using System;
 using System.CommandLine;
 using System.ComponentModel;
 using System.Reflection;
